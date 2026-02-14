@@ -13,8 +13,8 @@ app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173', cred
 app.use(morgan('combined'));
 app.use(express.json());
 
+app.get('/', (_, res) => res.json({ message: 'Pharmacy Pilot API', docs: '/api', health: '/health' }));
 app.use('/api', apiRoutes);
-
 app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
 app.use((err, req, res, next) => {
