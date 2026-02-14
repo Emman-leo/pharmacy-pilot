@@ -1,0 +1,16 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-body {
+  flex: 1;
+  display: flex;
+}
+
+.layout-main {
+  flex: 1;
+  padding: 24px;
+  overflow: auto;
+}

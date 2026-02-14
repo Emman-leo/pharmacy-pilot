@@ -1,0 +1,133 @@
+import { supabaseAdmin } from '../utils/db.js';
+import { fefoService } from '../services/fefoService.js';
+
+export async function getDrugs(req, res) {
+  const { search, category, controlled } = req.query;
+  try {
+    let q = req.supabase.from('drugs').select('*').order('name');
+    if (search) q = q.or(`name.ilike.%${search}%,generic_name.ilike.%${search}%`);
+    if (category) q = q.eq('category', category);
+    if (controlled !== undefined) q = q.eq('controlled_drug', controlled === 'true');
+    const { data, error } = await q;
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to fetch drugs' });
+  }
+}
+
+export async function createDrug(req, res) {
+  const { name, generic_name, dosage, category, controlled_drug, requires_prescription, unit, min_stock_quantity } = req.body || {};
+  if (!name) return res.status(400).json({ error: 'Drug name required' });
+  try {
+    const { data, error } = await req.supabase
+      .from('drugs')
+      .insert({
+        name,
+        generic_name: generic_name || null,
+        dosage: dosage || null,
+        category: category || null,
+        controlled_drug: !!controlled_drug,
+        requires_prescription: !!requires_prescription,
+        unit: unit || 'pcs',
+        min_stock_quantity: min_stock_quantity ?? 10,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to create drug' });
+  }
+}
+
+export async function updateDrug(req, res) {
+  const { id } = req.params;
+  const body = req.body || {};
+  try {
+    const { data, error } = await req.supabase
+      .from('drugs')
+      .update(body)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Drug not found' });
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to update drug' });
+  }
+}
+
+export async function getBatches(req, res) {
+  const { drug_id } = req.query;
+  try {
+    let q = req.supabase.from('inventory_batches').select('*, drugs(*)').order('expiry_date');
+    if (drug_id) q = q.eq('drug_id', drug_id);
+    const { data, error } = await q;
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to fetch batches' });
+  }
+}
+
+export async function addBatch(req, res) {
+  const { drug_id, quantity, unit_price, batch_number, expiry_date, pharmacy_id } = req.body || {};
+  if (!drug_id || quantity == null || !unit_price || !expiry_date) {
+    return res.status(400).json({ error: 'drug_id, quantity, unit_price, expiry_date required' });
+  }
+  try {
+    const profile = await getProfile(req);
+    const pid = pharmacy_id ?? profile?.pharmacy_id;
+    const { data, error } = await req.supabase
+      .from('inventory_batches')
+      .insert({
+        drug_id,
+        quantity: parseInt(quantity, 10),
+        unit_price: parseFloat(unit_price),
+        batch_number: batch_number || null,
+        expiry_date,
+        pharmacy_id: pid || null,
+      })
+      .select('*, drugs(*)')
+      .single();
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to add batch' });
+  }
+}
+
+export async function updateBatch(req, res) {
+  const { id } = req.params;
+  const { quantity } = req.body || {};
+  if (quantity == null) return res.status(400).json({ error: 'quantity required' });
+  try {
+    const { data, error } = await req.supabase
+      .from('inventory_batches')
+      .update({ quantity: parseInt(quantity, 10) })
+      .eq('id', id)
+      .select('*, drugs(*)')
+      .single();
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Batch not found' });
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to update batch' });
+  }
+}
+
+export async function getAlerts(req, res) {
+  try {
+    const alerts = await fefoService.getAlerts(req.supabase, req.user.id);
+    res.json(alerts);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to fetch alerts' });
+  }
+}
+
+async function getProfile(req) {
+  const { data } = await supabaseAdmin.from('profiles').select('pharmacy_id').eq('id', req.user.id).single();
+  return data;
+}

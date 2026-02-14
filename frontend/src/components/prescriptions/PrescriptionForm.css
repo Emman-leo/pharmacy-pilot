@@ -1,0 +1,109 @@
+.prescription-form h1 {
+  margin: 0 0 24px;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.rx-form {
+  max-width: 560px;
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.rx-row {
+  margin-bottom: 20px;
+}
+
+.rx-row label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.rx-row input,
+.rx-row textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.rx-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.rx-drugs {
+  margin: 24px 0;
+}
+
+.rx-add-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.rx-select {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.rx-input-sm {
+  width: 120px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.rx-input-num {
+  width: 70px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.rx-drugs h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  color: #475569;
+}
+
+.rx-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.rx-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.rx-success {
+  color: #059669;
+  margin: 12px 0;
+  font-weight: 500;
+}
+
+.rx-error {
+  color: #dc2626;
+  margin: 12px 0;
+  font-size: 0.9rem;
+}

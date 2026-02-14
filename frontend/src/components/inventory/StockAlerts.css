@@ -1,0 +1,61 @@
+.stock-alerts h1 {
+  margin: 0 0 24px;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.alert-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+}
+
+.alert-section h2 {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.alert-empty {
+  color: #64748b;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.alert-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.alert-item {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert-item.low {
+  background: #fef2f2;
+  border-left: 4px solid #dc2626;
+}
+
+.alert-item.expiry {
+  background: #fffbeb;
+  border-left: 4px solid #d97706;
+}
+
+.alert-drug {
+  font-weight: 600;
+  color: #1a1d23;
+}
+
+.alert-value {
+  font-size: 0.9rem;
+  color: #64748b;
+}

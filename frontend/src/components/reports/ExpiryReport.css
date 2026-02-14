@@ -1,0 +1,60 @@
+.expiry-report h1 {
+  margin: 0 0 24px;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.expiry-filters {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.expiry-filters label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.expiry-filters select {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.expiry-empty {
+  color: #64748b;
+  font-size: 0.95rem;
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.expiry-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.expiry-table th,
+.expiry-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.expiry-table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.expiry-table tbody tr:hover {
+  background: #f8fafc;
+}
