@@ -5,6 +5,22 @@
 
 .receipt-actions {
   margin-bottom: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .receipt-viewer {
+    max-width: 100%;
+  }
+  .receipt {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
 }
 
 .receipt {

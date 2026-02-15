@@ -19,10 +19,15 @@ export default function ReceiptViewer() {
   if (loading) return <p>Loading...</p>;
   if (!receipt) return <p>Receipt not found.</p>;
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="receipt-viewer">
-      <div className="receipt-actions">
+      <div className="receipt-actions no-print">
         <Link to="/sales" className="btn btn-ghost">← New Sale</Link>
+        <button type="button" className="btn btn-primary" onClick={handlePrint}>Print receipt</button>
       </div>
 
       <div className="receipt">

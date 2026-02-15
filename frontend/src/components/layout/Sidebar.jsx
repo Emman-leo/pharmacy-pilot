@@ -12,6 +12,10 @@ const navItems = [
   { to: '/prescriptions/approval', label: 'Approval Queue', adminOnly: true },
   { to: '/reports/sales', label: 'Sales Report' },
   { to: '/reports/expiry', label: 'Expiry Report' },
+  { to: '/reports/profit', label: 'Profit Margin' },
+  { to: '/reports/sales-by-period', label: 'Sales by Period' },
+  { to: '/reports/valuation', label: 'Inventory Valuation' },
+  { to: '/reports/slow-moving', label: 'Slow-Moving Items' },
 ];
 
 export default function Sidebar() {

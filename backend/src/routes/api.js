@@ -41,5 +41,9 @@ router.put('/prescriptions/:id/reject', authMiddleware, requireRole('ADMIN'), pr
 router.get('/reports/sales-summary', authMiddleware, reportController.salesSummary);
 router.get('/reports/top-selling', authMiddleware, reportController.topSelling);
 router.get('/reports/expiry-alerts', authMiddleware, reportController.expiryAlerts);
+router.get('/reports/profit-margin', authMiddleware, reportController.profitMargin);
+router.get('/reports/sales-by-period', authMiddleware, reportController.salesByPeriod);
+router.get('/reports/inventory-valuation', authMiddleware, reportController.inventoryValuation);
+router.get('/reports/slow-moving', authMiddleware, reportController.slowMoving);
 
 export default router;

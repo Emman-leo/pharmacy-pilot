@@ -1,7 +1,64 @@
+.pos-header {
+  margin-bottom: 16px;
+}
+
 .pos h1 {
-  margin: 0 0 24px;
+  margin: 0 0 4px;
   font-size: 1.5rem;
   color: #0f172a;
+}
+
+.pos-shortcuts {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.pos-search-wrap {
+  position: relative;
+  max-width: 400px;
+  margin-bottom: 16px;
+}
+
+.pos-autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 100;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.pos-autocomplete-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pos-autocomplete-item:hover,
+.pos-autocomplete-item.highlighted {
+  background: #eff6ff;
+}
+
+.pos-ac-name {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
+.pos-ac-detail {
+  font-size: 0.8rem;
+  color: #64748b;
 }
 
 .pos-body {

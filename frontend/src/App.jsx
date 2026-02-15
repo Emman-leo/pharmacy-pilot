@@ -12,6 +12,10 @@ import PrescriptionForm from './components/prescriptions/PrescriptionForm';
 import ApprovalQueue from './components/prescriptions/ApprovalQueue';
 import SalesReport from './components/reports/SalesReport';
 import ExpiryReport from './components/reports/ExpiryReport';
+import ProfitReport from './components/reports/ProfitReport';
+import SalesByPeriodReport from './components/reports/SalesByPeriodReport';
+import InventoryValuationReport from './components/reports/InventoryValuationReport';
+import SlowMovingReport from './components/reports/SlowMovingReport';
 
 function ProtectedRoute({ children, adminOnly }) {
   const { isAuthenticated, loading, isAdmin } = useAuth();
@@ -50,6 +54,10 @@ export default function App() {
         />
         <Route path="reports/sales" element={<SalesReport />} />
         <Route path="reports/expiry" element={<ExpiryReport />} />
+        <Route path="reports/profit" element={<ProfitReport />} />
+        <Route path="reports/sales-by-period" element={<SalesByPeriodReport />} />
+        <Route path="reports/valuation" element={<InventoryValuationReport />} />
+        <Route path="reports/slow-moving" element={<SlowMovingReport />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

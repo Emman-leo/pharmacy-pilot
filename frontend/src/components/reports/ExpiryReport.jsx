@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
+import { downloadCSV } from '../../utils/exportCSV';
 import './ExpiryReport.css';
 
 export default function ExpiryReport() {
@@ -16,6 +17,15 @@ export default function ExpiryReport() {
       .finally(() => setLoading(false));
   }, [days]);
 
+  const exportCsv = () => {
+    const rows = alerts.map((a) => ({ drug_name: a.drugs?.name || 'Unknown', expiry_date: a.expiry_date, quantity: a.quantity }));
+    downloadCSV(`expiry-alerts-${new Date().toISOString().slice(0, 10)}.csv`, rows, [
+      { key: 'drug_name', header: 'Drug' },
+      { key: 'expiry_date', header: 'Expiry Date' },
+      { key: 'quantity', header: 'Quantity' },
+    ]);
+  };
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -30,6 +40,7 @@ export default function ExpiryReport() {
           <option value={90}>90 days</option>
           <option value={180}>180 days</option>
         </select>
+        <button className="btn btn-primary" onClick={exportCsv}>Export CSV</button>
       </div>
 
       {alerts.length === 0 ? (

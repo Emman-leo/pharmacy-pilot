@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
+import { downloadCSV } from '../../utils/exportCSV';
 import './SalesReport.css';
 
 export default function SalesReport() {
@@ -27,6 +28,14 @@ export default function SalesReport() {
       .finally(() => setLoading(false));
   };
 
+  const exportCsv = () => {
+    downloadCSV(
+      `sales-report-${new Date().toISOString().slice(0, 10)}.csv`,
+      topSelling || [],
+      [{ key: 'drug_name', header: 'Drug' }, { key: 'quantity', header: 'Quantity Sold' }]
+    );
+  };
+
   useEffect(() => {
     fetchReports();
   }, []);
@@ -41,6 +50,7 @@ export default function SalesReport() {
         <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
         <button className="btn btn-primary" onClick={fetchReports}>Apply</button>
+        <button className="btn btn-ghost" onClick={exportCsv}>Export CSV</button>
       </div>
 
       <section className="report-section">
