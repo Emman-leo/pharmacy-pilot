@@ -28,7 +28,7 @@ export default function Dashboard() {
           <span className="dashboard-card-value">{stats.lowStock}</span>
           <span className="dashboard-card-label">Low Stock Alerts</span>
         </Link>
-        <Link to="/reports/expiry" className="dashboard-card warning">
+        <Link to="/reports" className="dashboard-card warning">
           <span className="dashboard-card-value">{stats.expiring}</span>
           <span className="dashboard-card-label">Expiring Soon</span>
         </Link>

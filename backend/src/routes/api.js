@@ -38,6 +38,8 @@ router.put('/prescriptions/:id/approve', authMiddleware, requireRole('ADMIN'), p
 router.put('/prescriptions/:id/reject', authMiddleware, requireRole('ADMIN'), prescriptionController.reject);
 
 // Reports
+router.get('/reports/overview', authMiddleware, reportController.overview);
+router.get('/reports/category-distribution', authMiddleware, reportController.categoryDistribution);
 router.get('/reports/sales-summary', authMiddleware, reportController.salesSummary);
 router.get('/reports/top-selling', authMiddleware, reportController.topSelling);
 router.get('/reports/expiry-alerts', authMiddleware, reportController.expiryAlerts);

@@ -1,3 +1,69 @@
+export async function overview(req, res) {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    const monthStartStr = monthStart.toISOString().slice(0, 10);
+
+    const [todayRes, monthRes, topRes, drugsRes, batchesRes] = await Promise.all([
+      req.supabase.from('sales').select('final_amount').gte('sale_date', today).lte('sale_date', today),
+      req.supabase.from('sales').select('final_amount').gte('sale_date', monthStartStr),
+      req.supabase.from('sale_items').select('drug_id, quantity, drugs(name)'),
+      req.supabase.from('drugs').select('id'),
+      req.supabase.from('inventory_batches').select('drug_id').gt('quantity', 0),
+    ]);
+
+    const todaySales = (todayRes.data || []).reduce((s, r) => s + parseFloat(r.final_amount || 0), 0);
+    const monthSales = (monthRes.data || []).reduce((s, r) => s + parseFloat(r.final_amount || 0), 0);
+
+    const byDrug = {};
+    for (const i of topRes.data || []) {
+      const id = i.drug_id;
+      if (!byDrug[id]) byDrug[id] = { drug_name: i.drugs?.name || 'Unknown', quantity: 0 };
+      byDrug[id].quantity += parseInt(i.quantity, 10);
+    }
+    const best = Object.values(byDrug).sort((a, b) => b.quantity - a.quantity)[0] || { drug_name: '—', quantity: 0 };
+
+    const activeProductIds = new Set((batchesRes.data || []).map((b) => b.drug_id));
+    res.json({
+      todaySales,
+      monthSales,
+      bestSelling: { name: best.drug_name, quantity: best.quantity },
+      activeProductsCount: activeProductIds.size,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to fetch overview' });
+  }
+}
+
+export async function categoryDistribution(req, res) {
+  const { start_date, end_date } = req.query;
+  try {
+    let salesQ = req.supabase.from('sales').select('id');
+    if (start_date) salesQ = salesQ.gte('sale_date', start_date);
+    if (end_date) salesQ = salesQ.lte('sale_date', end_date);
+    const { data: sales } = await salesQ;
+    const saleIds = (sales || []).map((s) => s.id);
+    if (saleIds.length === 0) {
+      return res.json([]);
+    }
+    const { data: items } = await req.supabase
+      .from('sale_items')
+      .select('quantity, total_price, drugs(category)')
+      .in('sale_id', saleIds);
+    const byCategory = {};
+    for (const i of items || []) {
+      const cat = i.drugs?.category || 'Uncategorized';
+      if (!byCategory[cat]) byCategory[cat] = { category: cat, quantity: 0, amount: 0 };
+      byCategory[cat].quantity += parseInt(i.quantity, 10);
+      byCategory[cat].amount += parseFloat(i.total_price || 0);
+    }
+    res.json(Object.values(byCategory));
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to fetch category distribution' });
+  }
+}
+
 export async function salesSummary(req, res) {
   const { start_date, end_date } = req.query;
   try {
