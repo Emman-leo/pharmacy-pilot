@@ -21,6 +21,7 @@ const PERIODS = [
 ];
 
 export default function ReportGenerator({
+  reportResultRef,
   reportType,
   setReportType,
   period,
@@ -75,7 +76,7 @@ export default function ReportGenerator({
           <button type="button" className="btn btn-primary" onClick={onGenerate} disabled={generating}>
             {generating ? 'Generating…' : 'Generate Report'}
           </button>
-          <button type="button" className="btn btn-ghost" onClick={onExportCSV} disabled={!generatedReport}>
+          <button type="button" className="btn btn-ghost" onClick={onExportCSV} disabled={!generatedReport?.csvConfig}>
             <IconFileText /> Export CSV
           </button>
           <button type="button" className="btn btn-ghost" onClick={onPrint} disabled={!generatedReport}>
@@ -84,7 +85,7 @@ export default function ReportGenerator({
         </div>
       </div>
       {generatedReport && (
-        <div className="generated-report no-print" id="report-content">
+        <div className="generated-report no-print" id="report-content" ref={reportResultRef}>
           <h3>Report Result</h3>
           {generatedReport.empty && <p className="empty-state">No data for the selected criteria.</p>}
           {!generatedReport.empty && generatedReport.content}

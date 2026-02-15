@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApi } from '../../hooks/useApi';
 import { downloadCSV } from '../../utils/exportCSV';
@@ -27,7 +27,13 @@ export default function ReportsPage() {
   const [categoryData, setCategoryData] = useState([]);
   const [chartsLoading, setChartsLoading] = useState(true);
 
-  const range = getRange(period, startDate, endDate);
+  const range = getRange(
+    period,
+    period === 'custom' ? startDate : undefined,
+    period === 'custom' ? endDate : undefined
+  );
+
+  const reportResultRef = useRef(null);
 
   useEffect(() => {
     api.get('/reports/overview')
@@ -182,6 +188,7 @@ export default function ReportsPage() {
       }
 
       setGeneratedReport({ data, content, empty, csvConfig });
+      setTimeout(() => reportResultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
     } catch (err) {
       setGeneratedReport({ content: <p className="empty-state">Error: {err.message}</p>, empty: true });
     } finally {
@@ -224,14 +231,20 @@ export default function ReportsPage() {
 
       <StatsCards overview={overview} loading={overviewLoading} />
 
-      <section className="reports-charts">
-        <SalesTrendChart salesByPeriod={salesByPeriod} loading={chartsLoading} />
-        <CategoryDistributionChart categoryData={categoryData} loading={chartsLoading} />
+      <section className="reports-charts-section">
+        <p className="reports-charts-label">
+          Charts for: {period === 'custom' && !startDate && !endDate ? 'Select dates below' : period.replace(/-/g, ' ')}
+        </p>
+        <div className="reports-charts">
+          <SalesTrendChart salesByPeriod={salesByPeriod} loading={chartsLoading} />
+          <CategoryDistributionChart categoryData={categoryData} loading={chartsLoading} />
+        </div>
       </section>
 
       <QuickReports onSelect={handleQuickReport} />
 
       <ReportGenerator
+        reportResultRef={reportResultRef}
         reportType={reportType}
         setReportType={setReportType}
         period={period}

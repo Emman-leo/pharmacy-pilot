@@ -92,11 +92,21 @@
 }
 
 /* Charts */
+.reports-charts-section {
+  margin-bottom: 28px;
+}
+
+.reports-charts-label {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
 .reports-charts {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  margin-bottom: 28px;
 }
 
 @media (max-width: 900px) {
