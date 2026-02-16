@@ -1,35 +1,85 @@
 export async function overview(req, res) {
   try {
-    const today = new Date().toISOString().slice(0, 10);
-    const monthStart = new Date();
-    monthStart.setDate(1);
-    const monthStartStr = monthStart.toISOString().slice(0, 10);
+    const now = new Date();
+
+    // Today range: [start of today, start of tomorrow)
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+    const todayStartStr = todayStart.toISOString();
+    const todayEndStr = todayEnd.toISOString();
+
+    // This month from first day to now
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthStartStr = monthStart.toISOString();
 
     const [todayRes, monthRes, topRes, drugsRes, batchesRes] = await Promise.all([
-      req.supabase.from('sales').select('final_amount').gte('sale_date', today).lte('sale_date', today),
+      req.supabase
+        .from('sales')
+        .select('final_amount')
+        .gte('sale_date', todayStartStr)
+        .lt('sale_date', todayEndStr),
       req.supabase.from('sales').select('final_amount').gte('sale_date', monthStartStr),
       req.supabase.from('sale_items').select('drug_id, quantity, drugs(name)'),
-      req.supabase.from('drugs').select('id'),
-      req.supabase.from('inventory_batches').select('drug_id').gt('quantity', 0),
+      req.supabase.from('drugs').select('id, min_stock_quantity'),
+      req.supabase
+        .from('inventory_batches')
+        .select('drug_id, quantity, unit_price')
+        .gt('quantity', 0),
     ]);
 
-    const todaySales = (todayRes.data || []).reduce((s, r) => s + parseFloat(r.final_amount || 0), 0);
-    const monthSales = (monthRes.data || []).reduce((s, r) => s + parseFloat(r.final_amount || 0), 0);
+    const todaySales = (todayRes.data || []).reduce(
+      (s, r) => s + parseFloat(r.final_amount || 0),
+      0
+    );
+    const monthSales = (monthRes.data || []).reduce(
+      (s, r) => s + parseFloat(r.final_amount || 0),
+      0
+    );
 
+    // Best-selling product (by quantity)
     const byDrug = {};
     for (const i of topRes.data || []) {
       const id = i.drug_id;
       if (!byDrug[id]) byDrug[id] = { drug_name: i.drugs?.name || 'Unknown', quantity: 0 };
       byDrug[id].quantity += parseInt(i.quantity, 10);
     }
-    const best = Object.values(byDrug).sort((a, b) => b.quantity - a.quantity)[0] || { drug_name: '—', quantity: 0 };
+    const best =
+      Object.values(byDrug).sort((a, b) => b.quantity - a.quantity)[0] || {
+        drug_name: '—',
+        quantity: 0,
+      };
 
-    const activeProductIds = new Set((batchesRes.data || []).map((b) => b.drug_id));
+    // Stock aggregates
+    const stockByDrug = {};
+    let totalStockValue = 0;
+    for (const b of batchesRes.data || []) {
+      const qty = b.quantity || 0;
+      const unitPrice = parseFloat(b.unit_price || 0);
+      totalStockValue += qty * unitPrice;
+      stockByDrug[b.drug_id] = (stockByDrug[b.drug_id] || 0) + qty;
+    }
+
+    const activeProductIds = new Set(Object.keys(stockByDrug));
+    const totalMedicines = (drugsRes.data || []).length;
+
+    // Low stock: aggregated quantity below min_stock_quantity
+    let lowStockCount = 0;
+    for (const d of drugsRes.data || []) {
+      const min = d.min_stock_quantity ?? 0;
+      if (min <= 0) continue;
+      const current = stockByDrug[d.id] || 0;
+      if (current < min) lowStockCount += 1;
+    }
+
     res.json({
       todaySales,
       monthSales,
       bestSelling: { name: best.drug_name, quantity: best.quantity },
       activeProductsCount: activeProductIds.size,
+      totalMedicines,
+      lowStockCount,
+      totalStockValue,
     });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to fetch overview' });

@@ -35,19 +35,23 @@ export default function ReportsPage() {
 
   const reportResultRef = useRef(null);
 
-  useEffect(() => {
-    api.get('/reports/overview')
+  const fetchOverview = useCallback(() => {
+    setOverviewLoading(true);
+    api
+      .get('/reports/overview')
       .then(setOverview)
       .catch(() => setOverview({}))
       .finally(() => setOverviewLoading(false));
-  }, []);
+  }, [api]);
 
-  useEffect(() => {
+  const fetchCharts = useCallback(() => {
     setChartsLoading(true);
     const params = new URLSearchParams(range);
     Promise.all([
       api.get(`/reports/sales-by-period?${params}`),
-      api.get(`/reports/category-distribution?start_date=${range.start_date}&end_date=${range.end_date}`),
+      api.get(
+        `/reports/category-distribution?start_date=${range.start_date}&end_date=${range.end_date}`
+      ),
     ])
       .then(([sales, cat]) => {
         setSalesByPeriod(sales || []);
@@ -58,7 +62,23 @@ export default function ReportsPage() {
         setCategoryData([]);
       })
       .finally(() => setChartsLoading(false));
-  }, [range.start_date, range.end_date, range.group]);
+  }, [api, range.start_date, range.end_date, range.group]);
+
+  useEffect(() => {
+    fetchOverview();
+  }, [fetchOverview]);
+
+  useEffect(() => {
+    fetchCharts();
+  }, [fetchCharts]);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      fetchOverview();
+      fetchCharts();
+    }, 30000);
+    return () => clearInterval(id);
+  }, [fetchOverview, fetchCharts]);
 
   const generateReport = useCallback(async (overrides = {}) => {
     const type = overrides.reportType ?? reportType;
@@ -232,9 +252,26 @@ export default function ReportsPage() {
       <StatsCards overview={overview} loading={overviewLoading} />
 
       <section className="reports-charts-section">
-        <p className="reports-charts-label">
-          Charts for: {period === 'custom' && !startDate && !endDate ? 'Select dates below' : period.replace(/-/g, ' ')}
-        </p>
+        <div className="charts-header">
+          <div>
+            <p className="reports-charts-label">
+              Charts for:{' '}
+              {period === 'custom' && !startDate && !endDate
+                ? 'Select dates below'
+                : period.replace(/-/g, ' ')}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn btn-ghost no-print"
+            onClick={() => {
+              fetchOverview();
+              fetchCharts();
+            }}
+          >
+            Refresh Data
+          </button>
+        </div>
         <div className="reports-charts">
           <SalesTrendChart salesByPeriod={salesByPeriod} loading={chartsLoading} />
           <CategoryDistributionChart categoryData={categoryData} loading={chartsLoading} />

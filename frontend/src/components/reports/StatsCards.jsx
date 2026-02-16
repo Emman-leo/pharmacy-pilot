@@ -1,4 +1,4 @@
-import { IconMoney, IconTrending, IconPackage, IconGrid } from './icons';
+import { IconMoney, IconTrending, IconPackage, IconGrid, IconAlert } from './icons';
 import './ReportsPage.css';
 
 export default function StatsCards({ overview, loading }) {
@@ -15,7 +15,31 @@ export default function StatsCards({ overview, loading }) {
   }
 
   const o = overview || {};
-  const cards = [
+  const inventoryCards = [
+    {
+      label: 'Total Medicines',
+      value: String(o.totalMedicines ?? 0),
+      sub: 'Registered products',
+      icon: <IconPackage />,
+      className: 'stat-card',
+    },
+    {
+      label: 'Low Stock Items',
+      value: String(o.lowStockCount ?? 0),
+      sub: 'Below minimum threshold',
+      icon: <IconAlert />,
+      className: 'stat-card',
+    },
+    {
+      label: 'Total Value',
+      value: `₵${(o.totalStockValue ?? 0).toFixed(2)}`,
+      sub: 'Current stock valuation',
+      icon: <IconMoney />,
+      className: 'stat-card',
+    },
+  ];
+
+  const analyticsCards = [
     {
       label: "Today's Sales",
       value: `₵${(o.todaySales ?? 0).toFixed(2)}`,
@@ -47,7 +71,7 @@ export default function StatsCards({ overview, loading }) {
   return (
     <section className="reports-stats">
       <div className="reports-stats-grid">
-        {cards.map((c) => (
+        {[...inventoryCards, ...analyticsCards].map((c) => (
           <div key={c.label} className={c.className}>
             <span className="stat-icon">{c.icon}</span>
             <div className="stat-content">

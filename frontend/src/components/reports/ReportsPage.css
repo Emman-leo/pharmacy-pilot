@@ -96,6 +96,14 @@
   margin-bottom: 28px;
 }
 
+.charts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .reports-charts-label {
   margin: 0 0 12px;
   font-size: 0.9rem;
