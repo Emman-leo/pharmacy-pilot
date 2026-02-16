@@ -42,7 +42,8 @@ export default function ReportsPage() {
       .then(setOverview)
       .catch(() => setOverview({}))
       .finally(() => setOverviewLoading(false));
-  }, [api]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchCharts = useCallback(() => {
     setChartsLoading(true);
@@ -62,7 +63,8 @@ export default function ReportsPage() {
         setCategoryData([]);
       })
       .finally(() => setChartsLoading(false));
-  }, [api, range.start_date, range.end_date, range.group]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [range.start_date, range.end_date, range.group]);
 
   useEffect(() => {
     fetchOverview();
@@ -72,13 +74,7 @@ export default function ReportsPage() {
     fetchCharts();
   }, [fetchCharts]);
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      fetchOverview();
-      fetchCharts();
-    }, 30000);
-    return () => clearInterval(id);
-  }, [fetchOverview, fetchCharts]);
+  // Removed automatic polling to avoid repeated errors; use the Refresh button instead.
 
   const generateReport = useCallback(async (overrides = {}) => {
     const type = overrides.reportType ?? reportType;
