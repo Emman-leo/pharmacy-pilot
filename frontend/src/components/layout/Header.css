@@ -6,6 +6,45 @@
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  gap: 12px;
+}
+
+.header-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  color: #475569;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: background 0.2s, color 0.2s;
+}
+.header-menu-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+.header-menu-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.header-menu-icon .menu-bar {
+  width: 22px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+@media (max-width: 768px) {
+  .header-menu-btn {
+    display: flex;
+  }
 }
 
 .header-title {

@@ -32,6 +32,7 @@ export default function ReportGenerator({
   setEndDate,
   onGenerate,
   onExportCSV,
+  onExportDocument,
   onPrint,
   generatedReport,
   generating,
@@ -78,6 +79,9 @@ export default function ReportGenerator({
           </button>
           <button type="button" className="btn btn-ghost" onClick={onExportCSV} disabled={!generatedReport?.csvConfig}>
             <IconFileText /> Export CSV
+          </button>
+          <button type="button" className="btn btn-ghost" onClick={onExportDocument} disabled={!generatedReport}>
+            <IconFileText /> Download document
           </button>
           <button type="button" className="btn btn-ghost" onClick={onPrint} disabled={!generatedReport}>
             Print Report

@@ -13,22 +13,31 @@ const navItems = [
   { to: '/reports', label: 'Reports & Analytics' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }) {
   const { isAdmin } = useAuth();
   const items = navItems.filter((i) => !i.adminOnly || isAdmin);
   return (
-    <aside className="sidebar">
-      <nav>
-        {items.map(({ to, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}
-          >
-            {label}
-          </NavLink>
-        ))}
-      </nav>
-    </aside>
+    <>
+      <div
+        className={`sidebar-overlay ${isOpen ? 'sidebar-overlay-visible' : ''}`}
+        onClick={onClose}
+        onKeyDown={(e) => e.key === 'Escape' && onClose()}
+        aria-hidden="true"
+      />
+      <aside className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}>
+        <nav>
+          {items.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}
+              onClick={onClose}
+            >
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+    </>
   );
 }

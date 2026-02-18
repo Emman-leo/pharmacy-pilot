@@ -13,4 +13,11 @@
   flex: 1;
   padding: 24px;
   overflow: auto;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .layout-main {
+    padding: 16px;
+  }
 }

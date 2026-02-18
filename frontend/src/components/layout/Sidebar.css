@@ -1,8 +1,24 @@
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.sidebar-overlay-visible {
+  display: block;
+  opacity: 1;
+}
+
 .sidebar {
   width: 220px;
+  flex-shrink: 0;
   background: #fff;
   border-right: 1px solid #e5e7eb;
   padding: 16px 0;
+  transition: transform 0.2s ease;
 }
 
 .sidebar nav {
@@ -26,4 +42,26 @@
   background: #eff6ff;
   color: #2563eb;
   border-right: 3px solid #2563eb;
+}
+
+@media (max-width: 768px) {
+  .sidebar-overlay {
+    display: block;
+    pointer-events: none;
+  }
+  .sidebar-overlay-visible {
+    pointer-events: auto;
+  }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 101;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    transform: translateX(-100%);
+  }
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
 }

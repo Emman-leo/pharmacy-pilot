@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApi } from '../../hooks/useApi';
 import { downloadCSV } from '../../utils/exportCSV';
+import { exportReportDocument } from '../../utils/exportReportDocument';
 import { getRange } from './dateRange';
 import StatsCards from './StatsCards';
 import { SalesTrendChart, CategoryDistributionChart } from './ChartsSection';
@@ -218,6 +219,15 @@ export default function ReportsPage() {
     downloadCSV(filename, rows, cols);
   }, [generatedReport]);
 
+  const REPORT_TYPE_LABELS = {
+    'sales-summary': 'Sales Summary',
+    'inventory-status': 'Inventory Status',
+    'profit-analysis': 'Profit Analysis',
+    'low-stock': 'Low Stock Alert',
+    'expiry': 'Expiry Report',
+    'customer-analysis': 'Customer Analysis',
+  };
+
   const handlePrint = useCallback(() => {
     const el = document.getElementById('report-content');
     if (!el) return;
@@ -231,6 +241,20 @@ export default function ReportsPage() {
     printWindow.print();
     printWindow.close();
   }, []);
+
+  const handleExportDocument = useCallback(() => {
+    const el = document.getElementById('report-content');
+    if (!el) return;
+    const periodLabel =
+      period === 'custom' && startDate && endDate
+        ? `Custom: ${startDate} to ${endDate}`
+        : period.charAt(0).toUpperCase() + period.slice(1);
+    exportReportDocument({
+      title: REPORT_TYPE_LABELS[reportType] || reportType,
+      period: periodLabel,
+      contentHtml: el.innerHTML,
+    });
+  }, [reportType, period, startDate, endDate]);
 
   const handleQuickReport = useCallback((type, p) => {
     setReportType(type);
@@ -288,6 +312,7 @@ export default function ReportsPage() {
         setEndDate={setEndDate}
         onGenerate={generateReport}
         onExportCSV={handleExportCSV}
+        onExportDocument={handleExportDocument}
         onPrint={handlePrint}
         generatedReport={generatedReport}
         generating={generating}
