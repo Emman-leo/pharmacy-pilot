@@ -89,9 +89,11 @@ export async function overview(req, res) {
 export async function categoryDistribution(req, res) {
   const { start_date, end_date } = req.query;
   try {
+    const rangeStart = start_date ? toStartOfDay(start_date) : null;
+    const rangeEnd = end_date ? toEndOfDay(end_date) : null;
     let salesQ = req.supabase.from('sales').select('id');
-    if (start_date) salesQ = salesQ.gte('sale_date', start_date);
-    if (end_date) salesQ = salesQ.lte('sale_date', end_date);
+    if (rangeStart) salesQ = salesQ.gte('sale_date', rangeStart);
+    if (rangeEnd) salesQ = salesQ.lte('sale_date', rangeEnd);
     const { data: sales } = await salesQ;
     const saleIds = (sales || []).map((s) => s.id);
     if (saleIds.length === 0) {
@@ -114,20 +116,69 @@ export async function categoryDistribution(req, res) {
   }
 }
 
+/** Normalize end_date to end of day (23:59:59.999) so "today" includes full day. */
+function toEndOfDay(dateStr) {
+  if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+  return `${dateStr}T23:59:59.999`;
+}
+
+/** Normalize start_date to start of day (00:00:00). */
+function toStartOfDay(dateStr) {
+  if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+  return `${dateStr}T00:00:00.000`;
+}
+
 export async function salesSummary(req, res) {
   const { start_date, end_date } = req.query;
   try {
+    const rangeStart = start_date ? toStartOfDay(start_date) : null;
+    const rangeEnd = end_date ? toEndOfDay(end_date) : null;
+
     let q = req.supabase
       .from('sales')
-      .select('final_amount, sale_date');
-    if (start_date) q = q.gte('sale_date', start_date);
-    if (end_date) q = q.lte('sale_date', end_date);
-    const { data, error } = await q;
+      .select('id, final_amount, sale_date');
+    if (rangeStart) q = q.gte('sale_date', rangeStart);
+    if (rangeEnd) q = q.lte('sale_date', rangeEnd);
+    const { data: salesData, error } = await q;
     if (error) throw error;
 
-    const total = (data || []).reduce((s, r) => s + parseFloat(r.final_amount || 0), 0);
-    const count = (data || []).length;
-    res.json({ total, count, sales: data });
+    const sales = salesData || [];
+    const total = sales.reduce((s, r) => s + parseFloat(r.final_amount || 0), 0);
+    const count = sales.length;
+    const saleIds = sales.map((s) => s.id);
+
+    if (saleIds.length === 0) {
+      return res.json({ total: 0, count: 0, sales: [], items: [] });
+    }
+
+    const { data: itemsData, error: itemsError } = await req.supabase
+      .from('sale_items')
+      .select('drug_id, quantity, unit_price, total_price, drugs(name)')
+      .in('sale_id', saleIds);
+    if (itemsError) throw itemsError;
+
+    const byDrug = {};
+    for (const i of itemsData || []) {
+      const id = i.drug_id;
+      const qty = parseInt(i.quantity, 10) || 0;
+      const amount = parseFloat(i.total_price || 0);
+      if (!byDrug[id]) {
+        byDrug[id] = { drug_id: id, drug_name: i.drugs?.name || 'Unknown', quantity: 0, amount: 0 };
+      }
+      byDrug[id].quantity += qty;
+      byDrug[id].amount += amount;
+    }
+    const items = Object.values(byDrug)
+      .map((row) => ({
+        drug_id: row.drug_id,
+        drug_name: row.drug_name,
+        quantity: row.quantity,
+        unit_price: row.quantity > 0 ? row.amount / row.quantity : 0,
+        amount: row.amount,
+      }))
+      .sort((a, b) => b.amount - a.amount);
+
+    res.json({ total, count, sales, items });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to fetch sales summary' });
   }
@@ -177,9 +228,11 @@ export async function expiryAlerts(req, res) {
 export async function profitMargin(req, res) {
   const { start_date, end_date } = req.query;
   try {
+    const rangeStart = start_date ? toStartOfDay(start_date) : null;
+    const rangeEnd = end_date ? toEndOfDay(end_date) : null;
     let salesFilter = req.supabase.from('sales').select('id');
-    if (start_date) salesFilter = salesFilter.gte('sale_date', start_date);
-    if (end_date) salesFilter = salesFilter.lte('sale_date', end_date);
+    if (rangeStart) salesFilter = salesFilter.gte('sale_date', rangeStart);
+    if (rangeEnd) salesFilter = salesFilter.lte('sale_date', rangeEnd);
     const { data: sales } = await salesFilter;
     const saleIds = (sales || []).map((s) => s.id);
     if (saleIds.length === 0) {
@@ -222,9 +275,11 @@ export async function profitMargin(req, res) {
 export async function salesByPeriod(req, res) {
   const { start_date, end_date, group = 'day' } = req.query;
   try {
+    const rangeStart = start_date ? toStartOfDay(start_date) : null;
+    const rangeEnd = end_date ? toEndOfDay(end_date) : null;
     let q = req.supabase.from('sales').select('id, sale_date, final_amount');
-    if (start_date) q = q.gte('sale_date', start_date);
-    if (end_date) q = q.lte('sale_date', end_date);
+    if (rangeStart) q = q.gte('sale_date', rangeStart);
+    if (rangeEnd) q = q.lte('sale_date', rangeEnd);
     const { data: sales, error } = await q;
     if (error) throw error;
 

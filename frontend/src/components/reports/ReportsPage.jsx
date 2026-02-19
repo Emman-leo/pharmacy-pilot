@@ -92,25 +92,48 @@ export default function ReportsPage() {
       switch (type) {
         case 'sales-summary': {
           const res = await api.get(`/reports/sales-summary?start_date=${r.start_date}&end_date=${r.end_date}`);
-          const top = await api.get('/reports/top-selling?limit=20');
-          data = { summary: res, top };
+          const items = res.items || [];
+          data = { summary: res, items };
+          const grandTotal = (res.total ?? 0);
           content = (
             <>
               <div className="report-summary-inline">
-                <p><strong>Total:</strong> ₵{(res.total || 0).toFixed(2)} · <strong>Transactions:</strong> {res.count || 0}</p>
+                <p><strong>Total:</strong> ₵{Number(grandTotal).toFixed(2)} · <strong>Transactions:</strong> {res.count ?? 0}</p>
               </div>
               <table className="report-result-table">
-                <thead><tr><th>Drug</th><th>Quantity Sold</th></tr></thead>
+                <thead>
+                  <tr><th>Drug</th><th>Quantity sold</th><th>Unit price (₵)</th><th>Amount (₵)</th></tr>
+                </thead>
                 <tbody>
-                  {(top || []).map((t) => (
-                    <tr key={t.drug_id}><td>{t.drug_name}</td><td>{t.quantity}</td></tr>
+                  {items.map((row) => (
+                    <tr key={row.drug_id}>
+                      <td>{row.drug_name}</td>
+                      <td>{row.quantity}</td>
+                      <td>{Number(row.unit_price).toFixed(2)}</td>
+                      <td>{Number(row.amount).toFixed(2)}</td>
+                    </tr>
                   ))}
                 </tbody>
+                <tfoot>
+                  <tr className="report-grand-total">
+                    <td colSpan={2}><strong>Grand total</strong></td>
+                    <td colSpan={2}><strong>₵{Number(grandTotal).toFixed(2)}</strong></td>
+                  </tr>
+                </tfoot>
               </table>
             </>
           );
-          empty = !res?.count && (!top || top.length === 0);
-          csvConfig = { rows: top || [], cols: [{ key: 'drug_name', header: 'Drug' }, { key: 'quantity', header: 'Quantity' }], filename: 'sales-summary.csv' };
+          empty = !res?.count && items.length === 0;
+          csvConfig = {
+            rows: items,
+            cols: [
+              { key: 'drug_name', header: 'Drug' },
+              { key: 'quantity', header: 'Quantity sold' },
+              { key: 'unit_price', header: 'Unit price (₵)' },
+              { key: 'amount', header: 'Amount (₵)' },
+            ],
+            filename: 'sales-summary.csv',
+          };
           break;
         }
         case 'inventory-status': {

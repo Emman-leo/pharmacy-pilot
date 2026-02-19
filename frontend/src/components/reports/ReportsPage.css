@@ -317,6 +317,13 @@
   color: #475569;
 }
 
+.report-result-table tfoot .report-grand-total td {
+  border-top: 2px solid #0f172a;
+  padding-top: 12px;
+  margin-top: 4px;
+  background: #f8fafc;
+}
+
 .empty-state {
   margin: 0;
   color: #94a3b8;
