@@ -49,13 +49,13 @@ export async function listAuditLogs(req, res) {
       });
     }
 
-    // Transform data to include user info
+    // Use user_email/user_name from row first (set at record time); fall back to profiles for legacy rows
     const transformed = (logs || []).map((log) => {
       const profile = log.user_id ? profilesMap[log.user_id] : null;
       return {
         ...log,
-        user_email: profile?.email || null,
-        user_name: profile?.full_name || null,
+        user_email: log.user_email ?? profile?.email ?? null,
+        user_name: log.user_name ?? profile?.full_name ?? null,
       };
     });
 

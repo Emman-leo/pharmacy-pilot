@@ -36,6 +36,25 @@ export async function recordAuditEvent(req, {
       null;
     const userAgent = req.headers['user-agent'] || null;
 
+    // Store email/name at record time so new users (no profile yet) show correctly
+    let userEmail = req.user?.email ?? null;
+    let userName = req.user?.user_metadata?.full_name ?? null;
+    if (!userName && userId) {
+      try {
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('full_name, email')
+          .eq('id', userId)
+          .single();
+        if (profile) {
+          userName = profile.full_name || userName;
+          userEmail = userEmail || profile.email;
+        }
+      } catch {
+        // Ignore
+      }
+    }
+
     await supabaseAdmin.from('audit_logs').insert({
       user_id: userId,
       role,
@@ -45,6 +64,8 @@ export async function recordAuditEvent(req, {
       details,
       ip,
       user_agent: userAgent,
+      user_email: userEmail,
+      user_name: userName,
     });
   } catch {
     // Intentionally ignore audit logging failures
