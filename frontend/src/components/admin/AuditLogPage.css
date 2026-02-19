@@ -74,6 +74,9 @@
   border-radius: 6px;
   padding: 6px 8px;
   font-size: 0.78rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.4;
 }
 
 .audit-badge {

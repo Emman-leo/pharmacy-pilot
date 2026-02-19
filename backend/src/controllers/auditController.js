@@ -31,10 +31,35 @@ export async function listAuditLogs(req, res) {
     if (from) q = q.gte('created_at', from);
     if (to) q = q.lte('created_at', to);
 
-    const { data, error } = await q;
+    const { data: logs, error } = await q;
     if (error) throw error;
 
-    res.json(data || []);
+    // Fetch user profiles for all unique user_ids
+    const userIds = [...new Set((logs || []).map((log) => log.user_id).filter(Boolean))];
+    const profilesMap = {};
+    
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id, email, full_name')
+        .in('id', userIds);
+      
+      (profiles || []).forEach((profile) => {
+        profilesMap[profile.id] = profile;
+      });
+    }
+
+    // Transform data to include user info
+    const transformed = (logs || []).map((log) => {
+      const profile = log.user_id ? profilesMap[log.user_id] : null;
+      return {
+        ...log,
+        user_email: profile?.email || null,
+        user_name: profile?.full_name || null,
+      };
+    });
+
+    res.json(transformed);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to fetch audit logs' });
   }

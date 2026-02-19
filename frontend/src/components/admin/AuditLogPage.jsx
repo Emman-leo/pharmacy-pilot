@@ -19,6 +19,24 @@ function formatDate(value) {
   return d.toLocaleString();
 }
 
+function formatUser(log) {
+  if (log.user_name) return log.user_name;
+  if (log.user_email) return log.user_email;
+  if (log.user_id) return log.user_id.slice(0, 8) + '…';
+  return '—';
+}
+
+function formatDetails(details) {
+  if (!details || typeof details !== 'object') return '—';
+  return Object.entries(details)
+    .map(([key, value]) => {
+      const formattedValue =
+        typeof value === 'object' ? JSON.stringify(value) : String(value);
+      return `${key}: ${formattedValue}`;
+    })
+    .join('\n');
+}
+
 export default function AuditLogPage() {
   const api = useApi();
   const [logs, setLogs] = useState([]);
@@ -100,7 +118,7 @@ export default function AuditLogPage() {
             {logs.map((log) => (
               <tr key={log.id}>
                 <td>{formatDate(log.created_at)}</td>
-                <td>{log.user_id || '—'}</td>
+                <td>{formatUser(log)}</td>
                 <td>{log.role || '—'}</td>
                 <td>
                   <span
@@ -114,9 +132,7 @@ export default function AuditLogPage() {
                 <td>{log.resource}</td>
                 <td>
                   <pre className="audit-details">
-                    {log.details
-                      ? JSON.stringify(log.details, null, 2)
-                      : '—'}
+                    {formatDetails(log.details)}
                   </pre>
                 </td>
                 <td>{log.ip || '—'}</td>

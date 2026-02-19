@@ -14,7 +14,22 @@ export async function recordAuditEvent(req, {
 } = {}) {
   try {
     const userId = req.user?.id ?? null;
-    const role = req.userRole ?? null;
+    let role = req.userRole ?? null;
+    
+    // If role not set by RBAC middleware, fetch it from profiles
+    if (!role && userId) {
+      try {
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('role')
+          .eq('id', userId)
+          .single();
+        role = profile?.role || null;
+      } catch {
+        // Ignore profile fetch errors
+      }
+    }
+    
     const ip =
       (req.headers['x-forwarded-for']?.split(',')[0] || '').trim() ||
       req.ip ||
