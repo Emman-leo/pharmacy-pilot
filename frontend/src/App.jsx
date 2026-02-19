@@ -11,6 +11,7 @@ import ReceiptViewer from './components/sales/ReceiptViewer';
 import PrescriptionForm from './components/prescriptions/PrescriptionForm';
 import ApprovalQueue from './components/prescriptions/ApprovalQueue';
 import ReportsPage from './components/reports/ReportsPage';
+import AuditLogPage from './components/admin/AuditLogPage';
 
 function ProtectedRoute({ children, adminOnly }) {
   const { isAuthenticated, loading, isAdmin } = useAuth();
@@ -48,6 +49,14 @@ export default function App() {
           }
         />
         <Route path="reports" element={<ReportsPage />} />
+        <Route
+          path="admin/audit-log"
+          element={
+            <ProtectedRoute adminOnly>
+              <AuditLogPage />
+            </ProtectedRoute>
+          }
+        />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

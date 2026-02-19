@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../utils/db.js';
+import { recordAuditEvent } from '../utils/auditLogger.js';
 
 export async function login(req, res) {
   const { email, password } = req.body || {};
@@ -8,6 +9,18 @@ export async function login(req, res) {
   try {
     const { data, error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
     if (error) return res.status(401).json({ error: error.message });
+
+    await recordAuditEvent(
+      // shim a minimal req-like object so user_id can be captured if present later
+      { user: data.user, headers: req.headers, ip: req.ip },
+      {
+        action: 'LOGIN',
+        resource: 'auth',
+        resourceId: data.user?.id ?? null,
+        details: { email },
+      },
+    );
+
     res.json({ user: data.user, session: data.session });
   } catch (err) {
     res.status(500).json({ error: 'Login failed' });
@@ -26,6 +39,17 @@ export async function register(req, res) {
       options: { data: { full_name } },
     });
     if (error) return res.status(400).json({ error: error.message });
+
+    await recordAuditEvent(
+      { user: data.user, headers: req.headers, ip: req.ip },
+      {
+        action: 'REGISTER',
+        resource: 'auth',
+        resourceId: data.user?.id ?? null,
+        details: { email, full_name },
+      },
+    );
+
     res.status(201).json({ user: data.user, session: data.session });
   } catch (err) {
     res.status(500).json({ error: 'Registration failed' });

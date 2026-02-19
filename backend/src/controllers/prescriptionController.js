@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../utils/db.js';
 import { alertService } from '../services/alertService.js';
+import { recordAuditEvent } from '../utils/auditLogger.js';
 
 export async function create(req, res) {
   const { patient_name, patient_age, patient_weight, doctor_name, prescribed_drugs, notes } = req.body || {};
@@ -37,6 +38,18 @@ export async function create(req, res) {
       .single();
 
     if (error) throw error;
+
+    await recordAuditEvent(req, {
+      action: 'CREATE',
+      resource: 'prescription',
+      resourceId: data.id,
+      details: {
+        patient_name: data.patient_name,
+        doctor_name: data.doctor_name,
+        status: data.status,
+      },
+    });
+
     res.status(201).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to create prescription' });
@@ -86,6 +99,17 @@ export async function approve(req, res) {
       .single();
     if (error) throw error;
     if (!data) return res.status(404).json({ error: 'Prescription not found' });
+
+    await recordAuditEvent(req, {
+      action: 'APPROVE',
+      resource: 'prescription',
+      resourceId: data.id,
+      details: {
+        approved_by: data.approved_by,
+        approved_at: data.approved_at,
+      },
+    });
+
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to approve' });
@@ -109,6 +133,18 @@ export async function reject(req, res) {
       .single();
     if (error) throw error;
     if (!data) return res.status(404).json({ error: 'Prescription not found' });
+
+    await recordAuditEvent(req, {
+      action: 'REJECT',
+      resource: 'prescription',
+      resourceId: data.id,
+      details: {
+        approved_by: data.approved_by,
+        approved_at: data.approved_at,
+        rejection_reason: data.rejection_reason,
+      },
+    });
+
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to reject' });

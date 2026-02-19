@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../utils/db.js';
 import { fefoService } from '../services/fefoService.js';
+import { recordAuditEvent } from '../utils/auditLogger.js';
 
 export async function getDrugs(req, res) {
   const { search, category, controlled } = req.query;
@@ -35,6 +36,22 @@ export async function createDrug(req, res) {
       .select()
       .single();
     if (error) throw error;
+
+    await recordAuditEvent(req, {
+      action: 'CREATE',
+      resource: 'drug',
+      resourceId: data.id,
+      details: {
+        name: data.name,
+        generic_name: data.generic_name,
+        dosage: data.dosage,
+        category: data.category,
+        controlled_drug: data.controlled_drug,
+        requires_prescription: data.requires_prescription,
+        min_stock_quantity: data.min_stock_quantity,
+      },
+    });
+
     res.status(201).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to create drug' });
@@ -53,6 +70,16 @@ export async function updateDrug(req, res) {
       .single();
     if (error) throw error;
     if (!data) return res.status(404).json({ error: 'Drug not found' });
+
+    await recordAuditEvent(req, {
+      action: 'UPDATE',
+      resource: 'drug',
+      resourceId: data.id,
+      details: {
+        updated_fields: body,
+      },
+    });
+
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to update drug' });
@@ -93,6 +120,21 @@ export async function addBatch(req, res) {
       .select('*, drugs(*)')
       .single();
     if (error) throw error;
+
+    await recordAuditEvent(req, {
+      action: 'CREATE',
+      resource: 'inventory_batch',
+      resourceId: data.id,
+      details: {
+        drug_id: data.drug_id,
+        quantity: data.quantity,
+        unit_price: data.unit_price,
+        batch_number: data.batch_number,
+        expiry_date: data.expiry_date,
+        pharmacy_id: data.pharmacy_id,
+      },
+    });
+
     res.status(201).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to add batch' });
@@ -112,6 +154,16 @@ export async function updateBatch(req, res) {
       .single();
     if (error) throw error;
     if (!data) return res.status(404).json({ error: 'Batch not found' });
+
+    await recordAuditEvent(req, {
+      action: 'UPDATE',
+      resource: 'inventory_batch',
+      resourceId: data.id,
+      details: {
+        quantity: data.quantity,
+      },
+    });
+
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to update batch' });

@@ -1,5 +1,6 @@
 import { fefoService } from '../services/fefoService.js';
 import { supabaseAdmin } from '../utils/db.js';
+import { recordAuditEvent } from '../utils/auditLogger.js';
 
 export async function estimate(req, res) {
   const { items } = req.body || {};
@@ -101,7 +102,22 @@ export async function checkout(req, res) {
       .eq('id', sale.id)
       .single();
 
-    res.status(201).json(fullSale || sale);
+    const result = fullSale || sale;
+
+    await recordAuditEvent(req, {
+      action: 'CHECKOUT',
+      resource: 'sale',
+      resourceId: sale.id,
+      details: {
+        receipt_number: sale.receipt_number,
+        total_amount: sale.total_amount,
+        discount_amount: sale.discount_amount,
+        final_amount: sale.final_amount,
+        items_count: saleItems.length,
+      },
+    });
+
+    res.status(201).json(result);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Checkout failed' });
   }

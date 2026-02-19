@@ -6,6 +6,7 @@ import * as inventoryController from '../controllers/inventoryController.js';
 import * as salesController from '../controllers/salesController.js';
 import * as prescriptionController from '../controllers/prescriptionController.js';
 import * as reportController from '../controllers/reportController.js';
+import * as auditController from '../controllers/auditController.js';
 
 const router = Router();
 
@@ -47,5 +48,13 @@ router.get('/reports/profit-margin', authMiddleware, reportController.profitMarg
 router.get('/reports/sales-by-period', authMiddleware, reportController.salesByPeriod);
 router.get('/reports/inventory-valuation', authMiddleware, reportController.inventoryValuation);
 router.get('/reports/slow-moving', authMiddleware, reportController.slowMoving);
+
+// Admin tools
+router.get(
+  '/admin/audit-logs',
+  authMiddleware,
+  requireRole('ADMIN'),
+  auditController.listAuditLogs,
+);
 
 export default router;

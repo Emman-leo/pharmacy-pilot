@@ -11,6 +11,7 @@ const navItems = [
   { to: '/prescriptions', label: 'Prescriptions' },
   { to: '/prescriptions/approval', label: 'Approval Queue', adminOnly: true },
   { to: '/reports', label: 'Reports & Analytics' },
+  { to: '/admin/audit-log', label: 'Audit Log', adminOnly: true },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
