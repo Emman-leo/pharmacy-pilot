@@ -1,0 +1,116 @@
+javascript
+// Dashboard WebSocket hooks
+const useRealTimeData = () => {
+  const [metrics, setMetrics] = useState({});
+  const [inventory, setInventory] = useState([]);
+  
+  useEffect(() => {
+    const ws = new WebSocket(WS_URL);
+    
+    ws.onmessage = (event) => {
+      const { type, data } = JSON.parse(event.data);
+      switch(type) {
+        case 'METRICS_UPDATE': setMetrics(data);
+        case 'INVENTORY_UPDATE': setInventory(data);
+        case 'NEW_SALE': updateSales(data);
+      }
+    };
+    
+    return () => ws.close();
+  }, []);
+  
+  return { metrics, inventory };
+};
+Backend Events:
+
+Stock level changes
+New sales transactions
+Prescription updates
+Low stock triggers
+Expiry warnings
+📱 Responsive Design
+Breakpoints:
+
+Desktop (1200px+): 4-column grid
+Tablet (768px): 2-column grid
+Mobile (<768px): Single column
+Mobile Optimizations:
+
+Collapsible sections
+Swipe gestures
+Pull-to-refresh
+Bottom navigation
+🎨 Visual Design
+Color Scheme:
+
+Primary: Blue (#2563eb)
+Success: Green (#16a34a)
+Warning: Orange (#ea580c)
+Danger: Red (#dc2626)
+Neutral: Gray (#6b7280)
+Typography:
+
+Headings: Inter, 600 weight
+Body: Inter, 400 weight
+Numbers: Mono font for metrics
+Spacing:
+
+Grid Gap: 1.5rem
+Card Padding: 1.25rem
+Section Margin: 2rem
+🚀 Implementation Steps
+Step 1: Component Structure
+
+Create new dashboard components
+Set up routing for enhanced dashboard
+Implement basic layout
+Step 2: Real-Time Data
+
+Add WebSocket connection
+Create backend events
+Implement optimistic updates
+Step 3: Visual Enhancement
+
+Add charts and graphs
+Implement animations
+Optimize for mobile
+Step 4: Integration
+
+Connect to existing APIs
+Add error handling
+Performance optimization
+📈 Success Metrics
+Performance Targets:
+
+Load time < 2 seconds
+Real-time updates < 500ms
+Mobile score > 90
+Accessibility score > 95
+User Experience:
+
+Intuitive navigation
+Clear information hierarchy
+Responsive interactions
+Error recovery
+Ready to start implementation? I'll begin with the component structure and basic layout! 🎯
+
+Feedback submitted
+
+
+
+small addition. When doing the todays sales revenue you can do a small comparison underneath vs yesterday with regards to the amount
+
+✅ Enhanced Sales Revenue Feature
+💰 Today's Sales Revenue Component
+Design Layout:
+
+┌─────────────────────────────────┐
+│ Today's Revenue              │
+│ $2,847.50                 │
+│ ↑ 12.3% vs Yesterday       │  ← NEW COMPARISON
+└─────────────────────────────────┘
+Visual Indicators:
+
+🟢 Green Arrow: Up vs yesterday
+🔴 Red Arrow: Down vs yesterday
+➖ Neutral: No change
