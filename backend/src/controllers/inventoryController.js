@@ -99,6 +99,72 @@ export async function getBatches(req, res) {
   }
 }
 
+// Active stock dashboard (aggregated by drug across batches with quantity > 0)
+export async function getActiveStock(req, res) {
+  try {
+    const { data, error } = await req.supabase
+      .from('inventory_batches')
+      .select('drug_id, quantity, unit_price, expiry_date, drugs(name, category, min_stock_quantity)')
+      .gt('quantity', 0)
+      .order('expiry_date');
+    if (error) throw error;
+
+    const now = new Date();
+    const nearExpiryDays = 90;
+    const nearExpiryThreshold = new Date(now);
+    nearExpiryThreshold.setDate(nearExpiryThreshold.getDate() + nearExpiryDays);
+    const nearExpiryIso = nearExpiryThreshold.toISOString().slice(0, 10);
+
+    const byDrug = {};
+    for (const b of data || []) {
+      const id = b.drug_id;
+      if (!id) continue;
+      const qty = parseInt(b.quantity, 10) || 0;
+      const unitPrice = parseFloat(b.unit_price || 0);
+      const expiry = b.expiry_date || null;
+
+      if (!byDrug[id]) {
+        byDrug[id] = {
+          drug_id: id,
+          drug_name: b.drugs?.name || 'Unknown',
+          category: b.drugs?.category || null,
+          min_stock_quantity: b.drugs?.min_stock_quantity ?? 0,
+          quantity: 0,
+          totalValue: 0,
+          next_expiry: expiry,
+        };
+      }
+
+      byDrug[id].quantity += qty;
+      byDrug[id].totalValue += qty * unitPrice;
+      if (expiry && (!byDrug[id].next_expiry || expiry < byDrug[id].next_expiry)) {
+        byDrug[id].next_expiry = expiry;
+      }
+    }
+
+    const rows = Object.values(byDrug).map((r) => {
+      const avgPrice = r.quantity > 0 ? r.totalValue / r.quantity : 0;
+      const lowStock = r.min_stock_quantity > 0 && r.quantity < r.min_stock_quantity;
+      const nearExpiry = !!(r.next_expiry && r.next_expiry <= nearExpiryIso);
+      return {
+        drug_id: r.drug_id,
+        drug_name: r.drug_name,
+        category: r.category,
+        quantity: r.quantity,
+        price: avgPrice,
+        expiry: r.next_expiry,
+        lowStock,
+        nearExpiry,
+        min_stock_quantity: r.min_stock_quantity,
+      };
+    }).sort((a, b) => a.drug_name.localeCompare(b.drug_name));
+
+    res.json({ nearExpiryDays, rows });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to fetch active stock' });
+  }
+}
+
 export async function addBatch(req, res) {
   const { drug_id, quantity, unit_price, batch_number, expiry_date, pharmacy_id } = req.body || {};
   if (!drug_id || quantity == null || !unit_price || !expiry_date) {

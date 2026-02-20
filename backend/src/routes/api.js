@@ -20,6 +20,7 @@ router.post('/auth/logout', authController.logout);
 router.get('/inventory/drugs', authMiddleware, inventoryController.getDrugs);
 router.post('/inventory/drugs', authMiddleware, requireRole('ADMIN'), inventoryController.createDrug);
 router.put('/inventory/drugs/:id', authMiddleware, requireRole('ADMIN'), inventoryController.updateDrug);
+router.get('/inventory/active-stock', authMiddleware, inventoryController.getActiveStock);
 router.get('/inventory/batches', authMiddleware, inventoryController.getBatches);
 router.post('/inventory/batches', authMiddleware, inventoryController.addBatch);
 router.put('/inventory/batches/:id', authMiddleware, inventoryController.updateBatch);

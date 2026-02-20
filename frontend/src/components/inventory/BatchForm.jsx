@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
 import './BatchForm.css';
 
-export default function BatchForm() {
+export default function BatchForm({ embedded = false, onStockChanged } = {}) {
   const [drugs, setDrugs] = useState([]);
   const [batches, setBatches] = useState([]);
   const [drugId, setDrugId] = useState('');
@@ -32,6 +32,7 @@ export default function BatchForm() {
       await api.post('/inventory/batches', data);
       form.reset();
       if (drugId) api.get(`/inventory/batches?drug_id=${drugId}`).then(setBatches);
+      onStockChanged?.();
     } catch (err) {
       alert(err.message);
     }
@@ -41,6 +42,7 @@ export default function BatchForm() {
     try {
       await api.put(`/inventory/batches/${batchId}`, { quantity: newQty });
       if (drugId) api.get(`/inventory/batches?drug_id=${drugId}`).then(setBatches);
+      onStockChanged?.();
     } catch (err) {
       alert(err.message);
     }
@@ -48,7 +50,7 @@ export default function BatchForm() {
 
   return (
     <div className="batch-form">
-      <h1>Add Stock</h1>
+      {!embedded && <h1>Add Stock</h1>}
 
       <form onSubmit={handleAddBatch} className="batch-add-form">
         <label>Drug</label>
@@ -95,7 +97,6 @@ export default function BatchForm() {
                         type="number"
                         min="0"
                         value={b.quantity}
-                        onChange={(e) => handleUpdateQty(b.id, +e.target.value)}
                         onBlur={(e) => {
                           const v = +e.target.value;
                           if (v !== b.quantity) handleUpdateQty(b.id, v);
@@ -103,7 +104,7 @@ export default function BatchForm() {
                         className="qty-input"
                       />
                     </td>
-                    <td>${parseFloat(b.unit_price).toFixed(2)}</td>
+                    <td>₵{parseFloat(b.unit_price).toFixed(2)}</td>
                     <td></td>
                   </tr>
                 ))}

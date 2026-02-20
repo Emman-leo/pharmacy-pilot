@@ -3,6 +3,7 @@ import { useAuth } from './contexts/AuthContext';
 import Layout from './components/layout/Layout';
 import Login from './components/auth/Login';
 import Dashboard from './components/Dashboard';
+import InventoryPage from './components/inventory/InventoryPage';
 import DrugList from './components/inventory/DrugList';
 import BatchForm from './components/inventory/BatchForm';
 import StockAlerts from './components/inventory/StockAlerts';
@@ -34,8 +35,9 @@ export default function App() {
         }
       >
         <Route index element={<Dashboard />} />
+        <Route path="inventory" element={<InventoryPage />} />
         <Route path="inventory/drugs" element={<DrugList />} />
-        <Route path="inventory/batches" element={<BatchForm />} />
+        <Route path="inventory/batches" element={<Navigate to=\"/inventory\" replace />} />
         <Route path="inventory/alerts" element={<StockAlerts />} />
         <Route path="sales" element={<PointOfSale />} />
         <Route path="sales/receipt/:id" element={<ReceiptViewer />} />

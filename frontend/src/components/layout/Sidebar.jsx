@@ -4,8 +4,8 @@ import './Sidebar.css';
 
 const navItems = [
   { to: '/', label: 'Dashboard' },
+  { to: '/inventory', label: 'Inventory' },
   { to: '/inventory/drugs', label: 'Drugs' },
-  { to: '/inventory/batches', label: 'Add Stock' },
   { to: '/inventory/alerts', label: 'Alerts' },
   { to: '/sales', label: 'Point of Sale' },
   { to: '/prescriptions', label: 'Prescriptions' },
