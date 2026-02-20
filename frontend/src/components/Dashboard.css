@@ -1,7 +1,75 @@
 .dashboard h1 {
-  margin: 0 0 24px;
+  margin: 0 0 16px;
   font-size: 1.5rem;
   color: #0f172a;
+}
+
+.dashboard-sales-section {
+  margin-bottom: 20px;
+}
+
+.dashboard-sales-card {
+  background: #0f172a;
+  color: #e5e7eb;
+  border-radius: 14px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dashboard-sales-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.dashboard-sales-label {
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  color: #cbd5f5;
+}
+
+.dashboard-sales-value {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 700;
+}
+
+.dashboard-sales-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #e5e7eb;
+  flex-wrap: wrap;
+}
+
+.sales-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trend-icon {
+  font-size: 0.9rem;
+}
+
+.sales-trend-up .trend-text {
+  color: #bbf7d0;
+}
+
+.sales-trend-down .trend-text {
+  color: #fecaca;
+}
+
+.sales-trend-neutral .trend-text {
+  color: #e5e7eb;
+}
+
+.sales-sub {
+  opacity: 0.8;
 }
 
 .dashboard-cards {

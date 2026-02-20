@@ -9,16 +9,27 @@ export async function overview(req, res) {
     const todayStartStr = todayStart.toISOString();
     const todayEndStr = todayEnd.toISOString();
 
+    // Yesterday range: [start of yesterday, start of today)
+    const yesterdayStart = new Date(todayStart);
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+    const yesterdayStartStr = yesterdayStart.toISOString();
+    const yesterdayEndStr = todayStartStr;
+
     // This month from first day to now
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthStartStr = monthStart.toISOString();
 
-    const [todayRes, monthRes, topRes, drugsRes, batchesRes] = await Promise.all([
+    const [todayRes, yesterdayRes, monthRes, topRes, drugsRes, batchesRes] = await Promise.all([
       req.supabase
         .from('sales')
         .select('final_amount')
         .gte('sale_date', todayStartStr)
         .lt('sale_date', todayEndStr),
+      req.supabase
+        .from('sales')
+        .select('final_amount')
+        .gte('sale_date', yesterdayStartStr)
+        .lt('sale_date', yesterdayEndStr),
       req.supabase.from('sales').select('final_amount').gte('sale_date', monthStartStr),
       req.supabase.from('sale_items').select('drug_id, quantity, drugs(name)'),
       req.supabase.from('drugs').select('id, min_stock_quantity'),
@@ -32,10 +43,18 @@ export async function overview(req, res) {
       (s, r) => s + parseFloat(r.final_amount || 0),
       0
     );
+    const yesterdaySales = (yesterdayRes.data || []).reduce(
+      (s, r) => s + parseFloat(r.final_amount || 0),
+      0
+    );
     const monthSales = (monthRes.data || []).reduce(
       (s, r) => s + parseFloat(r.final_amount || 0),
       0
     );
+
+    const dayChange = todaySales - yesterdaySales;
+    const dayChangePct =
+      yesterdaySales > 0 ? (dayChange / yesterdaySales) * 100 : null;
 
     // Best-selling product (by quantity)
     const byDrug = {};
@@ -74,6 +93,9 @@ export async function overview(req, res) {
 
     res.json({
       todaySales,
+      yesterdaySales,
+      dayChange,
+      dayChangePct,
       monthSales,
       bestSelling: { name: best.drug_name, quantity: best.quantity },
       activeProductsCount: activeProductIds.size,
