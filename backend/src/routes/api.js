@@ -7,6 +7,7 @@ import * as salesController from '../controllers/salesController.js';
 import * as prescriptionController from '../controllers/prescriptionController.js';
 import * as reportController from '../controllers/reportController.js';
 import * as auditController from '../controllers/auditController.js';
+import * as pharmacyController from '../controllers/pharmacyController.js';
 
 const router = Router();
 
@@ -15,6 +16,10 @@ router.post('/auth/login', authController.login);
 router.post('/auth/register', authController.register);
 router.get('/auth/user', authMiddleware, authController.getUser);
 router.post('/auth/logout', authController.logout);
+
+// Pharmacies (list and current pharmacy settings)
+router.get('/pharmacies', authMiddleware, pharmacyController.listPharmacies);
+router.get('/pharmacies/my-settings', authMiddleware, pharmacyController.getMyPharmacySettings);
 
 // Inventory (auth required; ADMIN for create/update drugs)
 router.get('/inventory/drugs', authMiddleware, inventoryController.getDrugs);

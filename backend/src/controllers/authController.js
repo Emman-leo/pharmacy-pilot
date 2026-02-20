@@ -60,7 +60,7 @@ export async function getUser(req, res) {
   try {
     let { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('*')
+      .select('*, pharmacies(id, name, address, phone)')
       .eq('id', req.user.id)
       .single();
 
@@ -73,7 +73,10 @@ export async function getUser(req, res) {
       }, { onConflict: 'id' }).select().single();
       profile = inserted;
     }
-    res.json({ user: req.user, profile: profile || {} });
+
+    const out = profile ? { ...profile, pharmacy: profile.pharmacies || null } : {};
+    if (out.pharmacies !== undefined) delete out.pharmacies;
+    res.json({ user: req.user, profile: out });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch user' });
   }

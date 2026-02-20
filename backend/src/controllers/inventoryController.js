@@ -18,9 +18,13 @@ export async function getDrugs(req, res) {
 }
 
 export async function createDrug(req, res) {
-  const { name, generic_name, dosage, category, controlled_drug, requires_prescription, unit, min_stock_quantity } = req.body || {};
+  const { name, generic_name, dosage, category, controlled_drug, requires_prescription, unit, min_stock_quantity, pharmacy_id: bodyPharmacyId } = req.body || {};
   if (!name) return res.status(400).json({ error: 'Drug name required' });
   try {
+    const profile = await getProfile(req);
+    const isAdmin = req.userRole === 'ADMIN';
+    const pharmacy_id = isAdmin && bodyPharmacyId !== undefined ? bodyPharmacyId : (profile?.pharmacy_id ?? null);
+
     const { data, error } = await req.supabase
       .from('drugs')
       .insert({
@@ -32,6 +36,7 @@ export async function createDrug(req, res) {
         requires_prescription: !!requires_prescription,
         unit: unit || 'pcs',
         min_stock_quantity: min_stock_quantity ?? 10,
+        pharmacy_id,
       })
       .select()
       .single();
