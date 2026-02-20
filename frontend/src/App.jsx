@@ -37,7 +37,7 @@ export default function App() {
         <Route index element={<Dashboard />} />
         <Route path="inventory" element={<InventoryPage />} />
         <Route path="inventory/drugs" element={<DrugList />} />
-        <Route path="inventory/batches" element={<Navigate to=\"/inventory\" replace />} />
+        <Route path="inventory/batches" element={<Navigate to="/inventory" replace />} />
         <Route path="inventory/alerts" element={<StockAlerts />} />
         <Route path="sales" element={<PointOfSale />} />
         <Route path="sales/receipt/:id" element={<ReceiptViewer />} />
