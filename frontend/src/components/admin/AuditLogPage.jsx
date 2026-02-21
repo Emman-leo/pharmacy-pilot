@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useApi } from '../../hooks/useApi';
-import { useAuth } from '../../contexts/AuthContext';
 import './AuditLogPage.css';
 
 const ACTION_COLORS = {
@@ -40,19 +39,12 @@ function formatDetails(details) {
 
 export default function AuditLogPage() {
   const api = useApi();
-  const { profile } = useAuth();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [limit] = useState(50);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
-  const [pharmacies, setPharmacies] = useState([]);
-  const [pharmacyFilter, setPharmacyFilter] = useState(''); // '' = default (own or all), 'all' = all, uuid = specific
-
-  useEffect(() => {
-    api.get('/pharmacies').then(setPharmacies).catch(() => setPharmacies([]));
-  }, [api]);
 
   const loadLogs = async (reset = false) => {
     setLoading(true);
@@ -60,8 +52,6 @@ export default function AuditLogPage() {
     try {
       const nextOffset = reset ? 0 : offset;
       const params = new URLSearchParams({ limit: String(limit), offset: String(nextOffset) });
-      if (pharmacyFilter === 'all') params.set('pharmacy_id', 'all');
-      else if (pharmacyFilter) params.set('pharmacy_id', pharmacyFilter);
       const data = await api.get(`/admin/audit-logs?${params}`);
       if (reset) {
         setLogs(data);
@@ -80,7 +70,7 @@ export default function AuditLogPage() {
   useEffect(() => {
     loadLogs(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pharmacyFilter]);
+  }, []);
 
   return (
     <div className="audit-page">
@@ -90,19 +80,6 @@ export default function AuditLogPage() {
           <p className="audit-subtitle">
             Admin view of key actions performed in the system.
           </p>
-        </div>
-        <div className="audit-filters">
-          <select
-            className="audit-pharmacy-select"
-            value={pharmacyFilter}
-            onChange={(e) => setPharmacyFilter(e.target.value)}
-          >
-            <option value="">{profile?.pharmacy?.name ? 'This pharmacy' : 'All pharmacies'}</option>
-            <option value="all">All pharmacies</option>
-            {pharmacies.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
         </div>
         <button
           type="button"

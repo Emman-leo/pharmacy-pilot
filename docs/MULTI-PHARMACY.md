@@ -30,8 +30,12 @@ The system supports **different pharmacy businesses** (separate companies with d
 
 - **Audit logs**
   - `audit_logs.pharmacy_id` stores which pharmacy the event belonged to.
-  - Pharmacy admins see only their pharmacy’s logs by default; super admins (no pharmacy) see all.
-  - Filter by pharmacy via the Audit Log page or `?pharmacy_id=` query param.
+  - Pharmacy admins see only their pharmacy’s logs; super admins (no pharmacy) see all.
+  - Pharmacy column shows which pharmacy each event belongs to.
+
+- **Pharmacy isolation**
+  - `GET /pharmacies`: pharmacy users get only their pharmacy; super admins get all.
+  - `pharmacies` table RLS: pharmacy users can only read their own pharmacy row; super admins can read all.
 
 ### Migration (run once in Supabase SQL Editor)
 

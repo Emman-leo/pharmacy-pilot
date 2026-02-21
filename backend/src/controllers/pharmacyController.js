@@ -1,12 +1,20 @@
 import { supabaseAdmin } from '../utils/db.js';
 
-/** GET /pharmacies - list pharmacies (for admin or dropdown). Uses user JWT so RLS applies. */
+/** GET /pharmacies - list pharmacies. Pharmacy users see only their pharmacy; super admins (no pharmacy) see all. */
 export async function listPharmacies(req, res) {
   try {
-    const { data, error } = await req.supabase
-      .from('pharmacies')
-      .select('id, name, address, phone')
-      .order('name');
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('pharmacy_id')
+      .eq('id', req.user.id)
+      .single();
+
+    const pharmacyId = profile?.pharmacy_id;
+    let q = req.supabase.from('pharmacies').select('id, name, address, phone').order('name');
+    if (pharmacyId) {
+      q = q.eq('id', pharmacyId);
+    }
+    const { data, error } = await q;
     if (error) throw error;
     res.json(data || []);
   } catch (err) {
