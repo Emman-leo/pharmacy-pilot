@@ -28,13 +28,22 @@ function formatUser(log) {
 
 function formatDetails(details) {
   if (!details || typeof details !== 'object') return '—';
-  return Object.entries(details)
-    .map(([key, value]) => {
-      const formattedValue =
-        typeof value === 'object' ? JSON.stringify(value) : String(value);
-      return `${key}: ${formattedValue}`;
-    })
-    .join('\n');
+  
+  const entries = Object.entries(details);
+  if (entries.length === 0) return '—';
+  
+  return (
+    <div className="audit-details-list">
+      {entries.map(([key, value]) => (
+        <div key={key} className="audit-detail-item">
+          <span className="detail-key">{key}:</span>
+          <span className="detail-value">
+            {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function AuditLogPage() {
@@ -132,9 +141,9 @@ export default function AuditLogPage() {
                 </td>
                 <td>{log.resource}</td>
                 <td>
-                  <pre className="audit-details">
+                  <div className="audit-details">
                     {formatDetails(log.details)}
-                  </pre>
+                  </div>
                 </td>
                 <td>{log.ip || '—'}</td>
               </tr>
