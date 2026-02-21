@@ -3,15 +3,15 @@ import { useAuth } from '../../contexts/AuthContext';
 import './Sidebar.css';
 
 const navItems = [
-  { to: '/', label: 'Dashboard' },
-  { to: '/inventory', label: 'Inventory' },
-  { to: '/inventory/drugs', label: 'Drugs' },
-  { to: '/inventory/alerts', label: 'Alerts' },
-  { to: '/sales', label: 'Point of Sale' },
-  { to: '/prescriptions', label: 'Prescriptions' },
-  { to: '/prescriptions/approval', label: 'Approval Queue', adminOnly: true },
-  { to: '/reports', label: 'Reports & Analytics' },
-  { to: '/admin/audit-log', label: 'Audit Log', adminOnly: true },
+  { to: '/app', label: 'Dashboard' },
+  { to: '/app/inventory', label: 'Inventory' },
+  { to: '/app/inventory/drugs', label: 'Drugs' },
+  { to: '/app/inventory/alerts', label: 'Alerts' },
+  { to: '/app/sales', label: 'Point of Sale' },
+  { to: '/app/prescriptions', label: 'Prescriptions' },
+  { to: '/app/prescriptions/approval', label: 'Approval Queue', adminOnly: true },
+  { to: '/app/reports', label: 'Reports & Analytics' },
+  { to: '/app/admin/audit-log', label: 'Audit Log', adminOnly: true },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {

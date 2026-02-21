@@ -105,7 +105,7 @@ export default function PointOfSale() {
       setCart([]);
       setCustomerName('');
       setDiscount(0);
-      navigate(`/sales/receipt/${sale.id}`);
+      navigate(`/app/sales/receipt/${sale.id}`);
     } catch (err) {
       alert(err.message || 'Checkout failed');
     } finally {

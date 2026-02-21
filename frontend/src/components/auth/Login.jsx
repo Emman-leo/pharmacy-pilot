@@ -23,7 +23,7 @@ export default function Login() {
       } else {
         await register(email, password, fullName);
       }
-      navigate('/');
+      navigate('/app');
     } catch (err) {
       setError(err.message || 'Something went wrong');
     } finally {
@@ -31,7 +31,7 @@ export default function Login() {
     }
   };
 
-  if (isAuthenticated) return <Navigate to="/" replace />;
+  if (isAuthenticated) return <Navigate to="/app" replace />;
 
   return (
     <div className="login-page">

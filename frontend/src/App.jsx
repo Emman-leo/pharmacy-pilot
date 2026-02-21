@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import Layout from './components/layout/Layout';
 import Login from './components/auth/Login';
+import LandingPage from './components/landing/LandingPage';
 import Dashboard from './components/Dashboard';
 import InventoryPage from './components/inventory/InventoryPage';
 import DrugList from './components/inventory/DrugList';
@@ -18,16 +19,24 @@ function ProtectedRoute({ children, adminOnly }) {
   const { isAuthenticated, loading, isAdmin } = useAuth();
   if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Loading...</div>;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (adminOnly && !isAdmin) return <Navigate to="/" replace />;
+  if (adminOnly && !isAdmin) return <Navigate to="/app" replace />;
   return children;
+}
+
+function LandingOrRedirect() {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Loading...</div>;
+  if (isAuthenticated) return <Navigate to="/app" replace />;
+  return <LandingPage />;
 }
 
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<LandingOrRedirect />} />
       <Route path="/login" element={<Login />} />
       <Route
-        path="/"
+        path="/app"
         element={
           <ProtectedRoute>
             <Layout />
@@ -37,7 +46,7 @@ export default function App() {
         <Route index element={<Dashboard />} />
         <Route path="inventory" element={<InventoryPage />} />
         <Route path="inventory/drugs" element={<DrugList />} />
-        <Route path="inventory/batches" element={<Navigate to="/inventory" replace />} />
+        <Route path="inventory/batches" element={<Navigate to="/app/inventory" replace />} />
         <Route path="inventory/alerts" element={<StockAlerts />} />
         <Route path="sales" element={<PointOfSale />} />
         <Route path="sales/receipt/:id" element={<ReceiptViewer />} />

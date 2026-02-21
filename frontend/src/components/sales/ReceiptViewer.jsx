@@ -26,7 +26,7 @@ export default function ReceiptViewer() {
   return (
     <div className="receipt-viewer">
       <div className="receipt-actions no-print">
-        <Link to="/sales" className="btn btn-ghost">← New Sale</Link>
+        <Link to="/app/sales" className="btn btn-ghost">← New Sale</Link>
         <button type="button" className="btn btn-primary" onClick={handlePrint}>Print receipt</button>
       </div>
 
