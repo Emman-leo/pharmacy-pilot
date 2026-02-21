@@ -15,45 +15,33 @@ export async function recordAuditEvent(req, {
   try {
     const userId = req.user?.id ?? null;
     let role = req.userRole ?? null;
-    
-    // If role not set by RBAC middleware, fetch it from profiles
-    if (!role && userId) {
+    let pharmacyId = null;
+    let userEmail = req.user?.email ?? null;
+    let userName = req.user?.user_metadata?.full_name ?? null;
+
+    if (userId) {
       try {
         const { data: profile } = await supabaseAdmin
           .from('profiles')
-          .select('role')
+          .select('role, full_name, email, pharmacy_id')
           .eq('id', userId)
           .single();
-        role = profile?.role || null;
+        if (profile) {
+          role = role || profile.role || null;
+          userName = userName || profile.full_name || null;
+          userEmail = userEmail || profile.email || null;
+          pharmacyId = profile.pharmacy_id ?? null;
+        }
       } catch {
         // Ignore profile fetch errors
       }
     }
-    
+
     const ip =
       (req.headers['x-forwarded-for']?.split(',')[0] || '').trim() ||
       req.ip ||
       null;
     const userAgent = req.headers['user-agent'] || null;
-
-    // Store email/name at record time so new users (no profile yet) show correctly
-    let userEmail = req.user?.email ?? null;
-    let userName = req.user?.user_metadata?.full_name ?? null;
-    if (!userName && userId) {
-      try {
-        const { data: profile } = await supabaseAdmin
-          .from('profiles')
-          .select('full_name, email')
-          .eq('id', userId)
-          .single();
-        if (profile) {
-          userName = profile.full_name || userName;
-          userEmail = userEmail || profile.email;
-        }
-      } catch {
-        // Ignore
-      }
-    }
 
     await supabaseAdmin.from('audit_logs').insert({
       user_id: userId,
@@ -66,6 +54,7 @@ export async function recordAuditEvent(req, {
       user_agent: userAgent,
       user_email: userEmail,
       user_name: userName,
+      pharmacy_id: pharmacyId,
     });
   } catch {
     // Intentionally ignore audit logging failures

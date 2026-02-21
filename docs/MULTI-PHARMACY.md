@@ -28,6 +28,11 @@ The system supports **different pharmacy businesses** (separate companies with d
   - `GET /auth/user` returns profile and **pharmacy** (id, name, address, phone).
   - Header shows the **current pharmacy name** when the user is assigned to a pharmacy.
 
+- **Audit logs**
+  - `audit_logs.pharmacy_id` stores which pharmacy the event belonged to.
+  - Pharmacy admins see only their pharmacy’s logs by default; super admins (no pharmacy) see all.
+  - Filter by pharmacy via the Audit Log page or `?pharmacy_id=` query param.
+
 ### Migration (run once in Supabase SQL Editor)
 
 Run the migration so each business can have its own catalog and settings:
