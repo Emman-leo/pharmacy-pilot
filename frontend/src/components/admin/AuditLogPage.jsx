@@ -36,14 +36,74 @@ function formatDetails(details) {
     <div className="audit-details-list">
       {entries.map(([key, value]) => (
         <div key={key} className="audit-detail-item">
-          <span className="detail-key">{key}:</span>
-          <span className="detail-value">
-            {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
+          <span className="detail-key">{formatKey(key)}:</span>
+          <span className={`detail-value ${getValueClass(key, value)}`}>
+            {formatValue(key, value)}
           </span>
         </div>
       ))}
     </div>
   );
+}
+
+function formatKey(key) {
+  // Format key names for better readability
+  const keyMap = {
+    'drug_name': 'Drug Name',
+    'quantity': 'Quantity',
+    'unit_price': 'Unit Price',
+    'total_amount': 'Total Amount',
+    'final_amount': 'Final Amount',
+    'discount_amount': 'Discount Amount',
+    'customer_name': 'Customer Name',
+    'receipt_number': 'Receipt Number',
+    'batch_number': 'Batch Number',
+    'expiry_date': 'Expiry Date',
+    'sale_date': 'Sale Date',
+    'created_at': 'Created At',
+    'updated_at': 'Updated At'
+  };
+  return keyMap[key] || key.replace(/_/g, ' ').replace(/\b\w/g, word => word.charAt(0).toUpperCase() + word.slice(1));
+}
+
+function getValueClass(key, value) {
+  // Apply specific styling based on value type
+  if (typeof value === 'number') {
+    if (key.includes('price') || key.includes('amount')) {
+      return 'currency';
+    } else {
+      return 'number';
+    }
+  }
+  if (key.includes('date') || key.includes('created_at') || key.includes('updated_at')) {
+    return 'date';
+  }
+  return '';
+}
+
+function formatValue(key, value) {
+  // Format values based on key type
+  if (typeof value === 'object') return JSON.stringify(value, null, 2);
+  
+  switch (key) {
+    case 'unit_price':
+    case 'total_amount':
+    case 'final_amount':
+    case 'discount_amount':
+      return typeof value === 'number' ? `$${value.toFixed(2)}` : String(value);
+    
+    case 'expiry_date':
+    case 'sale_date':
+    case 'created_at':
+    case 'updated_at':
+      return value ? new Date(value).toLocaleDateString() : '—';
+      
+    case 'quantity':
+      return typeof value === 'number' ? value.toLocaleString() : String(value);
+      
+    default:
+      return String(value);
+  }
 }
 
 export default function AuditLogPage() {

@@ -113,6 +113,22 @@
   padding: 2px 4px;
   border-radius: 3px;
   border: 1px solid #e5e7eb;
+  font-weight: 500;
+}
+
+.detail-value.currency {
+  color: #059669;
+  font-weight: 600;
+}
+
+.detail-value.date {
+  color: #dc2626;
+  font-family: monospace;
+}
+
+.detail-value.number {
+  color: #7c3aed;
+  font-weight: 600;
 }
 
 .audit-badge {
