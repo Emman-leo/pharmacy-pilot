@@ -1,18 +1,31 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import './LandingPage.css';
 
 const CONTACT_EMAIL = 'support@pharmacypilot.example';
 
 export default function LandingPage() {
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
   const handleContactSubmit = (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
-    const name = encodeURIComponent(fd.get('pharmacy_name') || '');
-    const email = encodeURIComponent(fd.get('contact_email') || '');
-    const phone = encodeURIComponent(fd.get('contact_phone') || '');
-    const body = encodeURIComponent(fd.get('body') || '');
-    const mailBody = `Pharmacy: ${name}\nContact email: ${email}\nPhone: ${phone}\n\n${body}`;
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=Pharmacy%20Registration%20Request&body=${mailBody}`;
+    try {
+      const fd = new FormData(e.target);
+      const name = encodeURIComponent(fd.get('pharmacy_name') || '');
+      const email = encodeURIComponent(fd.get('contact_email') || '');
+      const phone = encodeURIComponent(fd.get('contact_phone') || '');
+      const body = encodeURIComponent(fd.get('body') || '');
+      const mailBody = `Pharmacy: ${name}\nContact email: ${email}\nPhone: ${phone}\n\n${body}`;
+      window.location.href = `mailto:${CONTACT_EMAIL}?subject=Pharmacy%20Registration%20Request&body=${mailBody}`;
+      setFormSubmitted(true);
+      setTimeout(() => {
+        e.target.reset();
+        setFormSubmitted(false);
+      }, 2000);
+    } catch (error) {
+      setSubmitError('An error occurred. Please try again.');
+    }
   };
   return (
     <div className="landing">
@@ -62,14 +75,17 @@ export default function LandingPage() {
 
       <section id="contact" className="landing-contact">
         <h2>Interested in joining?</h2>
-        <p>Register your pharmacy and get started with Pharmacy Pilot. Fill out the form below and we’ll reach out shortly.</p>
+        <p>Register your pharmacy and get started with Pharmacy Pilot. Fill out the form below and we'll reach out shortly.</p>
         <form className="landing-contact-form" onSubmit={handleContactSubmit}>
+          {submitError && <div className="form-error">{submitError}</div>}
+          {formSubmitted && <div className="form-success">✓ Request sent! Check your email client.</div>}
           <input
             type="text"
             name="pharmacy_name"
             placeholder="Pharmacy name"
             className="landing-input"
             required
+            disabled={formSubmitted}
           />
           <input
             type="email"
@@ -77,21 +93,24 @@ export default function LandingPage() {
             placeholder="Contact email"
             className="landing-input"
             required
+            disabled={formSubmitted}
           />
           <input
             type="tel"
             name="contact_phone"
             placeholder="Contact phone"
             className="landing-input"
+            disabled={formSubmitted}
           />
           <textarea
             name="body"
             placeholder="Tell us a bit about your pharmacy and what you need (optional)"
             className="landing-textarea"
             rows={3}
+            disabled={formSubmitted}
           />
-          <button type="submit" className="btn btn-primary btn-block">
-            Request registration
+          <button type="submit" className="btn btn-primary btn-block" disabled={formSubmitted}>
+            {formSubmitted ? 'Opening email client...' : 'Request registration'}
           </button>
         </form>
       </section>
