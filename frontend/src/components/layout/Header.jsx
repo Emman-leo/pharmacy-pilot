@@ -1,8 +1,16 @@
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './Header.css';
 
 export default function Header({ onMenuClick, sidebarOpen }) {
   const { user, profile, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <header className="header">
       <button
@@ -33,7 +41,7 @@ export default function Header({ onMenuClick, sidebarOpen }) {
         )}
         <span>{profile?.full_name || user?.email}</span>
         <span className="header-role">{profile?.role || 'STAFF'}</span>
-        <button onClick={logout} className="btn btn-ghost">Logout</button>
+        <button onClick={handleLogout} className="btn btn-ghost">Logout</button>
       </div>
     </header>
   );
