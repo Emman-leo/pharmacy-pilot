@@ -12,7 +12,7 @@
 .layout-main {
   flex: 1;
   padding: 24px;
-  overflow: auto;
+  overflow: visible;
   min-width: 0;
 }
 
