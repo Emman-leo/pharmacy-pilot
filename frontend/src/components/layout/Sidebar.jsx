@@ -3,15 +3,15 @@ import { useAuth } from '../../contexts/AuthContext';
 import './Sidebar.css';
 
 const navItems = [
-  { to: '/app', label: 'Dashboard' },
-  { to: '/app/inventory', label: 'Inventory' },
-  { to: '/app/inventory/drugs', label: 'Drugs' },
-  { to: '/app/inventory/alerts', label: 'Alerts' },
-  { to: '/app/sales', label: 'Point of Sale' },
-  { to: '/app/prescriptions', label: 'Prescriptions' },
-  { to: '/app/prescriptions/approval', label: 'Approval Queue', adminOnly: true },
-  { to: '/app/reports', label: 'Reports & Analytics' },
-  { to: '/app/admin/audit-log', label: 'Audit Log', adminOnly: true },
+  { to: '/app', label: 'Dashboard', end: true },
+  { to: '/app/inventory', label: 'Inventory', end: true },
+  { to: '/app/inventory/drugs', label: 'Drugs', end: true },
+  { to: '/app/inventory/alerts', label: 'Alerts', end: true },
+  { to: '/app/sales', label: 'Point of Sale', end: true },
+  { to: '/app/prescriptions', label: 'Prescriptions', end: true },
+  { to: '/app/prescriptions/approval', label: 'Approval Queue', adminOnly: true, end: true },
+  { to: '/app/reports', label: 'Reports & Analytics', end: true },
+  { to: '/app/admin/audit-log', label: 'Audit Log', adminOnly: true, end: true },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -27,10 +27,11 @@ export default function Sidebar({ isOpen, onClose }) {
       />
       <aside className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}>
         <nav>
-          {items.map(({ to, label }) => (
+          {items.map(({ to, label, end }) => (
             <NavLink
               key={to}
               to={to}
+              end={end}
               className={({ isActive }) => (isActive ? 'sidebar-link active' : 'sidebar-link')}
               onClick={onClose}
             >

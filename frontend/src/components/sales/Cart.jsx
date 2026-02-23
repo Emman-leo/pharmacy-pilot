@@ -50,17 +50,17 @@ export default function Cart({ cart, estimate = {}, onUpdateQty, onRemove, custo
       <div className="cart-totals">
         <div className="cart-row">
           <span>Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>₵{subtotal.toFixed(2)}</span>
         </div>
         {discountAmount > 0 && (
           <div className="cart-row">
             <span>Discount</span>
-            <span>-${discountAmount.toFixed(2)}</span>
+            <span>-₵{discountAmount.toFixed(2)}</span>
           </div>
         )}
         <div className="cart-row cart-total">
           <span>Total</span>
-          <span>${total.toFixed(2)}</span>
+          <span>₵{total.toFixed(2)}</span>
         </div>
       </div>
 

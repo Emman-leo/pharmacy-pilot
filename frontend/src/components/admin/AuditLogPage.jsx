@@ -90,7 +90,7 @@ function formatValue(key, value) {
     case 'total_amount':
     case 'final_amount':
     case 'discount_amount':
-      return typeof value === 'number' ? `$${value.toFixed(2)}` : String(value);
+      return typeof value === 'number' ? `₵${value.toFixed(2)}` : String(value);
     
     case 'expiry_date':
     case 'sale_date':

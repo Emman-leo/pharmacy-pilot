@@ -43,8 +43,8 @@ export default function ReceiptViewer() {
             <tr>
               <th>Item</th>
               <th>Qty</th>
-              <th>Price</th>
-              <th>Total</th>
+              <th>Price (₵)</th>
+              <th>Total (₵)</th>
             </tr>
           </thead>
           <tbody>
@@ -52,8 +52,8 @@ export default function ReceiptViewer() {
               <tr key={si.id}>
                 <td>{si.drugs?.name || 'Unknown'}</td>
                 <td>{si.quantity}</td>
-                <td>${parseFloat(si.unit_price).toFixed(2)}</td>
-                <td>${parseFloat(si.total_price).toFixed(2)}</td>
+                <td>₵{parseFloat(si.unit_price).toFixed(2)}</td>
+                <td>₵{parseFloat(si.total_price).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
@@ -62,17 +62,17 @@ export default function ReceiptViewer() {
         <div className="receipt-totals">
           <div className="receipt-row">
             <span>Subtotal</span>
-            <span>${parseFloat(receipt.total_amount).toFixed(2)}</span>
+            <span>₵{parseFloat(receipt.total_amount).toFixed(2)}</span>
           </div>
           {parseFloat(receipt.discount_amount) > 0 && (
             <div className="receipt-row">
               <span>Discount</span>
-              <span>-${parseFloat(receipt.discount_amount).toFixed(2)}</span>
+              <span>-₵{parseFloat(receipt.discount_amount).toFixed(2)}</span>
             </div>
           )}
           <div className="receipt-row receipt-total">
             <span>Total</span>
-            <span>${parseFloat(receipt.final_amount).toFixed(2)}</span>
+            <span>₵{parseFloat(receipt.final_amount).toFixed(2)}</span>
           </div>
         </div>
 
