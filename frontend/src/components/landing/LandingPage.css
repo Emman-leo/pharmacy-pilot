@@ -1,7 +1,8 @@
 .landing {
-  min-height: 100vh;
+  min-height: auto;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 25%, #e0f2fe 50%, #f0f9ff 75%, #f8fafc 100%);
   overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .landing-header {
@@ -344,4 +345,16 @@
   .landing-header-inner {
     justify-content: space-between;
   }
+}
+
+/* Targeted override to ensure the landing element never becomes a scroll container
+   when rendered directly under #root. Narrow scope to avoid global side-effects. */
+#root > .landing {
+  overflow-y: visible !important;
+  max-height: none !important;
+}
+
+/* Strong local override: ensure no inner scrollbar on landing. */
+.landing {
+  overflow: visible !important;
 }
