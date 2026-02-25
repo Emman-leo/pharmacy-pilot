@@ -92,7 +92,14 @@ export async function forgotPassword(req, res) {
     return res.status(400).json({ error: 'Email is required' });
   }
   try {
-    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email);
+    const redirectBase = process.env.FRONTEND_URL || '';
+    const redirectTo = redirectBase
+      ? `${redirectBase.replace(/\/$/, '')}/reset-password`
+      : undefined;
+
+    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
     if (error) {
       return res.status(400).json({ error: error.message });
     }

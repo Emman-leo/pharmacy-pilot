@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import Layout from './components/layout/Layout';
 import Login from './components/auth/Login';
+import ResetPassword from './components/auth/ResetPassword';
 import LandingPage from './components/landing/LandingPage';
 import Dashboard from './components/Dashboard';
 import InventoryPage from './components/inventory/InventoryPage';
@@ -35,6 +36,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LandingOrRedirect />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route
         path="/app"
         element={
