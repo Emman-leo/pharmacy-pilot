@@ -61,3 +61,24 @@
 .login-toggle:hover {
   text-decoration: underline;
 }
+
+.login-forgot {
+  display: inline-block;
+  margin: 4px 0 8px;
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 0.85rem;
+  padding: 0;
+  cursor: pointer;
+}
+
+.login-forgot:hover {
+  text-decoration: underline;
+}
+
+.login-reset {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  color: #16a34a;
+}

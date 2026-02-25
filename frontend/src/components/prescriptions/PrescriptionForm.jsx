@@ -25,11 +25,11 @@ export default function PrescriptionForm() {
   const addDrug = () => {
     const drug = drugs.find((d) => d.id === addDrugId);
     if (!drug) {
-      alert('Select a drug');
+      setMessage('Select a drug');
       return;
     }
     if (prescribedDrugs.some((p) => p.drug_id === drug.id)) {
-      alert('Drug already added');
+      setMessage('Drug already added');
       return;
     }
     setPrescribedDrugs((prev) => [
@@ -48,7 +48,7 @@ export default function PrescriptionForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!patientName || !doctorName || prescribedDrugs.length === 0) {
-      alert('Patient name, doctor name, and at least one drug required');
+      setMessage('Patient name, doctor name, and at least one drug required');
       return;
     }
     setSubmitting(true);

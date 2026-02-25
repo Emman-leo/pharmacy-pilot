@@ -7,6 +7,7 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
   const [batches, setBatches] = useState([]);
   const [drugId, setDrugId] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const api = useApi();
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
       if (drugId) api.get(`/inventory/batches?drug_id=${drugId}`).then(setBatches);
       onStockChanged?.();
     } catch (err) {
-      alert(err.message);
+      setError(err.message || 'Failed to add batch');
     }
   };
 
@@ -44,13 +45,15 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
       if (drugId) api.get(`/inventory/batches?drug_id=${drugId}`).then(setBatches);
       onStockChanged?.();
     } catch (err) {
-      alert(err.message);
+      setError(err.message || 'Failed to update quantity');
     }
   };
 
   return (
     <div className="batch-form">
       {!embedded && <h1>Add Stock</h1>}
+
+      {error && <p className="error-banner">{error}</p>}
 
       <form onSubmit={handleAddBatch} className="batch-add-form">
         <label>Drug</label>

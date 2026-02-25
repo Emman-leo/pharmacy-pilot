@@ -2,29 +2,38 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import './LandingPage.css';
 
-const CONTACT_EMAIL = 'support@pharmacypilot.example';
+const CONTACT_EMAIL = 'webdevv.info@gmail.com';
 
 export default function LandingPage() {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
-  const handleContactSubmit = (e) => {
+  const handleContactSubmit = async (e) => {
     e.preventDefault();
+    setSubmitError('');
+    const form = e.target;
+    const fd = new FormData(form);
+    const payload = {
+      pharmacy_name: fd.get('pharmacy_name') || '',
+      contact_email: fd.get('contact_email') || '',
+      contact_phone: fd.get('contact_phone') || '',
+      message: fd.get('body') || '',
+    };
+
     try {
-      const fd = new FormData(e.target);
-      const name = encodeURIComponent(fd.get('pharmacy_name') || '');
-      const email = encodeURIComponent(fd.get('contact_email') || '');
-      const phone = encodeURIComponent(fd.get('contact_phone') || '');
-      const body = encodeURIComponent(fd.get('body') || '');
-      const mailBody = `Pharmacy: ${name}\nContact email: ${email}\nPhone: ${phone}\n\n${body}`;
-      window.location.href = `mailto:${CONTACT_EMAIL}?subject=Pharmacy%20Registration%20Request&body=${mailBody}`;
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to send request');
+      }
       setFormSubmitted(true);
-      setTimeout(() => {
-        e.target.reset();
-        setFormSubmitted(false);
-      }, 2000);
+      form.reset();
     } catch (error) {
-      setSubmitError('An error occurred. Please try again.');
+      setSubmitError(error.message || 'An error occurred. Please try again.');
     }
   };
   return (
@@ -75,17 +84,19 @@ export default function LandingPage() {
 
       <section id="contact" className="landing-contact">
         <h2>Interested in joining?</h2>
-        <p>Register your pharmacy and get started with Pharmacy Pilot. Fill out the form below and we'll reach out shortly.</p>
+        <p>
+          Register your pharmacy and get started with Pharmacy Pilot. Fill out the form below and we&apos;ll reach out
+          shortly, or email us directly at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+        </p>
         <form className="landing-contact-form" onSubmit={handleContactSubmit}>
           {submitError && <div className="form-error">{submitError}</div>}
-          {formSubmitted && <div className="form-success">✓ Request sent! Check your email client.</div>}
+          {formSubmitted && <div className="form-success">✓ Request received! We&apos;ll contact you shortly.</div>}
           <input
             type="text"
             name="pharmacy_name"
             placeholder="Pharmacy name"
             className="landing-input"
             required
-            disabled={formSubmitted}
           />
           <input
             type="email"
@@ -110,7 +121,7 @@ export default function LandingPage() {
             disabled={formSubmitted}
           />
           <button type="submit" className="btn btn-primary btn-block" disabled={formSubmitted}>
-            {formSubmitted ? 'Opening email client...' : 'Request registration'}
+            {formSubmitted ? 'Request sent' : 'Request registration'}
           </button>
         </form>
       </section>

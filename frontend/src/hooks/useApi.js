@@ -16,6 +16,12 @@ export function useApi() {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
+      if (res.status === 401) {
+        localStorage.removeItem('pharmacy_token');
+        if (!window.location.pathname.startsWith('/login')) {
+          window.location.href = '/login';
+        }
+      }
       const err = new Error(data.error || res.statusText);
       err.data = data;
       throw err;

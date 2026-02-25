@@ -31,6 +31,9 @@
   color: #475569;
   font-weight: 500;
   transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .sidebar-link:hover {
@@ -42,6 +45,12 @@
   background: #eff6ff;
   color: #2563eb;
   border-right: 3px solid #2563eb;
+}
+
+.sidebar-icon {
+  font-size: 1.1rem;
+  width: 1.4rem;
+  text-align: center;
 }
 
 @media (max-width: 768px) {

@@ -85,3 +85,19 @@ export async function getUser(req, res) {
 export function logout(req, res) {
   res.json({ message: 'Logged out' });
 }
+
+export async function forgotPassword(req, res) {
+  const { email } = req.body || {};
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+  try {
+    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email);
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+    return res.json({ message: 'Password reset email sent if the account exists.' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to send reset email' });
+  }
+}

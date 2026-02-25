@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useApi } from '../../hooks/useApi';
 import './Login.css';
 
 export default function Login() {
@@ -10,12 +11,15 @@ export default function Login() {
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
   const { login, register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const api = useApi();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setResetMessage('');
     setLoading(true);
     try {
       if (mode === 'login') {
@@ -28,6 +32,21 @@ export default function Login() {
       setError(err.message || 'Something went wrong');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    setError('');
+    setResetMessage('');
+    if (!email) {
+      setError('Enter your email above first.');
+      return;
+    }
+    try {
+      await api.post('/auth/forgot-password', { email });
+      setResetMessage('If an account exists for this email, a reset link has been sent.');
+    } catch (err) {
+      setError(err.message || 'Failed to send reset email');
     }
   };
 
@@ -64,7 +83,16 @@ export default function Login() {
             required
             className="login-input"
           />
+          <button
+            type="button"
+            className="login-forgot"
+            onClick={handleForgotPassword}
+            disabled={loading}
+          >
+            Forgot password?
+          </button>
           {error && <p className="login-error">{error}</p>}
+          {resetMessage && <p className="login-reset">{resetMessage}</p>}
           <button type="submit" disabled={loading} className="btn btn-primary btn-block">
             {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Create account'}
           </button>

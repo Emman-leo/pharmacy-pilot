@@ -8,6 +8,7 @@ export default function ApprovalQueue() {
   const [processing, setProcessing] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
   const [rejecting, setRejecting] = useState(null);
+  const [error, setError] = useState('');
   const api = useApi();
 
   const fetchPending = () => {
@@ -24,11 +25,12 @@ export default function ApprovalQueue() {
 
   const approve = async (id) => {
     setProcessing(id);
+    setError('');
     try {
       await api.put(`/prescriptions/${id}/approve`);
       fetchPending();
     } catch (err) {
-      alert(err.message);
+      setError(err.message || 'Failed to approve prescription');
     } finally {
       setProcessing(null);
     }
@@ -36,13 +38,14 @@ export default function ApprovalQueue() {
 
   const reject = async (id) => {
     setRejecting(id);
+    setError('');
     try {
       await api.put(`/prescriptions/${id}/reject`, { reason: rejectReason });
       setRejectReason('');
       setRejecting(null);
       fetchPending();
     } catch (err) {
-      alert(err.message);
+      setError(err.message || 'Failed to reject prescription');
     } finally {
       setRejecting(null);
     }
@@ -53,6 +56,8 @@ export default function ApprovalQueue() {
   return (
     <div className="approval-queue">
       <h1>Prescription Approval Queue</h1>
+
+      {error && <p className="error-banner">{error}</p>}
 
       {pending.length === 0 ? (
         <p className="approval-empty">No pending prescriptions</p>

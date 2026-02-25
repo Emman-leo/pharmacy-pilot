@@ -10,6 +10,7 @@ export default function DrugList() {
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [error, setError] = useState('');
   const api = useApi();
   const { isAdmin } = useAuth();
 
@@ -30,6 +31,7 @@ export default function DrugList() {
 
   const handleSubmit = async (e, data) => {
     e.preventDefault();
+    setError('');
     try {
       if (editing) {
         await api.put(`/inventory/drugs/${editing.id}`, data);
@@ -40,7 +42,7 @@ export default function DrugList() {
       setEditing(null);
       fetchDrugs();
     } catch (err) {
-      alert(err.message);
+      setError(err.message || 'Failed to save drug');
     }
   };
 
@@ -54,6 +56,8 @@ export default function DrugList() {
           </button>
         )}
       </div>
+
+      {error && <p className="error-banner">{error}</p>}
 
       <div className="drug-list-filters">
         <input

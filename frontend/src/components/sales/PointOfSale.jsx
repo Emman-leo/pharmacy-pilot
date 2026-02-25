@@ -20,6 +20,7 @@ export default function PointOfSale() {
   const searchRef = useRef(null);
   const api = useApi();
   const navigate = useNavigate();
+  const [error, setError] = useState('');
 
   useEffect(() => {
     api.get('/inventory/drugs').then(setDrugs).catch(console.error);
@@ -91,10 +92,11 @@ export default function PointOfSale() {
 
   const checkout = useCallback(async () => {
     if (cart.length === 0) {
-      alert('Cart is empty');
+      setError('Cart is empty');
       return;
     }
     setCheckingOut(true);
+    setError('');
     try {
       const items = cart.map((c) => ({ drug_id: c.drug_id, quantity: c.quantity }));
       const sale = await api.post('/sales/checkout', {
@@ -107,7 +109,7 @@ export default function PointOfSale() {
       setDiscount(0);
       navigate(`/app/sales/receipt/${sale.id}`);
     } catch (err) {
-      alert(err.message || 'Checkout failed');
+      setError(err.message || 'Checkout failed');
     } finally {
       setCheckingOut(false);
     }
@@ -148,6 +150,8 @@ export default function PointOfSale() {
         <h1>Point of Sale</h1>
         <p className="pos-shortcuts">Ctrl+Enter: Checkout · Type to search, Enter to add</p>
       </div>
+
+      {error && <p className="error-banner">{error}</p>}
 
       <div className="pos-body">
         <div className="pos-products">

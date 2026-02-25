@@ -8,6 +8,7 @@ import * as prescriptionController from '../controllers/prescriptionController.j
 import * as reportController from '../controllers/reportController.js';
 import * as auditController from '../controllers/auditController.js';
 import * as pharmacyController from '../controllers/pharmacyController.js';
+import * as contactController from '../controllers/contactController.js';
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.post('/auth/login', authController.login);
 router.post('/auth/register', authController.register);
 router.get('/auth/user', authMiddleware, authController.getUser);
 router.post('/auth/logout', authController.logout);
+router.post('/auth/forgot-password', authController.forgotPassword);
 
 // Pharmacies (list and current pharmacy settings)
 router.get('/pharmacies', authMiddleware, pharmacyController.listPharmacies);
@@ -36,6 +38,9 @@ router.post('/sales/estimate', authMiddleware, salesController.estimate);
 router.post('/sales/checkout', authMiddleware, salesController.checkout);
 router.get('/sales/history', authMiddleware, salesController.getHistory);
 router.get('/sales/receipt/:id', authMiddleware, salesController.getReceipt);
+
+// Public contact form
+router.post('/contact', contactController.submitContact);
 
 // Prescriptions
 router.post('/prescriptions', authMiddleware, prescriptionController.create);
