@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
+import Spinner from '../common/Spinner';
 import './BatchForm.css';
 
 export default function BatchForm({ embedded = false, onStockChanged } = {}) {
@@ -78,7 +79,7 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
         <div className="batch-list">
           <h2>Current Batches (FEFO order)</h2>
           {loading ? (
-            <p>Loading...</p>
+            <Spinner label="Loading batches…" />
           ) : (
             <table className="batch-table">
               <thead>

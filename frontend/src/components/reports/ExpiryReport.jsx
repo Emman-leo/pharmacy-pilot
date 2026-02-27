@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { downloadCSV } from '../../utils/exportCSV';
+import Spinner from '../common/Spinner';
 import './ExpiryReport.css';
 
 export default function ExpiryReport() {
@@ -26,7 +27,7 @@ export default function ExpiryReport() {
     ]);
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spinner label="Loading expiry alerts…" />;
 
   return (
     <div className="expiry-report">

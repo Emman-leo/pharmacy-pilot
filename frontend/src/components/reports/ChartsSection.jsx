@@ -12,6 +12,7 @@ import {
   Cell,
   Legend,
 } from 'recharts';
+import Spinner from '../common/Spinner';
 import './ReportsPage.css';
 
 const PIE_COLORS = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#0891b2', '#64748b'];
@@ -30,7 +31,9 @@ export function SalesTrendChart({ salesByPeriod, loading }) {
     return (
       <div className="chart-container">
         <h3>Sales Trend</h3>
-        <div className="chart-placeholder">Loading...</div>
+        <div className="chart-placeholder">
+          <Spinner label="Loading sales trend…" />
+        </div>
       </div>
     );
   }
@@ -73,7 +76,9 @@ export function CategoryDistributionChart({ categoryData, loading }) {
     return (
       <div className="chart-container">
         <h3>Category Distribution</h3>
-        <div className="chart-placeholder">Loading...</div>
+        <div className="chart-placeholder">
+          <Spinner label="Loading categories…" />
+        </div>
       </div>
     );
   }

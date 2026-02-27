@@ -23,14 +23,16 @@ export async function overview(req, res) {
       req.supabase
         .from('sales')
         .select('final_amount')
+        .neq('status', 'VOIDED')
         .gte('sale_date', todayStartStr)
         .lt('sale_date', todayEndStr),
       req.supabase
         .from('sales')
         .select('final_amount')
+        .neq('status', 'VOIDED')
         .gte('sale_date', yesterdayStartStr)
         .lt('sale_date', yesterdayEndStr),
-      req.supabase.from('sales').select('final_amount').gte('sale_date', monthStartStr),
+      req.supabase.from('sales').select('final_amount').neq('status', 'VOIDED').gte('sale_date', monthStartStr),
       req.supabase.from('sale_items').select('drug_id, quantity, drugs(name)'),
       req.supabase.from('drugs').select('id, min_stock_quantity'),
       req.supabase
@@ -113,7 +115,7 @@ export async function categoryDistribution(req, res) {
   try {
     const rangeStart = start_date ? toStartOfDay(start_date) : null;
     const rangeEnd = end_date ? toEndOfDay(end_date) : null;
-    let salesQ = req.supabase.from('sales').select('id');
+    let salesQ = req.supabase.from('sales').select('id').neq('status', 'VOIDED');
     if (rangeStart) salesQ = salesQ.gte('sale_date', rangeStart);
     if (rangeEnd) salesQ = salesQ.lte('sale_date', rangeEnd);
     const { data: sales } = await salesQ;
@@ -158,7 +160,8 @@ export async function salesSummary(req, res) {
 
     let q = req.supabase
       .from('sales')
-      .select('id, final_amount, sale_date');
+      .select('id, final_amount, sale_date')
+      .neq('status', 'VOIDED');
     if (rangeStart) q = q.gte('sale_date', rangeStart);
     if (rangeEnd) q = q.lte('sale_date', rangeEnd);
     const { data: salesData, error } = await q;
@@ -252,7 +255,7 @@ export async function profitMargin(req, res) {
   try {
     const rangeStart = start_date ? toStartOfDay(start_date) : null;
     const rangeEnd = end_date ? toEndOfDay(end_date) : null;
-    let salesFilter = req.supabase.from('sales').select('id');
+    let salesFilter = req.supabase.from('sales').select('id').neq('status', 'VOIDED');
     if (rangeStart) salesFilter = salesFilter.gte('sale_date', rangeStart);
     if (rangeEnd) salesFilter = salesFilter.lte('sale_date', rangeEnd);
     const { data: sales } = await salesFilter;
@@ -299,7 +302,7 @@ export async function salesByPeriod(req, res) {
   try {
     const rangeStart = start_date ? toStartOfDay(start_date) : null;
     const rangeEnd = end_date ? toEndOfDay(end_date) : null;
-    let q = req.supabase.from('sales').select('id, sale_date, final_amount');
+    let q = req.supabase.from('sales').select('id, sale_date, final_amount').neq('status', 'VOIDED');
     if (rangeStart) q = q.gte('sale_date', rangeStart);
     if (rangeEnd) q = q.lte('sale_date', rangeEnd);
     const { data: sales, error } = await q;

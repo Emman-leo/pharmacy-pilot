@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { downloadCSV } from '../../utils/exportCSV';
+import Spinner from '../common/Spinner';
 import './ReportCommon.css';
 
 export default function SlowMovingReport() {
@@ -32,7 +33,7 @@ export default function SlowMovingReport() {
     );
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spinner label="Loading slow-moving report…" />;
 
   return (
     <div className="report-page">

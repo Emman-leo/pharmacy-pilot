@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { downloadCSV } from '../../utils/exportCSV';
+import Spinner from '../common/Spinner';
 import './ReportCommon.css';
 
 export default function SalesByPeriodReport() {
@@ -37,7 +38,7 @@ export default function SalesByPeriodReport() {
     );
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spinner label="Loading sales by period…" />;
 
   return (
     <div className="report-page">
@@ -68,7 +69,7 @@ export default function SalesByPeriodReport() {
                   style={{ width: `${(d.total / maxTotal) * 100}%` }}
                 />
               </div>
-              <span className="bar-chart-value">${parseFloat(d.total).toFixed(2)}</span>
+              <span className="bar-chart-value">₵{parseFloat(d.total).toFixed(2)}</span>
             </div>
           ))}
         </div>
@@ -88,7 +89,7 @@ export default function SalesByPeriodReport() {
             {(data || []).map((d) => (
               <tr key={d.period}>
                 <td>{d.period}</td>
-                <td>${parseFloat(d.total).toFixed(2)}</td>
+                <td>₵{parseFloat(d.total).toFixed(2)}</td>
                 <td>{d.count}</td>
               </tr>
             ))}

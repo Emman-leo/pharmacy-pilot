@@ -4,6 +4,7 @@ import Layout from './components/layout/Layout';
 import Login from './components/auth/Login';
 import ResetPassword from './components/auth/ResetPassword';
 import LandingPage from './components/landing/LandingPage';
+import Spinner from './components/common/Spinner';
 import Dashboard from './components/Dashboard';
 import InventoryPage from './components/inventory/InventoryPage';
 import DrugList from './components/inventory/DrugList';
@@ -18,7 +19,7 @@ import AuditLogPage from './components/admin/AuditLogPage';
 
 function ProtectedRoute({ children, adminOnly }) {
   const { isAuthenticated, loading, isAdmin } = useAuth();
-  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Loading...</div>;
+  if (loading) return <Spinner label="Loading session…" />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (adminOnly && !isAdmin) return <Navigate to="/app" replace />;
   return children;
@@ -26,7 +27,7 @@ function ProtectedRoute({ children, adminOnly }) {
 
 function LandingOrRedirect() {
   const { isAuthenticated, loading } = useAuth();
-  if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Loading...</div>;
+  if (loading) return <Spinner label="Loading…" />;
   if (isAuthenticated) return <Navigate to="/app" replace />;
   return <LandingPage />;
 }

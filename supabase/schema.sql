@@ -91,6 +91,7 @@ CREATE TABLE sales (
   final_amount DECIMAL(12,2) NOT NULL,
   sold_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   customer_name TEXT,
+  status TEXT NOT NULL DEFAULT 'COMPLETED',
   sale_date TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );

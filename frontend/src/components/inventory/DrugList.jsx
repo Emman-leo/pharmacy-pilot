@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { useAuth } from '../../contexts/AuthContext';
+import Spinner from '../common/Spinner';
 import './DrugList.css';
 
 export default function DrugList() {
@@ -77,7 +78,7 @@ export default function DrugList() {
       </div>
 
       {loading ? (
-        <p>Loading...</p>
+        <Spinner label="Loading drugs…" />
       ) : (
         <table className="drug-table">
           <thead>

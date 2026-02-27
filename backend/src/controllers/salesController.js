@@ -153,6 +153,70 @@ export async function getReceipt(req, res) {
   }
 }
 
+export async function voidSale(req, res) {
+  const { id } = req.params;
+  try {
+    const profile = await getProfile(req);
+    const pharmacy_id = profile?.pharmacy_id || null;
+
+    const { data: sale, error } = await supabaseAdmin
+      .from('sales')
+      .select('*, sale_items(*)')
+      .eq('id', id)
+      .single();
+    if (error || !sale) return res.status(404).json({ error: 'Sale not found' });
+
+    if (sale.status === 'VOIDED') {
+      return res.status(400).json({ error: 'Sale already voided' });
+    }
+
+    if (pharmacy_id && sale.pharmacy_id && sale.pharmacy_id !== pharmacy_id) {
+      return res.status(403).json({ error: 'Not allowed to void this sale' });
+    }
+
+    const items = sale.sale_items || [];
+    for (const item of items) {
+      if (!item.batch_id || !item.quantity) continue;
+      const { data: batch, error: batchError } = await supabaseAdmin
+        .from('inventory_batches')
+        .select('quantity')
+        .eq('id', item.batch_id)
+        .single();
+      if (batchError) throw batchError;
+      const newQty = (batch?.quantity || 0) + item.quantity;
+      const { error: updateError } = await supabaseAdmin
+        .from('inventory_batches')
+        .update({ quantity: newQty })
+        .eq('id', item.batch_id);
+      if (updateError) throw updateError;
+    }
+
+    const { data: updated, error: updateSaleError } = await supabaseAdmin
+      .from('sales')
+      .update({ status: 'VOIDED' })
+      .eq('id', id)
+      .select()
+      .single();
+    if (updateSaleError) throw updateSaleError;
+
+    await recordAuditEvent(req, {
+      action: 'CHECKOUT_VOID',
+      resource: 'sale',
+      resourceId: id,
+      details: {
+        receipt_number: sale.receipt_number,
+        total_amount: sale.total_amount,
+        discount_amount: sale.discount_amount,
+        final_amount: sale.final_amount,
+      },
+    });
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to void sale' });
+  }
+}
+
 async function getProfile(req) {
   const { data } = await supabaseAdmin.from('profiles').select('pharmacy_id').eq('id', req.user.id).single();
   return data;

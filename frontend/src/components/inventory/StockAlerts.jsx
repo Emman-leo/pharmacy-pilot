@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
+import Spinner from '../common/Spinner';
 import './StockAlerts.css';
 
 export default function StockAlerts() {
@@ -14,7 +15,7 @@ export default function StockAlerts() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spinner label="Loading alerts…" />;
 
   const { lowStock = [], expiryWarnings = [] } = alerts;
 

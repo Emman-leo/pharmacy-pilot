@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { downloadCSV } from '../../utils/exportCSV';
+import Spinner from '../common/Spinner';
 import './ReportCommon.css';
 
 export default function ProfitReport() {
@@ -39,7 +40,7 @@ export default function ProfitReport() {
     );
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spinner label="Loading profit report…" />;
 
   return (
     <div className="report-page">
@@ -57,15 +58,15 @@ export default function ProfitReport() {
         <h2>Summary</h2>
         <div className="report-summary-grid">
           <div className="summary-card">
-            <span className="summary-value">${(data.totalRevenue || 0).toFixed(2)}</span>
+            <span className="summary-value">₵{(data.totalRevenue || 0).toFixed(2)}</span>
             <span className="summary-label">Total Revenue</span>
           </div>
           <div className="summary-card">
-            <span className="summary-value">${(data.totalCost || 0).toFixed(2)}</span>
+            <span className="summary-value">₵{(data.totalCost || 0).toFixed(2)}</span>
             <span className="summary-label">Total Cost</span>
           </div>
           <div className="summary-card highlight">
-            <span className="summary-value">${(data.totalProfit || 0).toFixed(2)}</span>
+            <span className="summary-value">₵{(data.totalProfit || 0).toFixed(2)}</span>
             <span className="summary-label">Total Profit</span>
           </div>
         </div>
@@ -87,9 +88,9 @@ export default function ProfitReport() {
             {(data.items || []).map((r) => (
               <tr key={r.drug_id}>
                 <td>{r.drug_name}</td>
-                <td>${parseFloat(r.revenue).toFixed(2)}</td>
-                <td>${parseFloat(r.cost).toFixed(2)}</td>
-                <td>${parseFloat(r.profit).toFixed(2)}</td>
+                <td>₵{parseFloat(r.revenue).toFixed(2)}</td>
+                <td>₵{parseFloat(r.cost).toFixed(2)}</td>
+                <td>₵{parseFloat(r.profit).toFixed(2)}</td>
                 <td>{r.margin_pct}%</td>
               </tr>
             ))}

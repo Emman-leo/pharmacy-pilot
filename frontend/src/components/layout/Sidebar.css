@@ -36,6 +36,11 @@
   gap: 8px;
 }
 
+.sidebar-link-nested {
+  padding-left: 32px;
+  font-size: 0.9rem;
+}
+
 .sidebar-link:hover {
   background: #f1f5f9;
   color: #0f172a;

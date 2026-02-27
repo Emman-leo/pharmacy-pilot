@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { downloadCSV } from '../../utils/exportCSV';
+import Spinner from '../common/Spinner';
 import './SalesReport.css';
 
 export default function SalesReport() {
@@ -40,7 +41,7 @@ export default function SalesReport() {
     fetchReports();
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spinner label="Loading sales report…" />;
 
   return (
     <div className="sales-report">
@@ -57,7 +58,7 @@ export default function SalesReport() {
         <h2>Summary</h2>
         <div className="report-summary">
           <div className="summary-item">
-            <span className="summary-value">${(summary.total || 0).toFixed(2)}</span>
+            <span className="summary-value">₵{(summary.total || 0).toFixed(2)}</span>
             <span className="summary-label">Total Revenue</span>
           </div>
           <div className="summary-item">

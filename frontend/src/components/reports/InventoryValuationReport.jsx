@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { downloadCSV } from '../../utils/exportCSV';
+import Spinner from '../common/Spinner';
 import './ReportCommon.css';
 
 export default function InventoryValuationReport() {
@@ -28,7 +29,7 @@ export default function InventoryValuationReport() {
     );
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Spinner label="Loading inventory valuation…" />;
 
   const maxVal = Math.max(...(data.byDrug || []).map((d) => d.value), 1);
 
@@ -42,7 +43,7 @@ export default function InventoryValuationReport() {
       <section className="report-section">
         <h2>Total Stock Value</h2>
         <div className="summary-card highlight">
-          <span className="summary-value">${(data.total || 0).toFixed(2)}</span>
+          <span className="summary-value">₵{(data.total || 0).toFixed(2)}</span>
         </div>
       </section>
 
@@ -58,7 +59,7 @@ export default function InventoryValuationReport() {
                   style={{ width: `${(d.value / maxVal) * 100}%` }}
                 />
               </div>
-              <span className="bar-chart-value">${parseFloat(d.value).toFixed(2)}</span>
+              <span className="bar-chart-value">₵{parseFloat(d.value).toFixed(2)}</span>
             </div>
           ))}
         </div>
@@ -75,7 +76,7 @@ export default function InventoryValuationReport() {
               <tr key={d.drug_id}>
                 <td>{d.drug_name}</td>
                 <td>{d.quantity}</td>
-                <td>${parseFloat(d.value).toFixed(2)}</td>
+                <td>₵{parseFloat(d.value).toFixed(2)}</td>
               </tr>
             ))}
           </tbody>

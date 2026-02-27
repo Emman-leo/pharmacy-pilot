@@ -1,23 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
+import Spinner from '../common/Spinner';
 import './ReceiptViewer.css';
 
 export default function ReceiptViewer() {
   const { id } = useParams();
   const [receipt, setReceipt] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const api = useApi();
 
   useEffect(() => {
     api.get(`/sales/receipt/${id}`)
       .then(setReceipt)
-      .catch(() => setReceipt(null))
+      .catch((err) => {
+        setError(err.message || 'Failed to load receipt');
+        setReceipt(null);
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <p>Loading...</p>;
-  if (!receipt) return <p>Receipt not found.</p>;
+  if (loading) return <Spinner label="Loading receipt…" />;
+  if (!receipt) return <p>{error || 'Receipt not found.'}</p>;
 
   const handlePrint = () => {
     window.print();

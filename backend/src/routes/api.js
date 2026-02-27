@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { requireRole } from '../middleware/rbacMiddleware.js';
 import * as authController from '../controllers/authController.js';
@@ -12,12 +13,26 @@ import * as contactController from '../controllers/contactController.js';
 
 const router = Router();
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const contactLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Auth (uses Supabase client directly; proxy endpoints for convenience)
-router.post('/auth/login', authController.login);
-router.post('/auth/register', authController.register);
+router.post('/auth/login', authLimiter, authController.login);
+router.post('/auth/register', authLimiter, authController.register);
 router.get('/auth/user', authMiddleware, authController.getUser);
 router.post('/auth/logout', authController.logout);
-router.post('/auth/forgot-password', authController.forgotPassword);
+router.post('/auth/forgot-password', authLimiter, authController.forgotPassword);
 
 // Pharmacies (list and current pharmacy settings)
 router.get('/pharmacies', authMiddleware, pharmacyController.listPharmacies);
@@ -38,9 +53,10 @@ router.post('/sales/estimate', authMiddleware, salesController.estimate);
 router.post('/sales/checkout', authMiddleware, salesController.checkout);
 router.get('/sales/history', authMiddleware, salesController.getHistory);
 router.get('/sales/receipt/:id', authMiddleware, salesController.getReceipt);
+router.post('/sales/:id/void', authMiddleware, requireRole('ADMIN'), salesController.voidSale);
 
 // Public contact form
-router.post('/contact', contactController.submitContact);
+router.post('/contact', contactLimiter, contactController.submitContact);
 
 // Prescriptions
 router.post('/prescriptions', authMiddleware, prescriptionController.create);

@@ -21,9 +21,19 @@ export default function PointOfSale() {
   const api = useApi();
   const navigate = useNavigate();
   const [error, setError] = useState('');
+  const [priceByDrugId, setPriceByDrugId] = useState({});
 
   useEffect(() => {
     api.get('/inventory/drugs').then(setDrugs).catch(console.error);
+    api.get('/inventory/active-stock')
+      .then((res) => {
+        const map = {};
+        for (const row of res.rows || []) {
+          map[row.drug_id] = row.price;
+        }
+        setPriceByDrugId(map);
+      })
+      .catch(console.error);
   }, []);
 
   const autocompleteList = search.trim()
@@ -193,6 +203,9 @@ export default function PointOfSale() {
               >
                 <span className="pos-product-name">{d.name}</span>
                 <span className="pos-product-detail">{d.dosage || d.category || '-'}</span>
+                {typeof priceByDrugId[d.id] === 'number' && (
+                  <span className="pos-product-price">₵{priceByDrugId[d.id].toFixed(2)}</span>
+                )}
                 {d.controlled_drug && <span className="pos-controlled">CD</span>}
               </button>
             ))}
