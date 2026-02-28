@@ -19,5 +19,57 @@
 @media (max-width: 768px) {
   .layout-main {
     padding: 16px;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout-main {
+    padding: 12px;
+  }
+}
+
+/* Global mobile button sizing */
+@media (max-width: 768px) {
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Prevent horizontal overflow globally */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Enhanced mobile touch targets */
+@media (max-width: 768px) {
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+    font-size: 0.9rem;
+    touch-action: manipulation;
+  }
+  
+  input, textarea, select {
+    font-size: 16px; /* Prevent zoom on iOS */
+    touch-action: manipulation;
+  }
+  
+  button, .btn {
+    touch-action: manipulation;
+  }
+}
+
+/* Smooth scrolling for mobile */
+@media (max-width: 768px) {
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
 }

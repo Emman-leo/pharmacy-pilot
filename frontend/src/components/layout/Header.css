@@ -45,6 +45,78 @@
   .header-menu-btn {
     display: flex;
   }
+  
+  .header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+  
+  .header-title {
+    order: 1;
+    flex: 1;
+    min-width: 0;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  
+  .header-user {
+    order: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 0;
+  }
+  
+  .header-user span {
+    font-size: 0.85rem;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  
+  .header-pharmacy {
+    font-size: 0.8rem;
+    color: #64748b;
+  }
+  
+  .header-role {
+    font-size: 0.75rem;
+  }
+  
+  .header-user .btn {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 8px 12px;
+  }
+  
+  .header-title {
+    font-size: 1.1rem;
+  }
+  
+  .header-user {
+    align-items: center;
+    text-align: center;
+  }
+  
+  .header-user span {
+    text-align: center;
+    font-size: 0.8rem;
+  }
+  
+  .header-user .btn {
+    margin-top: 8px;
+  }
 }
 
 .header-title {

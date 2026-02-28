@@ -7,6 +7,39 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
+@media (max-width: 768px) {
+  .cart {
+    padding: 16px;
+  }
+  
+  .cart-title {
+    font-size: 1rem;
+    text-align: center;
+  }
+  
+  .cart-input {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .cart-items {
+    max-height: 200px;
+  }
+  
+  .cart-item {
+    padding: 8px 0;
+  }
+  
+  .cart-item-name {
+    font-size: 0.9rem;
+  }
+  
+  .cart-btn {
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 1rem;
+  }
+}
+
 .cart-title {
   margin: 0 0 16px;
   font-size: 1.1rem;
