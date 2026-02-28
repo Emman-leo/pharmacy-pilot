@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
+import { useAuth } from '../../contexts/AuthContext';
 import Spinner from '../common/Spinner';
 import './ReceiptViewer.css';
 
@@ -9,7 +10,11 @@ export default function ReceiptViewer() {
   const [receipt, setReceipt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [voiding, setVoiding] = useState(false);
+  const [voidError, setVoidError] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
   const api = useApi();
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     api.get(`/sales/receipt/${id}`)
@@ -20,6 +25,20 @@ export default function ReceiptViewer() {
       })
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleVoid = async () => {
+    setVoiding(true);
+    setVoidError('');
+    try {
+      const updatedReceipt = await api.post(`/sales/${id}/void`);
+      setReceipt(updatedReceipt);
+      setShowConfirm(false);
+    } catch (err) {
+      setVoidError(err.message || 'Failed to void sale');
+    } finally {
+      setVoiding(false);
+    }
+  };
 
   if (loading) return <Spinner label="Loading receipt…" />;
   if (!receipt) return <p>{error || 'Receipt not found.'}</p>;
@@ -32,8 +51,52 @@ export default function ReceiptViewer() {
     <div className="receipt-viewer">
       <div className="receipt-actions no-print">
         <Link to="/app/sales" className="btn btn-ghost">← New Sale</Link>
+        <Link to="/app/sales/history" className="btn btn-ghost">← Sales History</Link>
         <button type="button" className="btn btn-primary" onClick={handlePrint}>Print receipt</button>
+        {isAdmin && receipt.status !== 'VOIDED' && (
+          <button 
+            type="button" 
+            className="btn btn-danger" 
+            onClick={() => setShowConfirm(true)}
+          >
+            Void sale
+          </button>
+        )}
       </div>
+
+      {receipt.status === 'VOIDED' && (
+        <div className="receipt-voided-banner">
+          SALE VOIDED
+        </div>
+      )}
+
+      {showConfirm && (
+        <div className="void-confirm">
+          <p><strong>Warning:</strong> This will reverse the sale and restore all stock. This cannot be undone.</p>
+          {voidError && <div className="error-banner">{voidError}</div>}
+          <div className="void-confirm-actions">
+            <button 
+              type="button" 
+              className="btn btn-danger" 
+              onClick={handleVoid}
+              disabled={voiding}
+            >
+              {voiding ? 'Voiding…' : 'Confirm void'}
+            </button>
+            <button 
+              type="button" 
+              className="btn btn-ghost" 
+              onClick={() => {
+                setShowConfirm(false);
+                setVoidError('');
+              }}
+              disabled={voiding}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="receipt">
         <header className="receipt-header">

@@ -11,6 +11,7 @@ import DrugList from './components/inventory/DrugList';
 import BatchForm from './components/inventory/BatchForm';
 import StockAlerts from './components/inventory/StockAlerts';
 import PointOfSale from './components/sales/PointOfSale';
+import SalesHistory from './components/sales/SalesHistory';
 import ReceiptViewer from './components/sales/ReceiptViewer';
 import PrescriptionForm from './components/prescriptions/PrescriptionForm';
 import ApprovalQueue from './components/prescriptions/ApprovalQueue';
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="inventory/batches" element={<Navigate to="/app/inventory" replace />} />
         <Route path="inventory/alerts" element={<StockAlerts />} />
         <Route path="sales" element={<PointOfSale />} />
+        <Route path="sales/history" element={<SalesHistory />} />
         <Route path="sales/receipt/:id" element={<ReceiptViewer />} />
         <Route path="prescriptions" element={<PrescriptionForm />} />
         <Route

@@ -8,6 +8,7 @@ const navItems = [
   { to: '/app/inventory/drugs', label: 'Drugs', icon: '💊', nested: true, end: true },
   { to: '/app/inventory/alerts', label: 'Alerts', icon: '⚠️', nested: true, end: true },
   { to: '/app/sales', label: 'Point of Sale', icon: '🧾', end: true },
+  { to: '/app/sales/history', label: 'Sales History', icon: '🧾', end: true },
   { to: '/app/prescriptions', label: 'Prescriptions', icon: '📋', end: true },
   { to: '/app/prescriptions/approval', label: 'Approval Queue', icon: '✅', adminOnly: true, end: true },
   { to: '/app/reports', label: 'Reports & Analytics', icon: '📊', end: true },
