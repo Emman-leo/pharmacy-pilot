@@ -14,7 +14,19 @@ export function useApi() {
       headers: getHeaders(),
       ...(body && { body: JSON.stringify(body) }),
     });
-    const data = await res.json().catch(() => ({}));
+    
+    // Handle empty responses or non-JSON content
+    const text = await res.text().catch(() => '');
+    let data = {};
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        // If it's not JSON, return the raw text for error messages
+        data = { error: text };
+      }
+    }
+    
     if (!res.ok) {
       if (res.status === 401) {
         localStorage.removeItem('pharmacy_token');

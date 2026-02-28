@@ -30,10 +30,43 @@ export default function ReceiptViewer() {
     setVoiding(true);
     setVoidError('');
     try {
-      const updatedReceipt = await api.post(`/sales/${id}/void`);
-      setReceipt(updatedReceipt);
+      const response = await api.post(`/sales/${id}/void`);
+      
+      // Handle different response formats
+      let updatedReceipt;
+      if (Array.isArray(response)) {
+        // If API returns an array, take the first item or find the matching receipt
+        updatedReceipt = response.find(r => r.id === parseInt(id)) || response[0];
+      } else if (response && response.data) {
+        // If API returns { data: receipt }
+        updatedReceipt = response.data;
+      } else if (response && response.receipt) {
+        // If API returns { receipt: ... }
+        updatedReceipt = response.receipt;
+      } else if (response && typeof response === 'object' && response.id) {
+        // Direct response with receipt object
+        updatedReceipt = response;
+      } else {
+        // If response is empty or not what we expect, don't use it
+        updatedReceipt = null;
+      }
+      
+      // Always refetch the receipt to get the latest state after voiding
+      try {
+        const refetchedReceipt = await api.get(`/sales/receipt/${id}`);
+        setReceipt(refetchedReceipt);
+      } catch (refetchErr) {
+        // If refetch fails but we have updated receipt data, use that
+        if (updatedReceipt) {
+          setReceipt(updatedReceipt);
+        } else {
+          throw refetchErr;
+        }
+      }
+      
       setShowConfirm(false);
     } catch (err) {
+      console.error('Void sale error:', err);
       setVoidError(err.message || 'Failed to void sale');
     } finally {
       setVoiding(false);
