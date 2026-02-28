@@ -133,7 +133,9 @@ export default function ReceiptViewer() {
 
       <div className="receipt">
         <header className="receipt-header">
-          <h1>Pharmacy Pilot</h1>
+          <h1>{receipt.pharmacies?.name || 'Pharmacy Pilot'}</h1>
+          {receipt.pharmacies?.address && <p>{receipt.pharmacies.address}</p>}
+          {receipt.pharmacies?.phone && <p>{receipt.pharmacies.phone}</p>}
           <p className="receipt-receipt-num">{receipt.receipt_number}</p>
           <p className="receipt-date">{new Date(receipt.sale_date).toLocaleString()}</p>
           {receipt.customer_name && <p>Customer: {receipt.customer_name}</p>}

@@ -143,7 +143,7 @@ export async function getReceipt(req, res) {
   try {
     const { data, error } = await req.supabase
       .from('sales')
-      .select('*, sale_items(*, drugs(*))')
+      .select('*, sale_items(*, drugs(*)), pharmacies(name, address, phone)')
       .eq('id', id)
       .single();
     if (error || !data) return res.status(404).json({ error: 'Receipt not found' });
