@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useApi } from '../../hooks/useApi';
+import Spinner from '../common/Spinner';
 import BatchForm from './BatchForm';
 import './InventoryPage.css';
 
@@ -149,7 +150,7 @@ export default function InventoryPage() {
 
       <section className="inventory-table-section">
         {loading ? (
-          <p>Loading…</p>
+          <Spinner label="Loading inventory…" />
         ) : (
           <div className="inventory-table-wrap">
             <table className="inventory-table">
