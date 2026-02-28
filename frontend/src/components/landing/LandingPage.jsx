@@ -60,14 +60,13 @@ export default function LandingPage() {
               Pharmacy Pilot handles inventory, sales, expiry alerts, and reports — so you focus on your patients, not your spreadsheets.
             </p>
             <div className="landing-hero-actions">
-              <Link to="/login" className="btn btn-primary">Register your pharmacy</Link>
+              <a href="#contact" className="btn btn-primary">Register your pharmacy</a>
               <button className="btn btn-ghost" onClick={() => document.getElementById('screenshots')?.scrollIntoView({ behavior: 'smooth' })}>
                 See how it works <ArrowRight size={16} style={{ marginLeft: '4px' }} />
               </button>
             </div>
             <div className="landing-hero-trust">
               <span>✓ No setup fee</span>
-              <span>✓ Cancel anytime</span>
               <span>✓ Ghana-based support</span>
             </div>
           </div>
@@ -304,7 +303,7 @@ export default function LandingPage() {
               Register your pharmacy →
             </button>
             <div className="pricing-footer">
-              <p>First month free. Cancel anytime.</p>
+              <p>First month free.</p>
               <p className="pricing-note">Have more than one branch? Contact us for multi-location pricing.</p>
             </div>
           </div>
