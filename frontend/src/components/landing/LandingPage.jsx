@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { Package, Receipt, FileText, BarChart3, ArrowRight } from 'lucide-react';
 import './LandingPage.css';
 
 const CONTACT_EMAIL = 'webdevv.info@gmail.com';
@@ -41,52 +42,311 @@ export default function LandingPage() {
       <header className="landing-header">
         <div className="landing-header-inner">
           <span className="landing-logo">Pharmacy Pilot</span>
+          <button className="landing-demo-btn" onClick={() => document.getElementById('screenshots')?.scrollIntoView({ behavior: 'smooth' })}>
+            View demo
+          </button>
           <Link to="/login" className="landing-login-btn">Log in</Link>
         </div>
       </header>
 
       <section className="landing-hero">
-        <h1>Smart pharmacy management, simplified</h1>
-        <p className="landing-hero-sub">
-          Inventory tracking, point of sale, prescriptions, and automated alerts — all in one place for your pharmacy.
-        </p>
-        <div className="landing-hero-actions">
-          <Link to="/login" className="btn btn-primary">Log in</Link>
-          <a href="#contact" className="btn btn-ghost">Register your pharmacy</a>
+        <div className="landing-hero-content">
+          <div className="landing-hero-left">
+            <div className="landing-hero-badge">
+              🇬🇭 Built for Ghanaian pharmacies
+            </div>
+            <h1>Run your pharmacy like you have a full-time accountant, stock manager, and cashier.</h1>
+            <p className="landing-hero-sub">
+              Pharmacy Pilot handles inventory, sales, expiry alerts, and reports — so you focus on your patients, not your spreadsheets.
+            </p>
+            <div className="landing-hero-actions">
+              <Link to="/login" className="btn btn-primary">Register your pharmacy</Link>
+              <button className="btn btn-ghost" onClick={() => document.getElementById('screenshots')?.scrollIntoView({ behavior: 'smooth' })}>
+                See how it works <ArrowRight size={16} style={{ marginLeft: '4px' }} />
+              </button>
+            </div>
+            <div className="landing-hero-trust">
+              <span>✓ No setup fee</span>
+              <span>✓ Cancel anytime</span>
+              <span>✓ Ghana-based support</span>
+            </div>
+          </div>
+          <div className="landing-hero-right">
+            <div className="landing-hero-screenshot">
+              <div className="screenshot-frame">
+                <div className="screenshot-header">
+                  <div className="screenshot-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <span className="screenshot-title">Pharmacy Pilot Dashboard</span>
+                </div>
+                <div className="screenshot-content">
+                  <div className="screenshot-sidebar">
+                    <div className="sidebar-item active">Dashboard</div>
+                    <div className="sidebar-item">Inventory</div>
+                    <div className="sidebar-item">Point of Sale</div>
+                    <div className="sidebar-item">Prescriptions</div>
+                    <div className="sidebar-item">Reports</div>
+                  </div>
+                  <div className="screenshot-main">
+                    <div className="screenshot-metric-cards">
+                      <div className="metric-card">
+                        <div className="metric-value">GHS 2,450</div>
+                        <div className="metric-label">Today's Sales</div>
+                      </div>
+                      <div className="metric-card">
+                        <div className="metric-value">24</div>
+                        <div className="metric-label">Transactions</div>
+                      </div>
+                      <div className="metric-card">
+                        <div className="metric-value">8</div>
+                        <div className="metric-label">Low Stock Alerts</div>
+                      </div>
+                      <div className="metric-card">
+                        <div className="metric-value">3</div>
+                        <div className="metric-label">Expiring Soon</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="landing-features">
-        <h2>What Pharmacy Pilot offers</h2>
-        <div className="landing-features-grid">
-          <div className="landing-feature">
-            <span className="landing-feature-icon">📦</span>
-            <h3>Inventory & batch tracking</h3>
-            <p>Manage drug master data, batch expiry, and FEFO (First Expiry, First Out). Get low-stock and expiry alerts.</p>
+      <section className="landing-social-proof">
+        <div className="landing-social-proof-content">
+          <p>Designed for independent pharmacies across Ghana</p>
+        </div>
+      </section>
+
+      <section id="screenshots" className="landing-features">
+        <h2>Everything you need to run your pharmacy</h2>
+        
+        <div className="feature-row">
+          <div className="feature-row-content">
+            <div className="feature-row-text">
+              <div className="feature-icon">
+                <Package size={32} />
+              </div>
+              <h3>Never run out of stock again</h3>
+              <p>Set minimum stock levels for every drug. Get instant alerts when stock runs low or batches are about to expire — before it becomes a problem.</p>
+            </div>
+            <div className="feature-row-screenshot">
+              <div className="feature-screenshot-frame">
+                <div className="feature-screenshot-header">
+                  <div className="feature-screenshot-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <span className="feature-screenshot-title">Stock Alerts</span>
+                </div>
+                <div className="feature-screenshot-content">
+                  <div className="alert-list">
+                    <div className="alert-item critical">
+                      <span className="alert-drug">Amoxicillin 500mg</span>
+                      <span className="alert-quantity">12 units left</span>
+                      <span className="alert-status">Critical</span>
+                    </div>
+                    <div className="alert-item warning">
+                      <span className="alert-drug">Paracetamol 1000mg</span>
+                      <span className="alert-quantity">28 units left</span>
+                      <span className="alert-status">Low Stock</span>
+                    </div>
+                    <div className="alert-item expiring">
+                      <span className="alert-drug">Ciprofloxacin 500mg</span>
+                      <span className="alert-quantity">45 units</span>
+                      <span className="alert-status">Expires in 15 days</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="landing-feature">
-            <span className="landing-feature-icon">🛒</span>
-            <h3>Point of sale</h3>
-            <p>Cart-based checkout with receipt generation for fast, accurate sales processing.</p>
+        </div>
+
+        <div className="feature-row reverse">
+          <div className="feature-row-content">
+            <div className="feature-row-text">
+              <div className="feature-icon">
+                <Receipt size={32} />
+              </div>
+              <h3>Faster checkouts, zero calculation errors</h3>
+              <p>Search drugs, add to cart, apply discounts, and print receipts in seconds. Every sale is recorded automatically — no manual entry needed.</p>
+            </div>
+            <div className="feature-row-screenshot">
+              <div className="feature-screenshot-frame">
+                <div className="feature-screenshot-header">
+                  <div className="feature-screenshot-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <span className="feature-screenshot-title">Point of Sale</span>
+                </div>
+                <div className="feature-screenshot-content">
+                  <div className="pos-interface">
+                    <div className="pos-cart">
+                      <div className="cart-item">
+                        <span className="cart-drug">Augmentin 625mg</span>
+                        <span className="cart-qty">2x</span>
+                        <span className="cart-price">GHS 45.00</span>
+                      </div>
+                      <div className="cart-item">
+                        <span className="cart-drug">Ibuprofen 400mg</span>
+                        <span className="cart-qty">1x</span>
+                        <span className="cart-price">GHS 8.50</span>
+                      </div>
+                      <div className="cart-total">
+                        <span>Total</span>
+                        <span>GHS 53.50</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="landing-feature">
-            <span className="landing-feature-icon">📋</span>
-            <h3>Prescription workflow</h3>
-            <p>Prescription creation and approval flow with dosage validation and drug interaction checks.</p>
+        </div>
+
+        <div className="feature-row">
+          <div className="feature-row-content">
+            <div className="feature-row-text">
+              <div className="feature-icon">
+                <BarChart3 size={32} />
+              </div>
+              <h3>Know your numbers without touching Excel</h3>
+              <p>Daily revenue, top selling drugs, profit margins, slow moving stock — all generated automatically. Export to CSV for your accountant.</p>
+            </div>
+            <div className="feature-row-screenshot">
+              <div className="feature-screenshot-frame">
+                <div className="feature-screenshot-header">
+                  <div className="feature-screenshot-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <span className="feature-screenshot-title">Sales Reports</span>
+                </div>
+                <div className="feature-screenshot-content">
+                  <div className="reports-dashboard">
+                    <div className="report-summary">
+                      <div className="summary-item">
+                        <span className="summary-label">Today's Revenue</span>
+                        <span className="summary-value">GHS 1,245</span>
+                      </div>
+                      <div className="summary-item">
+                        <span className="summary-label">Top Drug</span>
+                        <span className="summary-value">Amoxicillin</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="landing-feature">
-            <span className="landing-feature-icon">📊</span>
-            <h3>Reports & analytics</h3>
-            <p>Sales summaries, top-selling drugs, expiry reports, and role-based access control (ADMIN, STAFF).</p>
+        </div>
+
+      </section>
+
+      <section className="landing-pricing">
+        <div className="landing-pricing-content">
+          <h2>Simple pricing, no surprises</h2>
+          <p className="landing-pricing-sub">One plan that covers everything. Pay monthly via mobile money.</p>
+          <div className="pricing-card">
+            <div className="pricing-header">
+              <h3>Pharmacy Pilot</h3>
+              <div className="pricing-price">
+                <span className="price-currency">GHS</span>
+                <span className="price-amount">500</span>
+                <span className="price-period">/ month</span>
+              </div>
+            </div>
+            <div className="pricing-features">
+              <div className="pricing-feature">
+                <span className="pricing-check">✓</span>
+                <span>Unlimited users</span>
+              </div>
+              <div className="pricing-feature">
+                <span className="pricing-check">✓</span>
+                <span>Inventory & batch tracking</span>
+              </div>
+              <div className="pricing-feature">
+                <span className="pricing-check">✓</span>
+                <span>Point of sale & receipts</span>
+              </div>
+              <div className="pricing-feature">
+                <span className="pricing-check">✓</span>
+                <span>Prescription management</span>
+              </div>
+              <div className="pricing-feature">
+                <span className="pricing-check">✓</span>
+                <span>Sales reports & analytics</span>
+              </div>
+              <div className="pricing-feature">
+                <span className="pricing-check">✓</span>
+                <span>Low stock & expiry alerts</span>
+              </div>
+              <div className="pricing-feature">
+                <span className="pricing-check">✓</span>
+                <span>Audit log</span>
+              </div>
+              <div className="pricing-feature">
+                <span className="pricing-check">✓</span>
+                <span>WhatsApp support</span>
+              </div>
+            </div>
+            <button className="btn btn-primary btn-large btn-block" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
+              Register your pharmacy →
+            </button>
+            <div className="pricing-footer">
+              <p>First month free. Cancel anytime.</p>
+              <p className="pricing-note">Have more than one branch? Contact us for multi-location pricing.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="landing-how-it-works">
+        <div className="landing-how-it-works-content">
+          <h2>Getting started is simple</h2>
+          <div className="steps-container">
+            <div className="step">
+              <div className="step-number">1</div>
+              <div className="step-content">
+                <h3>Register</h3>
+                <p>Fill out the form below. We'll contact you within 24 hours to set up your pharmacy on the platform.</p>
+              </div>
+            </div>
+            <div className="step">
+              <div className="step-number">2</div>
+              <div className="step-content">
+                <h3>Onboarding</h3>
+                <p>We sit with your team for a few hours and set everything up — drugs, stock levels, user accounts. You don't touch a line of code.</p>
+              </div>
+            </div>
+            <div className="step">
+              <div className="step-number">3</div>
+              <div className="step-content">
+                <h3>Go live</h3>
+                <p>Your pharmacy is live. Process sales, track stock, and view reports from day one.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       <section id="contact" className="landing-contact">
-        <h2>Interested in joining?</h2>
+        <div className="landing-contact-header">
+          <h2>Ready to get started?</h2>
+          <p>We'll reach out within 24 hours.</p>
+        </div>
         <p>
-          Register your pharmacy and get started with Pharmacy Pilot. Fill out the form below and we&apos;ll reach out
-          shortly, or email us directly at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+          Fill out the form below and we&apos;ll reach out shortly, or email us directly at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
         </p>
         <form className="landing-contact-form" onSubmit={handleContactSubmit}>
           {submitError && <div className="form-error">{submitError}</div>}
@@ -127,8 +387,19 @@ export default function LandingPage() {
       </section>
 
       <footer className="landing-footer">
-        <p>Pharmacy Pilot — smart pharmacy management</p>
-        <Link to="/login" className="landing-footer-login">Log in for registered pharmacies</Link>
+        <div className="landing-footer-content">
+          <div className="footer-brand">
+            <p>Pharmacy Pilot · Built in Ghana 🇬🇭</p>
+          </div>
+          <div className="footer-links">
+            <a href="#privacy" className="footer-link">Privacy Policy</a>
+            <a href="#terms" className="footer-link">Terms of Service</a>
+            <a href="#contact" className="footer-link">Contact</a>
+          </div>
+          <div className="footer-copyright">
+            <p>© 2026 Pharmacy Pilot. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
