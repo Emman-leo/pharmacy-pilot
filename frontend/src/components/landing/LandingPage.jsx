@@ -55,7 +55,7 @@ export default function LandingPage() {
             <div className="landing-hero-badge">
               🇬🇭 Built for Ghanaian pharmacies
             </div>
-            <h1>Run your pharmacy like you have a full-time accountant, stock manager, and cashier.</h1>
+            <h1>Your pharmacy's accountant, stock manager, and cashier — in one app.</h1>
             <p className="landing-hero-sub">
               Pharmacy Pilot handles inventory, sales, expiry alerts, and reports — so you focus on your patients, not your spreadsheets.
             </p>
