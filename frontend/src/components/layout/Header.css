@@ -65,14 +65,15 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
+    align-items: center;
+    gap: 6px;
     min-width: 0;
+    text-align: center;
   }
   
   .header-user span {
     font-size: 0.85rem;
-    text-align: right;
+    text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -82,22 +83,27 @@
   .header-pharmacy {
     font-size: 0.8rem;
     color: #64748b;
+    font-weight: 500;
   }
   
   .header-role {
     font-size: 0.75rem;
+    margin: 2px 0;
   }
   
   .header-user .btn {
     font-size: 0.85rem;
-    padding: 6px 12px;
-    margin-top: 4px;
+    padding: 8px 16px;
+    margin-top: 6px;
+    width: 100%;
+    max-width: 120px;
   }
 }
 
 @media (max-width: 480px) {
   .header {
     padding: 8px 12px;
+    gap: 6px;
   }
   
   .header-title {
@@ -105,17 +111,26 @@
   }
   
   .header-user {
-    align-items: center;
-    text-align: center;
+    gap: 4px;
   }
   
   .header-user span {
-    text-align: center;
     font-size: 0.8rem;
   }
   
+  .header-pharmacy {
+    font-size: 0.75rem;
+  }
+  
+  .header-role {
+    font-size: 0.7rem;
+    margin: 1px 0;
+  }
+  
   .header-user .btn {
-    margin-top: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    max-width: 100px;
   }
 }
 
