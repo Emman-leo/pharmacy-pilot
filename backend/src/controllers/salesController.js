@@ -196,7 +196,7 @@ export async function voidSale(req, res) {
       .update({ status: 'VOIDED' })
       .eq('id', id)
       .select()
-      .single();
+      .maybeSingle();
     if (updateSaleError) throw updateSaleError;
 
     await recordAuditEvent(req, {
@@ -211,7 +211,7 @@ export async function voidSale(req, res) {
       },
     });
 
-    res.json(updated);
+    res.json(updated || { id, status: 'VOIDED' });
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to void sale' });
   }
