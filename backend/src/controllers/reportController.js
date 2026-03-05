@@ -19,7 +19,7 @@ export async function overview(req, res) {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthStartStr = monthStart.toISOString();
 
-    const [todayRes, yesterdayRes, monthRes, topRes, drugsRes, batchesRes] = await Promise.all([
+    const [todayRes, yesterdayRes, monthRes, drugsRes, batchesRes, topSalesRes] = await Promise.all([
       req.supabase
         .from('sales')
         .select('final_amount')
@@ -33,13 +33,36 @@ export async function overview(req, res) {
         .gte('sale_date', yesterdayStartStr)
         .lt('sale_date', yesterdayEndStr),
       req.supabase.from('sales').select('final_amount').neq('status', 'VOIDED').gte('sale_date', monthStartStr),
-      req.supabase.from('sale_items').select('drug_id, quantity, drugs(name)'),
       req.supabase.from('drugs').select('id, min_stock_quantity'),
       req.supabase
         .from('inventory_batches')
         .select('drug_id, quantity, unit_price')
         .gt('quantity', 0),
+      // Best selling: current month only, excluding voided, via sales join
+      req.supabase
+        .from('sales')
+        .select('id')
+        .neq('status', 'VOIDED')
+        .gte('sale_date', monthStartStr),
     ]);
+
+    // Resolve best-selling from month's sale IDs
+    const monthSaleIds = (topSalesRes.data || []).map((s) => s.id);
+    let best = { drug_name: '—', quantity: 0 };
+    if (monthSaleIds.length > 0) {
+      const { data: topItems } = await req.supabase
+        .from('sale_items')
+        .select('drug_id, quantity, drugs(name)')
+        .in('sale_id', monthSaleIds);
+
+      const byDrug = {};
+      for (const i of topItems || []) {
+        const id = i.drug_id;
+        if (!byDrug[id]) byDrug[id] = { drug_name: i.drugs?.name || 'Unknown', quantity: 0 };
+        byDrug[id].quantity += parseInt(i.quantity, 10);
+      }
+      best = Object.values(byDrug).sort((a, b) => b.quantity - a.quantity)[0] || best;
+    }
 
     const todaySales = (todayRes.data || []).reduce(
       (s, r) => s + parseFloat(r.final_amount || 0),
@@ -57,19 +80,6 @@ export async function overview(req, res) {
     const dayChange = todaySales - yesterdaySales;
     const dayChangePct =
       yesterdaySales > 0 ? (dayChange / yesterdaySales) * 100 : null;
-
-    // Best-selling product (by quantity)
-    const byDrug = {};
-    for (const i of topRes.data || []) {
-      const id = i.drug_id;
-      if (!byDrug[id]) byDrug[id] = { drug_name: i.drugs?.name || 'Unknown', quantity: 0 };
-      byDrug[id].quantity += parseInt(i.quantity, 10);
-    }
-    const best =
-      Object.values(byDrug).sort((a, b) => b.quantity - a.quantity)[0] || {
-        drug_name: '—',
-        quantity: 0,
-      };
 
     // Stock aggregates
     const stockByDrug = {};
@@ -212,9 +222,19 @@ export async function salesSummary(req, res) {
 export async function topSelling(req, res) {
   const { limit = 10 } = req.query;
   try {
+    const { data: sales, error: salesError } = await req.supabase
+      .from('sales')
+      .select('id')
+      .neq('status', 'VOIDED');
+    if (salesError) throw salesError;
+
+    const saleIds = (sales || []).map((s) => s.id);
+    if (saleIds.length === 0) return res.json([]);
+
     const { data: items, error } = await req.supabase
       .from('sale_items')
-      .select('drug_id, quantity, drugs(name)');
+      .select('drug_id, quantity, drugs(name)')
+      .in('sale_id', saleIds);
     if (error) throw error;
 
     const byDrug = {};
