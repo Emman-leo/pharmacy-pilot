@@ -9,8 +9,6 @@ const navItems = [
   { to: '/app/inventory/alerts', label: 'Alerts', icon: '⚠️', nested: true, end: true, group: 'INVENTORY' },
   { to: '/app/sales', label: 'Point of Sale', icon: '🧾', end: true },
   { to: '/app/sales/history', label: 'Sales History', icon: '🧾', end: true },
-  { to: '/app/prescriptions', label: 'Prescriptions', icon: '📋', end: true },
-  { to: '/app/prescriptions/approval', label: 'Approval Queue', icon: '✅', adminOnly: true, end: true },
   { to: '/app/reports', label: 'Reports & Analytics', icon: '📊', end: true },
   { to: '/app/admin/audit-log', label: 'Audit Log', icon: '🔍', adminOnly: true, end: true },
 ];

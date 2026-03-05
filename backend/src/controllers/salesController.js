@@ -159,45 +159,42 @@ export async function voidSale(req, res) {
     const profile = await getProfile(req);
     const pharmacy_id = profile?.pharmacy_id || null;
 
+    // Get sale details for pharmacy ownership check and audit logging
     const { data: sale, error } = await supabaseAdmin
       .from('sales')
-      .select('*, sale_items(*)')
+      .select('id, pharmacy_id, receipt_number, total_amount, discount_amount, final_amount, status')
       .eq('id', id)
       .single();
     if (error || !sale) return res.status(404).json({ error: 'Sale not found' });
 
-    if (sale.status === 'VOIDED') {
-      return res.status(400).json({ error: 'Sale already voided' });
-    }
-
+    // Check pharmacy ownership before calling RPC
     if (pharmacy_id && sale.pharmacy_id && sale.pharmacy_id !== pharmacy_id) {
       return res.status(403).json({ error: 'Not allowed to void this sale' });
     }
 
-    const items = sale.sale_items || [];
-    for (const item of items) {
-      if (!item.batch_id || !item.quantity) continue;
-      const { data: batch, error: batchError } = await supabaseAdmin
-        .from('inventory_batches')
-        .select('quantity')
-        .eq('id', item.batch_id)
-        .single();
-      if (batchError) throw batchError;
-      const newQty = (batch?.quantity || 0) + item.quantity;
-      const { error: updateError } = await supabaseAdmin
-        .from('inventory_batches')
-        .update({ quantity: newQty })
-        .eq('id', item.batch_id);
-      if (updateError) throw updateError;
+    // Use atomic stored procedure to void sale and restore inventory
+    const { error: rpcError } = await supabaseAdmin.rpc('void_sale', { p_sale_id: id });
+    if (rpcError) {
+      // Handle specific errors from the stored procedure
+      if (rpcError.message.includes('Sale not found')) {
+        return res.status(404).json({ error: 'Sale not found' });
+      }
+      if (rpcError.message.includes('already voided')) {
+        return res.status(400).json({ error: 'Sale already voided' });
+      }
+      if (rpcError.message.includes('Inventory batch not found')) {
+        return res.status(500).json({ error: 'Inventory batch error during void' });
+      }
+      throw rpcError;
     }
 
-    const { data: updated, error: updateSaleError } = await supabaseAdmin
+    // Fetch the updated sale for response
+    const { data: updated, error: fetchError } = await supabaseAdmin
       .from('sales')
-      .update({ status: 'VOIDED' })
+      .select('id, status, receipt_number, total_amount, discount_amount, final_amount')
       .eq('id', id)
-      .select()
-      .maybeSingle();
-    if (updateSaleError) throw updateSaleError;
+      .single();
+    if (fetchError) throw fetchError;
 
     await recordAuditEvent(req, {
       action: 'CHECKOUT_VOID',
