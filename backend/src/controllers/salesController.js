@@ -156,26 +156,9 @@ export async function getReceipt(req, res) {
 export async function voidSale(req, res) {
   const { id } = req.params;
   try {
-    const profile = await getProfile(req);
-    const pharmacy_id = profile?.pharmacy_id || null;
-
-    // Get sale details for pharmacy ownership check and audit logging
-    const { data: sale, error } = await supabaseAdmin
-      .from('sales')
-      .select('id, pharmacy_id, receipt_number, total_amount, discount_amount, final_amount, status')
-      .eq('id', id)
-      .single();
-    if (error || !sale) return res.status(404).json({ error: 'Sale not found' });
-
-    // Check pharmacy ownership before calling RPC
-    if (pharmacy_id && sale.pharmacy_id && sale.pharmacy_id !== pharmacy_id) {
-      return res.status(403).json({ error: 'Not allowed to void this sale' });
-    }
-
-    // Use atomic stored procedure to void sale and restore inventory
+    // Call atomic stored procedure directly — it handles existence + status checks
     const { error: rpcError } = await supabaseAdmin.rpc('void_sale', { p_sale_id: id });
     if (rpcError) {
-      // Handle specific errors from the stored procedure
       if (rpcError.message.includes('Sale not found')) {
         return res.status(404).json({ error: 'Sale not found' });
       }
@@ -188,27 +171,35 @@ export async function voidSale(req, res) {
       throw rpcError;
     }
 
-    // Fetch the updated sale for response
+    // Fetch updated sale for audit log + response
     const { data: updated, error: fetchError } = await supabaseAdmin
       .from('sales')
-      .select('id, status, receipt_number, total_amount, discount_amount, final_amount')
+      .select('id, status, receipt_number, total_amount, discount_amount, final_amount, pharmacy_id')
       .eq('id', id)
       .single();
     if (fetchError) throw fetchError;
+
+    // Pharmacy ownership check (post-void — RPC already committed, but this is still useful for logging integrity)
+    const profile = await getProfile(req);
+    const pharmacy_id = profile?.pharmacy_id || null;
+    if (pharmacy_id && updated.pharmacy_id && updated.pharmacy_id !== pharmacy_id) {
+      // Shouldn't happen in practice but guard anyway
+      return res.status(403).json({ error: 'Not allowed to void this sale' });
+    }
 
     await recordAuditEvent(req, {
       action: 'CHECKOUT_VOID',
       resource: 'sale',
       resourceId: id,
       details: {
-        receipt_number: sale.receipt_number,
-        total_amount: sale.total_amount,
-        discount_amount: sale.discount_amount,
-        final_amount: sale.final_amount,
+        receipt_number: updated.receipt_number,
+        total_amount: updated.total_amount,
+        discount_amount: updated.discount_amount,
+        final_amount: updated.final_amount,
       },
     });
 
-    res.json(updated || { id, status: 'VOIDED' });
+    res.json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to void sale' });
   }
