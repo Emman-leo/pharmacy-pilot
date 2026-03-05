@@ -1,36 +1,34 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTier } from '../../hooks/useTier';
 import './Sidebar.css';
 
 const navItems = [
-  { to: '/app', label: 'Dashboard', icon: '🏠', end: true },
-  { to: '/app/inventory', label: 'Inventory', icon: '📦', end: true },
-  { to: '/app/inventory/drugs', label: 'Drugs', icon: '💊', nested: true, end: true, group: 'INVENTORY' },
-  { to: '/app/inventory/alerts', label: 'Alerts', icon: '⚠️', nested: true, end: true, group: 'INVENTORY' },
-  { to: '/app/sales', label: 'Point of Sale', icon: '🧾', end: true },
-  { to: '/app/sales/history', label: 'Sales History', icon: '🧾', end: true },
-  { to: '/app/reports', label: 'Reports & Analytics', icon: '📊', end: true },
-  { to: '/app/admin/audit-log', label: 'Audit Log', icon: '🔍', adminOnly: true, end: true },
+  { to: '/app',                  label: 'Dashboard',          icon: '🏠', end: true },
+  { to: '/app/inventory',        label: 'Inventory',           icon: '📦', end: true },
+  { to: '/app/inventory/drugs',  label: 'Drugs',               icon: '💊', nested: true, end: true },
+  { to: '/app/inventory/alerts', label: 'Alerts',              icon: '⚠️', nested: true, end: true },
+  { to: '/app/sales',            label: 'Point of Sale',       icon: '🧾', end: true },
+  { to: '/app/sales/history',    label: 'Sales History',       icon: '📋', end: true },
+  { to: '/app/reports',          label: 'Reports & Analytics', icon: '📊', end: true },
+  { to: '/app/admin/audit-log',  label: 'Audit Log',           icon: '🔍', adminOnly: true, feature: 'auditLog', end: true },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
   const { isAdmin } = useAuth();
-  const items = navItems.filter((i) => !i.adminOnly || isAdmin);
+  const { can } = useTier();
+
+  const items = navItems.filter((i) => {
+    if (i.adminOnly && !isAdmin) return false;
+    if (i.feature && !can(i.feature)) return false;
+    return true;
+  });
   
   const renderNavItems = () => {
     const elements = [];
     let lastGroup = null;
     
-    items.forEach(({ to, label, icon, end, nested, group }) => {
-      // Add group label if this item has a group and it's different from the last one
-      if (group && group !== lastGroup) {
-        elements.push(
-          <div key={`group-${group}`} className="sidebar-group-label">
-            {group}
-          </div>
-        );
-        lastGroup = group;
-      }
+    items.forEach(({ to, label, icon, end, nested }) => {
       
       elements.push(
         <NavLink

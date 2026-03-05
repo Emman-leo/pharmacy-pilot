@@ -4,8 +4,9 @@ import { useApi } from '../hooks/useApi';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser]       = useState(null);
   const [profile, setProfile] = useState(null);
+  const [tier, setTier]       = useState('starter');
   const [loading, setLoading] = useState(true);
   const api = useApi();
 
@@ -16,9 +17,10 @@ export function AuthProvider({ children }) {
       return;
     }
     api.get('/auth/user')
-      .then(({ user: u, profile: p }) => {
+      .then(({ user: u, profile: p, tier: t }) => {
         setUser(u);
         setProfile(p || {});
+        setTier(t || 'starter');
       })
       .catch(() => {
         localStorage.removeItem('pharmacy_token');
@@ -30,9 +32,10 @@ export function AuthProvider({ children }) {
     const { user: u, session } = await api.post('/auth/login', { email, password });
     if (session?.access_token) {
       localStorage.setItem('pharmacy_token', session.access_token);
-      const { user, profile } = await api.get('/auth/user');
+      const { user, profile, tier: t } = await api.get('/auth/user');
       setUser(user);
       setProfile(profile || {});
+      setTier(t || 'starter');
       return user;
     }
     throw new Error('Login failed');
@@ -42,9 +45,10 @@ export function AuthProvider({ children }) {
     const { user: u, session } = await api.post('/auth/register', { email, password, full_name });
     if (session?.access_token) {
       localStorage.setItem('pharmacy_token', session.access_token);
-      const { user, profile } = await api.get('/auth/user');
+      const { user, profile, tier: t } = await api.get('/auth/user');
       setUser(user);
       setProfile(profile || {});
+      setTier(t || 'starter');
       return user;
     }
     return u;
@@ -54,11 +58,13 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('pharmacy_token');
     setUser(null);
     setProfile(null);
+    setTier('starter');
   };
 
   const value = {
     user,
     profile,
+    tier,
     loading,
     isAuthenticated: !!user,
     isAdmin: profile?.role === 'ADMIN',

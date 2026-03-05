@@ -48,3 +48,33 @@ export async function getMyPharmacySettings(req, res) {
     res.status(500).json({ error: err.message || 'Failed to fetch pharmacy settings' });
   }
 }
+
+export async function getStaffCount(req, res) {
+  try {
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('pharmacy_id')
+      .eq('id', req.user.id)
+      .single();
+
+    const pharmacyId = profile?.pharmacy_id;
+    if (!pharmacyId) return res.json({ count: 0, max: Infinity, tier: req.tier });
+
+    const { count, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('pharmacy_id', pharmacyId);
+
+    if (error) throw error;
+
+    const maxStaff = req.tierFeatures?.maxStaff ?? 2;
+
+    res.json({
+      count,
+      max: maxStaff === Infinity ? null : maxStaff,
+      tier: req.tier,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to fetch staff count' });
+  }
+}

@@ -254,58 +254,100 @@ export default function LandingPage() {
 
       <section className="landing-pricing">
         <div className="landing-pricing-content">
-          <h2>Simple pricing, no surprises</h2>
-          <p className="landing-pricing-sub">One plan that covers everything. Pay monthly via mobile money.</p>
-          <div className="pricing-card">
-            <div className="pricing-header">
-              <h3>Pharmacy Pilot</h3>
-              <div className="pricing-price">
-                <span className="price-currency">GHS</span>
-                <span className="price-amount">500</span>
-                <span className="price-period">/ month</span>
+          <h2>Simple, honest pricing</h2>
+          <p className="landing-pricing-sub">
+            Pay monthly via mobile money. No contracts. Upgrade or downgrade anytime.
+          </p>
+          <div className="pricing-tiers">
+
+            {/* STARTER */}
+            <div className="pricing-tier">
+              <div className="pricing-tier-header">
+                <h3>Starter</h3>
+                <p className="pricing-tier-tagline">Best for small, low-volume pharmacies</p>
+                <div className="pricing-price">
+                  <span className="price-currency">GHS</span>
+                  <span className="price-amount">250</span>
+                  <span className="price-period">/ month</span>
+                </div>
+              </div>
+              <ul className="pricing-features">
+                <li className="pricing-feature"><span className="pricing-check">✓</span>2 staff accounts</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Inventory &amp; batch tracking (FEFO)</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Point of sale &amp; receipts</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Low stock &amp; expiry alerts</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Basic sales reports</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>WhatsApp support</li>
+              </ul>
+              <div className="pricing-tier-footer">
+                <button
+                  className="btn btn-outline btn-block"
+                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  Get started
+                </button>
               </div>
             </div>
-            <div className="pricing-features">
-              <div className="pricing-feature">
-                <span className="pricing-check">✓</span>
-                <span>Unlimited users</span>
+
+            {/* GROWTH */}
+            <div className="pricing-tier pricing-tier-featured">
+              <div className="pricing-tier-badge">Most popular</div>
+              <div className="pricing-tier-header">
+                <h3>Growth</h3>
+                <p className="pricing-tier-tagline">Best for established independents</p>
+                <div className="pricing-price">
+                  <span className="price-currency">GHS</span>
+                  <span className="price-amount">550</span>
+                  <span className="price-period">/ month</span>
+                </div>
               </div>
-              <div className="pricing-feature">
-                <span className="pricing-check">✓</span>
-                <span>Inventory & batch tracking</span>
-              </div>
-              <div className="pricing-feature">
-                <span className="pricing-check">✓</span>
-                <span>Point of sale & receipts</span>
-              </div>
-              <div className="pricing-feature">
-                <span className="pricing-check">✓</span>
-                <span>Prescription management</span>
-              </div>
-              <div className="pricing-feature">
-                <span className="pricing-check">✓</span>
-                <span>Sales reports & analytics</span>
-              </div>
-              <div className="pricing-feature">
-                <span className="pricing-check">✓</span>
-                <span>Low stock & expiry alerts</span>
-              </div>
-              <div className="pricing-feature">
-                <span className="pricing-check">✓</span>
-                <span>Audit log</span>
-              </div>
-              <div className="pricing-feature">
-                <span className="pricing-check">✓</span>
-                <span>WhatsApp support</span>
+              <ul className="pricing-features">
+                <li className="pricing-feature"><span className="pricing-check">✓</span>5 staff accounts</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Everything in Starter</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Advanced analytics &amp; charts</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>CSV export</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Audit log</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Priority WhatsApp support</li>
+              </ul>
+              <div className="pricing-tier-footer">
+                <button
+                  className="btn btn-primary btn-block"
+                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  Get started
+                </button>
               </div>
             </div>
-            <button className="btn btn-primary btn-large btn-block" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
-              Register your pharmacy →
-            </button>
-            <div className="pricing-footer">
-              <p>First month free.</p>
-              <p className="pricing-note">Have more than one branch? Contact us for multi-location pricing.</p>
+
+            {/* PRO */}
+            <div className="pricing-tier">
+              <div className="pricing-tier-header">
+                <h3>Pro</h3>
+                <p className="pricing-tier-tagline">Best for busy or multi-staff pharmacies</p>
+                <div className="pricing-price">
+                  <span className="price-currency">GHS</span>
+                  <span className="price-amount">900</span>
+                  <span className="price-period">/ month</span>
+                </div>
+              </div>
+              <ul className="pricing-features">
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Unlimited staff accounts</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Everything in Growth</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Multi-branch support</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Dedicated onboarding</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Fastest support response</li>
+              </ul>
+              <div className="pricing-tier-footer">
+                <button
+                  className="btn btn-outline btn-block"
+                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  Get started
+                </button>
+                <p className="pricing-note">First month free on any plan.</p>
+              </div>
             </div>
+
           </div>
         </div>
       </section>

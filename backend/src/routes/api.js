@@ -2,6 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { requireRole } from '../middleware/rbacMiddleware.js';
+import { tierMiddleware, requireFeature } from '../middleware/tierMiddleware.js';
 import * as authController from '../controllers/authController.js';
 import * as inventoryController from '../controllers/inventoryController.js';
 import * as salesController from '../controllers/salesController.js';
@@ -30,13 +31,14 @@ const contactLimiter = rateLimit({
 // Auth (uses Supabase client directly; proxy endpoints for convenience)
 router.post('/auth/login', authLimiter, authController.login);
 router.post('/auth/register', authLimiter, authController.register);
-router.get('/auth/user', authMiddleware, authController.getUser);
+router.get('/auth/user', authMiddleware, tierMiddleware, authController.getUser);
 router.post('/auth/logout', authController.logout);
 router.post('/auth/forgot-password', authLimiter, authController.forgotPassword);
 
 // Pharmacies (list and current pharmacy settings)
 router.get('/pharmacies', authMiddleware, pharmacyController.listPharmacies);
 router.get('/pharmacies/my-settings', authMiddleware, pharmacyController.getMyPharmacySettings);
+router.get('/pharmacies/staff-count', authMiddleware, tierMiddleware, pharmacyController.getStaffCount);
 
 // Inventory (auth required; ADMIN for create/update drugs)
 router.get('/inventory/drugs', authMiddleware, inventoryController.getDrugs);
@@ -80,7 +82,9 @@ router.get('/reports/slow-moving', authMiddleware, reportController.slowMoving);
 router.get(
   '/admin/audit-logs',
   authMiddleware,
+  tierMiddleware,
   requireRole('ADMIN'),
+  requireFeature('auditLog'),
   auditController.listAuditLogs,
 );
 

@@ -627,7 +627,7 @@
 }
 
 .landing-pricing-content {
-  max-width: 800px;
+  max-width: 1100px;
   margin: 0 auto;
   text-align: center;
 }
@@ -641,39 +641,72 @@
 
 .landing-pricing-sub {
   margin: 0 0 60px;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   color: #64748b;
-  line-height: 1.6;
 }
 
-.pricing-card {
+.pricing-tiers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.pricing-tier {
   background: white;
   border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(37, 99, 235, 0.1);
+  border: 1px solid #e5e7eb;
   overflow: hidden;
-  max-width: 600px;
-  margin: 0 auto;
-  transform: translateY(0);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.pricing-card:hover {
+.pricing-tier:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+}
+
+.pricing-tier-featured {
+  border: 2px solid #2563eb;
+  box-shadow: 0 20px 40px rgba(37,99,235,0.15);
   transform: translateY(-8px);
-  box-shadow: 0 30px 60px rgba(37, 99, 235, 0.15);
 }
 
-.pricing-header {
-  padding: 40px 40px 32px;
+.pricing-tier-featured:hover {
+  transform: translateY(-12px);
+}
+
+.pricing-tier-badge {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   text-align: center;
+  padding: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.pricing-header h3 {
-  margin: 0 0 16px;
-  font-size: 1.5rem;
-  font-weight: 700;
+.pricing-tier-header {
+  padding: 32px 32px 24px;
+  text-align: center;
+}
+
+.pricing-tier-featured .pricing-tier-header {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.pricing-tier-header h3 {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.pricing-tier-tagline {
+  margin: 0 0 20px;
+  font-size: 0.875rem;
+  color: #64748b;
 }
 
 .pricing-price {
@@ -684,70 +717,98 @@
 }
 
 .price-currency {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  opacity: 0.9;
+  color: #374151;
 }
 
 .price-amount {
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 900;
+  color: #0f172a;
   line-height: 1;
 }
 
 .price-period {
-  font-size: 1.25rem;
-  font-weight: 500;
-  opacity: 0.9;
+  font-size: 1rem;
+  color: #6b7280;
 }
 
 .pricing-features {
-  padding: 40px;
+  list-style: none;
+  margin: 0;
+  padding: 24px 32px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .pricing-feature {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
   text-align: left;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #374151;
-}
-
-.pricing-feature:last-child {
-  margin-bottom: 0;
 }
 
 .pricing-check {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
   border-radius: 50%;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
   flex-shrink: 0;
 }
 
-.pricing-footer {
-  padding: 32px 40px 40px;
-  text-align: center;
-  border-top: 1px solid #e5e7eb;
-}
-
-.pricing-footer p {
-  margin: 0 0 8px;
-  font-size: 0.875rem;
-  color: #6b7280;
+.pricing-tier-footer {
+  padding: 24px 32px 32px;
+  border-top: 1px solid #f1f5f9;
 }
 
 .pricing-note {
-  font-size: 0.75rem !important;
-  color: #9ca3af !important;
+  margin: 12px 0 0;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid #2563eb;
+  color: #2563eb;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.btn-outline:hover {
+  background: #eff6ff;
+}
+
+@media (max-width: 900px) {
+  .pricing-tiers {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+    margin: 0 auto;
+  }
+
+  .pricing-tier-featured {
+    transform: none;
+  }
+
+  .pricing-tier-featured:hover {
+    transform: translateY(-4px);
+  }
 }
 
 .btn-large {

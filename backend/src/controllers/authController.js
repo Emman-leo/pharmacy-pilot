@@ -76,7 +76,7 @@ export async function getUser(req, res) {
 
     const out = profile ? { ...profile, pharmacy: profile.pharmacies || null } : {};
     if (out.pharmacies !== undefined) delete out.pharmacies;
-    res.json({ user: req.user, profile: out });
+    res.json({ user: req.user, profile: out, tier: req.tier || 'starter' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch user' });
   }

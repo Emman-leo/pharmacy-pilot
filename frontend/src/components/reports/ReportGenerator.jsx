@@ -37,6 +37,8 @@ export default function ReportGenerator({
   generatedReport,
   generating,
   isAdmin,
+  canExport,
+  canAdvancedReports,
 }) {
   const reportTypes = REPORT_TYPES.filter((t) => !t.adminOnly || isAdmin);
   const showCustomRange = period === 'custom';
@@ -77,12 +79,24 @@ export default function ReportGenerator({
           <button type="button" className="btn btn-primary" onClick={onGenerate} disabled={generating}>
             {generating ? 'Generating…' : 'Generate Report'}
           </button>
-          <button type="button" className="btn btn-ghost" onClick={onExportCSV} disabled={!generatedReport?.csvConfig}>
-            <IconFileText /> Export CSV
-          </button>
-          <button type="button" className="btn btn-ghost" onClick={onExportDocument} disabled={!generatedReport}>
-            <IconFileText /> Download document
-          </button>
+          {canExport ? (
+            <button type="button" className="btn btn-ghost" onClick={onExportCSV} disabled={!generatedReport?.csvConfig}>
+              <IconFileText /> Export CSV
+            </button>
+          ) : (
+            <button type="button" className="btn btn-ghost" disabled title="Upgrade to Growth to export">
+              Export CSV 🔒
+            </button>
+          )}
+          {canExport ? (
+            <button type="button" className="btn btn-ghost" onClick={onExportDocument} disabled={!generatedReport}>
+              <IconFileText /> Download document
+            </button>
+          ) : (
+            <button type="button" className="btn btn-ghost" disabled title="Upgrade to Growth to export">
+              Download document 🔒
+            </button>
+          )}
           <button type="button" className="btn btn-ghost" onClick={onPrint} disabled={!generatedReport}>
             Print Report
           </button>

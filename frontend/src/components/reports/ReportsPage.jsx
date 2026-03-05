@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTier } from '../../hooks/useTier';
 import { useApi } from '../../hooks/useApi';
 import { downloadCSV } from '../../utils/exportCSV';
 import { exportReportDocument } from '../../utils/exportReportDocument';
@@ -13,6 +14,7 @@ import './ReportsPage.css';
 export default function ReportsPage() {
   const api = useApi();
   const { isAdmin } = useAuth();
+  const { can } = useTier();
 
   const [overview, setOverview] = useState(null);
   const [overviewLoading, setOverviewLoading] = useState(true);
@@ -340,6 +342,8 @@ export default function ReportsPage() {
         generatedReport={generatedReport}
         generating={generating}
         isAdmin={isAdmin}
+        canExport={can('csvExport')}
+        canAdvancedReports={can('advancedReports')}
       />
     </div>
   );
