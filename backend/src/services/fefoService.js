@@ -41,16 +41,15 @@ export const fefoService = {
 
   async deductFromBatches(supabase, allocations) {
     for (const a of allocations) {
-      const { data: batch } = await supabase
-        .from('inventory_batches')
-        .select('quantity')
-        .eq('id', a.batch_id)
-        .single();
-      const newQty = (batch?.quantity || 0) - a.quantity;
-      await supabase
-        .from('inventory_batches')
-        .update({ quantity: newQty })
-        .eq('id', a.batch_id);
+      const { error } = await supabase.rpc('deduct_batch_quantity', {
+        p_batch_id: a.batch_id,
+        p_quantity:  a.quantity,
+      });
+      if (error) {
+        throw new Error(
+          `Stock deduction failed for batch ${a.batch_id}: ${error.message}` 
+        );
+      }
     }
   },
 
