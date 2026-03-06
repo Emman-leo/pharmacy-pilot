@@ -34,7 +34,7 @@ export async function submitContact(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: CONTACT_EMAIL,
+        from: 'noreply@pharmacypilot.webdevv.io',
         to: CONTACT_EMAIL,
         subject,
         text: textBody,
