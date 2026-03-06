@@ -1,4 +1,4 @@
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'webdevv.info@gmail.com';
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'pharmacypilot@webdevv.io';
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
 export async function submitContact(req, res) {

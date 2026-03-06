@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Package, Receipt, FileText, BarChart3, ArrowRight } from 'lucide-react';
 import './LandingPage.css';
 
-const CONTACT_EMAIL = 'webdevv.info@gmail.com';
+const CONTACT_EMAIL = 'pharmacypilot@webdevv.io';
 
 export default function LandingPage() {
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -42,9 +42,6 @@ export default function LandingPage() {
       <header className="landing-header">
         <div className="landing-header-inner">
           <span className="landing-logo">Pharmacy Pilot</span>
-          <button className="landing-demo-btn" onClick={() => document.getElementById('screenshots')?.scrollIntoView({ behavior: 'smooth' })}>
-            View demo
-          </button>
           <Link to="/login" className="landing-login-btn">Log in</Link>
         </div>
       </header>
