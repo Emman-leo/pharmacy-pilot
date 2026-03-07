@@ -137,12 +137,15 @@ export async function getActiveStock(req, res) {
           min_stock_quantity: b.drugs?.min_stock_quantity ?? 0,
           quantity: 0,
           totalValue: 0,
+          totalSellingValue: 0,
+          selling_price: sellingPrice,
           next_expiry: expiry,
         };
       }
 
       byDrug[id].quantity += qty;
       byDrug[id].totalValue += qty * costPrice;
+      byDrug[id].totalSellingValue += qty * sellingPrice;
       if (expiry && (!byDrug[id].next_expiry || expiry < byDrug[id].next_expiry)) {
         byDrug[id].next_expiry = expiry;
       }
@@ -158,6 +161,7 @@ export async function getActiveStock(req, res) {
         category: r.category,
         quantity: r.quantity,
         cost_price: avgCost,
+        selling_price: r.selling_price,
         expiry: r.next_expiry,
         lowStock,
         nearExpiry,

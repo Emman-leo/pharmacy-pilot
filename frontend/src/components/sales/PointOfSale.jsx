@@ -211,7 +211,7 @@ export default function PointOfSale() {
                 <span className="pos-product-name">{d.name}</span>
                 <span className="pos-product-detail">{d.dosage || d.category || '-'}</span>
                 {typeof priceByDrugId[d.id] === 'number' && (
-                  <span className="pos-product-price">₵{priceByDrugId[d.id].toFixed(2)}</span>
+                  <span className="pos-product-price">₵{priceByDrugId[d.id]?.toFixed(2) || '—'}</span>
                 )}
                 {d.controlled_drug && <span className="pos-controlled">CD</span>}
               </button>
