@@ -12,6 +12,7 @@ export default function PointOfSale() {
   const [search, setSearch] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [discount, setDiscount] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
   const [filtered, setFiltered] = useState([]);
   const [estimate, setEstimate] = useState({ total: 0 });
@@ -105,6 +106,10 @@ export default function PointOfSale() {
       setError('Cart is empty');
       return;
     }
+    if (!paymentMethod) {
+      setError('Please select a payment method');
+      return;
+    }
     setCheckingOut(true);
     setError('');
     try {
@@ -113,17 +118,19 @@ export default function PointOfSale() {
         items,
         customer_name: customerName || undefined,
         discount_amount: parseFloat(discount) || 0,
+        payment_method: paymentMethod,
       });
       setCart([]);
       setCustomerName('');
       setDiscount(0);
+      setPaymentMethod('');
       navigate(`/app/sales/receipt/${sale.id}`);
     } catch (err) {
       setError(err.message || 'Checkout failed');
     } finally {
       setCheckingOut(false);
     }
-  }, [cart, customerName, discount, api, navigate]);
+  }, [cart, customerName, discount, paymentMethod, api, navigate]);
 
   const handleSearchKeyDown = (e) => {
     if (!autocompleteOpen || autocompleteList.length === 0) return;
@@ -224,6 +231,8 @@ export default function PointOfSale() {
             onDiscountChange={setDiscount}
             onCheckout={checkout}
             checkingOut={checkingOut}
+            paymentMethod={paymentMethod}
+            onPaymentMethodChange={setPaymentMethod}
           />
         </div>
       </div>

@@ -11,6 +11,7 @@ import * as reportController from '../controllers/reportController.js';
 import * as auditController from '../controllers/auditController.js';
 import * as pharmacyController from '../controllers/pharmacyController.js';
 import * as contactController from '../controllers/contactController.js';
+import * as accountingController from '../controllers/accountingController.js';
 
 const router = Router();
 
@@ -32,6 +33,7 @@ const contactLimiter = rateLimit({
 router.post('/auth/login', authLimiter, authController.login);
 router.post('/auth/register', authLimiter, authController.register);
 router.get('/auth/user', authMiddleware, tierMiddleware, authController.getUser);
+router.get('/auth/users', authMiddleware, requireRole('ADMIN'), authController.listUsers);
 router.post('/auth/logout', authController.logout);
 router.post('/auth/forgot-password', authLimiter, authController.forgotPassword);
 
@@ -87,5 +89,14 @@ router.get(
   requireFeature('auditLog'),
   auditController.listAuditLogs,
 );
+
+// Accounting (Pro tier only)
+router.post('/accounting/expenses',              authMiddleware, tierMiddleware, requireFeature('accounting'), accountingController.createExpense);
+router.get('/accounting/expenses',               authMiddleware, tierMiddleware, requireFeature('accounting'), accountingController.listExpenses);
+router.delete('/accounting/expenses/:id',        authMiddleware, tierMiddleware, requireFeature('accounting'), requireRole('ADMIN'), accountingController.deleteExpense);
+router.get('/accounting/daily-close/preview',    authMiddleware, tierMiddleware, requireFeature('accounting'), accountingController.getDailyClosePreview);
+router.post('/accounting/daily-close',           authMiddleware, tierMiddleware, requireFeature('accounting'), requireRole('ADMIN'), accountingController.submitDailyClose);
+router.get('/accounting/daily-close/history',    authMiddleware, tierMiddleware, requireFeature('accounting'), accountingController.getDailyCloseHistory);
+router.get('/accounting/pl',                     authMiddleware, tierMiddleware, requireFeature('accounting'), accountingController.getProfitAndLoss);
 
 export default router;

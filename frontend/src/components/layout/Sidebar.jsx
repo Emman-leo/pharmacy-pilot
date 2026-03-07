@@ -11,6 +11,9 @@ const navItems = [
   { to: '/app/sales',            label: 'Point of Sale',       icon: '🧾', end: true },
   { to: '/app/sales/history',    label: 'Sales History',       icon: '📋', end: true },
   { to: '/app/reports',          label: 'Reports & Analytics', icon: '📊', end: true },
+  { to: '/app/accounting/expenses',    label: 'Expenses',     icon: '💸', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting' },
+  { to: '/app/accounting/daily-close', label: 'Daily Close',  icon: '🔒', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting', adminOnly: true },
+  { to: '/app/accounting/pl',          label: 'P&L',          icon: '📈', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting' },
   { to: '/app/admin/audit-log',  label: 'Audit Log',           icon: '🔍', adminOnly: true, feature: 'auditLog', end: true },
 ];
 

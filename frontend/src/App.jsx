@@ -17,6 +17,9 @@ import PrescriptionForm from './components/prescriptions/PrescriptionForm';
 import ApprovalQueue from './components/prescriptions/ApprovalQueue';
 import ReportsPage from './components/reports/ReportsPage';
 import AuditLogPage from './components/admin/AuditLogPage';
+import ExpensesPage from './components/accounting/ExpensesPage';
+import DailyClosePage from './components/accounting/DailyClosePage';
+import PLPage from './components/accounting/PLPage';
 
 function ProtectedRoute({ children, adminOnly }) {
   const { isAuthenticated, loading, isAdmin } = useAuth();
@@ -73,6 +76,16 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="accounting/expenses" element={<ExpensesPage />} />
+        <Route
+          path="accounting/daily-close"
+          element={
+            <ProtectedRoute adminOnly>
+              <DailyClosePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="accounting/pl" element={<PLPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

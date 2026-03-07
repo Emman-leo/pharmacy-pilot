@@ -108,3 +108,28 @@ export async function forgotPassword(req, res) {
     return res.status(500).json({ error: 'Failed to send reset email' });
   }
 }
+
+export async function listUsers(req, res) {
+  try {
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('pharmacy_id')
+      .eq('id', req.user.id)
+      .single();
+
+    const pharmacyId = profile?.pharmacy_id;
+
+    let q = supabaseAdmin
+      .from('profiles')
+      .select('id, full_name, email, role')
+      .order('full_name');
+
+    if (pharmacyId) q = q.eq('pharmacy_id', pharmacyId);
+
+    const { data, error } = await q;
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to fetch users' });
+  }
+}

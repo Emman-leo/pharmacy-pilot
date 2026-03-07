@@ -5,18 +5,21 @@ const FEATURES = {
     advancedReports: false,
     csvExport:        false,
     auditLog:         false,
+    accounting:       false,
     maxStaff:         2,
   },
   growth: {
     advancedReports: true,
     csvExport:        true,
     auditLog:         true,
+    accounting:       false,
     maxStaff:         5,
   },
   pro: {
     advancedReports: true,
     csvExport:        true,
     auditLog:         true,
+    accounting:       true,
     maxStaff:         null, // unlimited
   },
 };

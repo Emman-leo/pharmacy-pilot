@@ -7,18 +7,21 @@ export const TIER_FEATURES = {
     advancedReports: false,
     csvExport:       false,
     auditLog:        false,
+    accounting:      false,
   },
   growth: {
     maxStaff:       5,
     advancedReports: true,
     csvExport:       true,
     auditLog:        true,
+    accounting:      false,
   },
   pro: {
     maxStaff:       Infinity,
     advancedReports: true,
     csvExport:       true,
     auditLog:        true,
+    accounting:      true,
   },
 };
 

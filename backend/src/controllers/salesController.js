@@ -32,9 +32,12 @@ export async function estimate(req, res) {
 }
 
 export async function checkout(req, res) {
-  const { items, customer_name, discount_amount = 0 } = req.body || {};
+  const { items, customer_name, discount_amount = 0, payment_method } = req.body || {};
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Cart items required' });
+  }
+  if (!payment_method || !['cash', 'momo'].includes(payment_method)) {
+    return res.status(400).json({ error: 'payment_method is required (cash or momo)' });
   }
   try {
     const profile = await getProfile(req);
@@ -82,6 +85,7 @@ export async function checkout(req, res) {
         final_amount: finalAmount,
         sold_by: req.user.id,
         customer_name: customer_name || null,
+        payment_method,
       })
       .select()
       .single();

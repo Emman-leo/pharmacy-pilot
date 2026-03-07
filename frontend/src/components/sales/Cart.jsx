@@ -1,6 +1,6 @@
 import './Cart.css';
 
-export default function Cart({ cart, estimate = {}, onUpdateQty, onRemove, customerName, onCustomerChange, discount, onDiscountChange, onCheckout, checkingOut }) {
+export default function Cart({ cart, estimate = {}, onUpdateQty, onRemove, customerName, onCustomerChange, discount, onDiscountChange, onCheckout, checkingOut, paymentMethod, onPaymentMethodChange }) {
   const subtotal = estimate.total ?? 0;
   const discountAmount = parseFloat(discount) || 0;
   const total = Math.max(0, subtotal - discountAmount);
@@ -64,11 +64,31 @@ export default function Cart({ cart, estimate = {}, onUpdateQty, onRemove, custo
         </div>
       </div>
 
+      <div className="cart-payment">
+        <label>Payment Method</label>
+        <div className="cart-payment-options">
+          <button
+            type="button"
+            className={`cart-payment-btn ${paymentMethod === 'cash' ? 'active' : ''}`}
+            onClick={() => onPaymentMethodChange('cash')}
+          >
+            💵 Cash
+          </button>
+          <button
+            type="button"
+            className={`cart-payment-btn ${paymentMethod === 'momo' ? 'active' : ''}`}
+            onClick={() => onPaymentMethodChange('momo')}
+          >
+            📱 MoMo
+          </button>
+        </div>
+      </div>
+
       <button
         type="button"
         className="btn btn-primary btn-block cart-checkout"
         onClick={onCheckout}
-        disabled={cart.length === 0 || checkingOut}
+        disabled={cart.length === 0 || checkingOut || !paymentMethod}
       >
         {checkingOut ? 'Processing...' : 'Checkout'}
       </button>
