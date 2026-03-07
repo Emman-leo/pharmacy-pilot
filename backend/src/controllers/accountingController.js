@@ -1,14 +1,7 @@
 import { supabaseAdmin } from '../utils/db.js';
 import { recordAuditEvent } from '../utils/auditLogger.js';
+import { getProfile } from '../utils/profileUtils.js';
 
-async function getProfile(req) {
-  const { data } = await supabaseAdmin
-    .from('profiles')
-    .select('pharmacy_id')
-    .eq('id', req.user.id)
-    .single();
-  return data;
-}
 
 // ── Expenses ────────────────────────────────────────────────
 

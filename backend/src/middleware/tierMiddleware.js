@@ -33,11 +33,16 @@ export async function tierMiddleware(req, res, next) {
   try {
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('pharmacy_id')
+      .select('pharmacy_id, role')  // <-- also fetch role
       .eq('id', req.user.id)
       .single();
 
     const pharmacyId = profile?.pharmacy_id;
+    const role = profile?.role || 'STAFF';
+    
+    // Cache role on req for rbacMiddleware to use
+    req.userRole = role;
+    req.userPharmacyId = pharmacyId;
     if (!pharmacyId) {
       // Super admin / unassigned user — no tier restrictions
       req.tier = 'pro';
@@ -56,10 +61,11 @@ export async function tierMiddleware(req, res, next) {
     req.tierFeatures = TIER_FEATURES[tier] || TIER_FEATURES.starter;
     next();
   } catch (err) {
-    // Fail open — don't block the request, default to starter restrictions
-    req.tier = 'starter';
-    req.tierFeatures = TIER_FEATURES.starter;
-    next();
+    // Log with enough context for diagnosis
+    console.error('[tierMiddleware] Failed to resolve tier for user', req.user?.id, err.message);
+    return res.status(503).json({
+      error: 'Unable to verify your subscription tier. Please try again.',
+    });
   }
 }
 

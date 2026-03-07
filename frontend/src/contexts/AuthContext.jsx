@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useApi } from '../hooks/useApi';
 
 const AuthContext = createContext(null);
@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
   const [tier, setTier]       = useState('starter');
   const [loading, setLoading] = useState(true);
   const api = useApi();
+  const apiRef = useRef(api);
 
   useEffect(() => {
     const token = localStorage.getItem('pharmacy_token');
@@ -16,7 +17,7 @@ export function AuthProvider({ children }) {
       setLoading(false);
       return;
     }
-    api.get('/auth/user')
+    apiRef.current.get('/auth/user')
       .then(({ user: u, profile: p, tier: t }) => {
         setUser(u);
         setProfile(p || {});

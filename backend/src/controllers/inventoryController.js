@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '../utils/db.js';
 import { fefoService } from '../services/fefoService.js';
 import { recordAuditEvent } from '../utils/auditLogger.js';
+import { getProfile } from '../utils/profileUtils.js';
 
 export async function getDrugs(req, res) {
   const { search, category, controlled } = req.query;
@@ -65,11 +66,31 @@ export async function createDrug(req, res) {
 
 export async function updateDrug(req, res) {
   const { id } = req.params;
-  const body = req.body || {};
+  const {
+    name, generic_name, dosage, category,
+    controlled_drug, requires_prescription,
+    unit, min_stock_quantity,
+  } = req.body || {};
+
+  // Build a clean object — only known safe fields
+  const allowedUpdates = {};
+  if (name !== undefined)                   allowedUpdates.name = name;
+  if (generic_name !== undefined)           allowedUpdates.generic_name = generic_name;
+  if (dosage !== undefined)                 allowedUpdates.dosage = dosage;
+  if (category !== undefined)               allowedUpdates.category = category;
+  if (controlled_drug !== undefined)        allowedUpdates.controlled_drug = !!controlled_drug;
+  if (requires_prescription !== undefined)  allowedUpdates.requires_prescription = !!requires_prescription;
+  if (unit !== undefined)                   allowedUpdates.unit = unit;
+  if (min_stock_quantity !== undefined)     allowedUpdates.min_stock_quantity = min_stock_quantity;
+
+  if (Object.keys(allowedUpdates).length === 0) {
+    return res.status(400).json({ error: 'No valid fields to update' });
+  }
+
   try {
     const { data, error } = await req.supabase
       .from('drugs')
-      .update(body)
+      .update(allowedUpdates)
       .eq('id', id)
       .select()
       .single();
@@ -81,7 +102,7 @@ export async function updateDrug(req, res) {
       resource: 'drug',
       resourceId: data.id,
       details: {
-        updated_fields: body,
+        updated_fields: allowedUpdates,
       },
     });
 
@@ -262,7 +283,3 @@ export async function getAlerts(req, res) {
   }
 }
 
-async function getProfile(req) {
-  const { data } = await supabaseAdmin.from('profiles').select('pharmacy_id').eq('id', req.user.id).single();
-  return data;
-}

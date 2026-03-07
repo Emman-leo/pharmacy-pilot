@@ -220,21 +220,17 @@ export async function salesSummary(req, res) {
 }
 
 export async function topSelling(req, res) {
-  const { limit = 10 } = req.query;
+  const { limit = 10, start_date, end_date } = req.query;
   try {
-    const { data: sales, error: salesError } = await req.supabase
-      .from('sales')
-      .select('id')
-      .neq('status', 'VOIDED');
-    if (salesError) throw salesError;
-
-    const saleIds = (sales || []).map((s) => s.id);
-    if (saleIds.length === 0) return res.json([]);
-
-    const { data: items, error } = await req.supabase
+    let q = req.supabase
       .from('sale_items')
-      .select('drug_id, quantity, drugs(name)')
-      .in('sale_id', saleIds);
+      .select('drug_id, quantity, drugs(name), sales!inner(status, sale_date)')
+      .eq('sales.status', 'COMPLETED'); // filter at join level
+
+    if (start_date) q = q.gte('sales.sale_date', toStartOfDay(start_date));
+    if (end_date)   q = q.lte('sales.sale_date', toEndOfDay(end_date));
+
+    const { data: items, error } = await q;
     if (error) throw error;
 
     const byDrug = {};
@@ -275,19 +271,16 @@ export async function profitMargin(req, res) {
   try {
     const rangeStart = start_date ? toStartOfDay(start_date) : null;
     const rangeEnd = end_date ? toEndOfDay(end_date) : null;
-    let salesFilter = req.supabase.from('sales').select('id').neq('status', 'VOIDED');
-    if (rangeStart) salesFilter = salesFilter.gte('sale_date', rangeStart);
-    if (rangeEnd) salesFilter = salesFilter.lte('sale_date', rangeEnd);
-    const { data: sales } = await salesFilter;
-    const saleIds = (sales || []).map((s) => s.id);
-    if (saleIds.length === 0) {
-      return res.json({ items: [], totalRevenue: 0, totalCost: 0, totalProfit: 0 });
-    }
-
-    const { data: items, error } = await req.supabase
+    
+    let q = req.supabase
       .from('sale_items')
-      .select('sale_id, drug_id, quantity, unit_price, total_price, batch_id, drugs(name)')
-      .in('sale_id', saleIds);
+      .select('sale_id, drug_id, quantity, unit_price, total_price, batch_id, drugs(name), sales!inner(status, sale_date)')
+      .eq('sales.status', 'COMPLETED');
+    
+    if (rangeStart) q = q.gte('sales.sale_date', rangeStart);
+    if (rangeEnd) q = q.lte('sales.sale_date', rangeEnd);
+    
+    const { data: items, error } = await q;
     if (error) throw error;
 
     const batchIds = [...new Set((items || []).map((i) => i.batch_id).filter(Boolean))];
