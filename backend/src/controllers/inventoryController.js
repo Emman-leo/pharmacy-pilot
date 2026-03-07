@@ -109,7 +109,7 @@ export async function getActiveStock(req, res) {
   try {
     const { data, error } = await req.supabase
       .from('inventory_batches')
-      .select('drug_id, quantity, unit_price, expiry_date, drugs(name, category, min_stock_quantity)')
+      .select('drug_id, quantity, cost_price, selling_price, expiry_date, drugs(name, category, min_stock_quantity)')
       .gt('quantity', 0)
       .order('expiry_date');
     if (error) throw error;
@@ -125,7 +125,8 @@ export async function getActiveStock(req, res) {
       const id = b.drug_id;
       if (!id) continue;
       const qty = parseInt(b.quantity, 10) || 0;
-      const unitPrice = parseFloat(b.unit_price || 0);
+      const costPrice = parseFloat(b.cost_price || 0);
+      const sellingPrice = parseFloat(b.selling_price || 0);
       const expiry = b.expiry_date || null;
 
       if (!byDrug[id]) {
@@ -141,14 +142,14 @@ export async function getActiveStock(req, res) {
       }
 
       byDrug[id].quantity += qty;
-      byDrug[id].totalValue += qty * unitPrice;
+      byDrug[id].totalValue += qty * costPrice;
       if (expiry && (!byDrug[id].next_expiry || expiry < byDrug[id].next_expiry)) {
         byDrug[id].next_expiry = expiry;
       }
     }
 
     const rows = Object.values(byDrug).map((r) => {
-      const avgPrice = r.quantity > 0 ? r.totalValue / r.quantity : 0;
+      const avgCost = r.quantity > 0 ? r.totalValue / r.quantity : 0;
       const lowStock = r.min_stock_quantity > 0 && r.quantity < r.min_stock_quantity;
       const nearExpiry = !!(r.next_expiry && r.next_expiry <= nearExpiryIso);
       return {
@@ -156,7 +157,7 @@ export async function getActiveStock(req, res) {
         drug_name: r.drug_name,
         category: r.category,
         quantity: r.quantity,
-        price: avgPrice,
+        cost_price: avgCost,
         expiry: r.next_expiry,
         lowStock,
         nearExpiry,
@@ -171,9 +172,9 @@ export async function getActiveStock(req, res) {
 }
 
 export async function addBatch(req, res) {
-  const { drug_id, quantity, unit_price, batch_number, expiry_date, pharmacy_id } = req.body || {};
-  if (!drug_id || quantity == null || !unit_price || !expiry_date) {
-    return res.status(400).json({ error: 'drug_id, quantity, unit_price, expiry_date required' });
+  const { drug_id, quantity, cost_price, selling_price, batch_number, expiry_date, pharmacy_id } = req.body || {};
+  if (!drug_id || quantity == null || !cost_price || !selling_price || !expiry_date) {
+    return res.status(400).json({ error: 'drug_id, quantity, cost_price, selling_price, expiry_date required' });
   }
   try {
     const profile = await getProfile(req);
@@ -183,7 +184,8 @@ export async function addBatch(req, res) {
       .insert({
         drug_id,
         quantity: parseInt(quantity, 10),
-        unit_price: parseFloat(unit_price),
+        cost_price: parseFloat(cost_price),
+        selling_price: parseFloat(selling_price),
         batch_number: batch_number || null,
         expiry_date,
         pharmacy_id: pid || null,
@@ -199,7 +201,8 @@ export async function addBatch(req, res) {
       details: {
         drug_id: data.drug_id,
         quantity: data.quantity,
-        unit_price: data.unit_price,
+        cost_price: data.cost_price,
+        selling_price: data.selling_price,
         batch_number: data.batch_number,
         expiry_date: data.expiry_date,
         pharmacy_id: data.pharmacy_id,
@@ -214,12 +217,19 @@ export async function addBatch(req, res) {
 
 export async function updateBatch(req, res) {
   const { id } = req.params;
-  const { quantity } = req.body || {};
-  if (quantity == null) return res.status(400).json({ error: 'quantity required' });
+  const { quantity, cost_price, selling_price } = req.body || {};
+  if (quantity == null && cost_price == null && selling_price == null) {
+    return res.status(400).json({ error: 'At least one field (quantity, cost_price, selling_price) is required' });
+  }
   try {
+    const updates = {};
+    if (quantity != null) updates.quantity = parseInt(quantity, 10);
+    if (cost_price != null) updates.cost_price = parseFloat(cost_price);
+    if (selling_price != null) updates.selling_price = parseFloat(selling_price);
+    
     const { data, error } = await req.supabase
       .from('inventory_batches')
-      .update({ quantity: parseInt(quantity, 10) })
+      .update(updates)
       .eq('id', id)
       .select('*, drugs(*)')
       .single();
@@ -230,9 +240,7 @@ export async function updateBatch(req, res) {
       action: 'UPDATE',
       resource: 'inventory_batch',
       resourceId: data.id,
-      details: {
-        quantity: data.quantity,
-      },
+      details: updates,
     });
 
     res.json(data);

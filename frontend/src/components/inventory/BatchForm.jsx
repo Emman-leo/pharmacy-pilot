@@ -26,7 +26,8 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
     const data = {
       drug_id: form.drug_id.value,
       quantity: +form.quantity.value,
-      unit_price: +form.unit_price.value,
+      cost_price: +form.cost_price.value,
+      selling_price: +form.selling_price.value,
       batch_number: form.batch_number.value || undefined,
       expiry_date: form.expiry_date.value,
     };
@@ -66,8 +67,24 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
         </select>
         <label>Quantity</label>
         <input type="number" name="quantity" min="1" required />
-        <label>Unit Price</label>
-        <input type="number" name="unit_price" step="0.01" min="0" required />
+        <label>Cost Price (GHS) *</label>
+        <input
+          type="number"
+          name="cost_price"
+          step="0.01"
+          min="0"
+          placeholder="What you paid the supplier"
+          required
+        />
+        <label>Selling Price (GHS) *</label>
+        <input
+          type="number"
+          name="selling_price"
+          step="0.01"
+          min="0"
+          placeholder="What you charge customers"
+          required
+        />
         <label>Batch Number</label>
         <input type="text" name="batch_number" placeholder="Optional" />
         <label>Expiry Date</label>
@@ -87,7 +104,8 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
                   <th>Batch</th>
                   <th>Expiry</th>
                   <th>Quantity</th>
-                  <th>Unit Price</th>
+                  <th>Cost Price</th>
+                  <th>Selling Price</th>
                   <th></th>
                 </tr>
               </thead>
@@ -108,7 +126,8 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
                         className="qty-input"
                       />
                     </td>
-                    <td>₵{parseFloat(b.unit_price).toFixed(2)}</td>
+                    <td>₵{parseFloat(b.cost_price).toFixed(2)}</td>
+                    <td>₵{parseFloat(b.selling_price).toFixed(2)}</td>
                     <td></td>
                   </tr>
                 ))}

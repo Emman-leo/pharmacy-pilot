@@ -324,10 +324,10 @@ export async function getProfitAndLoss(req, res) {
       if (batchIds.length > 0) {
         const { data: batches } = await req.supabase
           .from('inventory_batches')
-          .select('id, unit_price')
+          .select('id, cost_price')
           .in('id', batchIds);
         batchPrices = (batches || []).reduce((m, b) => {
-          m[b.id] = parseFloat(b.unit_price || 0);
+          m[b.id] = parseFloat(b.cost_price || 0);
           return m;
         }, {});
       }

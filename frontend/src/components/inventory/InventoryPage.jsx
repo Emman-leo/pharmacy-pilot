@@ -158,14 +158,15 @@ export default function InventoryPage() {
                 <tr>
                   <th>Drug</th>
                   <th>Quantity</th>
-                  <th>Price</th>
+                  <th>Cost Price</th>
+                  <th>Selling Price</th>
                   <th>Expiry</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="inventory-empty">No matching items.</td>
+                    <td colSpan={5} className="inventory-empty">No matching items.</td>
                   </tr>
                 )}
                 {filtered.map((r) => {
@@ -191,7 +192,8 @@ export default function InventoryPage() {
                         {r.category && <span className="drug-meta">{r.category}</span>}
                       </td>
                       <td className={r.lowStock ? 'qty-cell qty-low' : 'qty-cell'}>{r.quantity}</td>
-                      <td>{money(r.price)}</td>
+                      <td>{money(r.cost_price)}</td>
+                      <td>{money(r.selling_price)}</td>
                       <td className={expiryClass}>
                         {r.expiry || '—'}
                         {d != null && d >= 0 && (

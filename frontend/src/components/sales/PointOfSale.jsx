@@ -30,7 +30,7 @@ export default function PointOfSale() {
       .then((res) => {
         const map = {};
         for (const row of res.rows || []) {
-          map[row.drug_id] = row.price;
+          map[row.drug_id] = row.selling_price;
         }
         setPriceByDrugId(map);
       })

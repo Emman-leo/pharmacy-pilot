@@ -30,7 +30,7 @@ export const fefoService = {
       allocations.push({
         batch_id: batch.id,
         quantity: take,
-        unit_price: parseFloat(batch.unit_price),
+        unit_price: parseFloat(batch.selling_price || batch.cost_price || 0),
       });
       remaining -= take;
     }

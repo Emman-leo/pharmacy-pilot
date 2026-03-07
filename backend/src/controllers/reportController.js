@@ -36,7 +36,7 @@ export async function overview(req, res) {
       req.supabase.from('drugs').select('id, min_stock_quantity'),
       req.supabase
         .from('inventory_batches')
-        .select('drug_id, quantity, unit_price')
+        .select('drug_id, quantity, cost_price')
         .gt('quantity', 0),
       // Best selling: current month only, excluding voided, via sales join
       req.supabase
@@ -86,7 +86,7 @@ export async function overview(req, res) {
     let totalStockValue = 0;
     for (const b of batchesRes.data || []) {
       const qty = b.quantity || 0;
-      const unitPrice = parseFloat(b.unit_price || 0);
+      const unitPrice = parseFloat(b.cost_price || 0);
       totalStockValue += qty * unitPrice;
       stockByDrug[b.drug_id] = (stockByDrug[b.drug_id] || 0) + qty;
     }
@@ -292,9 +292,9 @@ export async function profitMargin(req, res) {
 
     const batchIds = [...new Set((items || []).map((i) => i.batch_id).filter(Boolean))];
     const batches = batchIds.length
-      ? await req.supabase.from('inventory_batches').select('id, unit_price').in('id', batchIds).then((r) => r.data || [])
+      ? await req.supabase.from('inventory_batches').select('id, cost_price').in('id', batchIds).then((r) => r.data || [])
       : [];
-    const batchCost = batches.reduce((m, b) => ({ ...m, [b.id]: parseFloat(b.unit_price) }), {});
+    const batchCost = batches.reduce((m, b) => ({ ...m, [b.id]: parseFloat(b.cost_price) }), {});
 
     const byDrug = {};
     for (const i of items || []) {
@@ -353,14 +353,14 @@ export async function inventoryValuation(req, res) {
   try {
     const { data, error } = await req.supabase
       .from('inventory_batches')
-      .select('quantity, unit_price, drug_id, drugs(name)')
+      .select('quantity, cost_price, drug_id, drugs(name)')
       .gt('quantity', 0);
     if (error) throw error;
 
     const byDrug = {};
     let total = 0;
     for (const b of data || []) {
-      const val = b.quantity * parseFloat(b.unit_price || 0);
+      const val = b.quantity * parseFloat(b.cost_price || 0);
       total += val;
       const id = b.drug_id;
       if (!byDrug[id]) byDrug[id] = { drug_id: id, drug_name: b.drugs?.name || 'Unknown', quantity: 0, value: 0 };

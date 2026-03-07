@@ -234,3 +234,39 @@
   width: 380px;
   flex-shrink: 0;
 }
+
+/* Payment method toggle styles */
+.pos-payment-method {
+  margin-bottom: 16px;
+}
+
+.pos-payment-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.pos-payment-options {
+  display: flex;
+  gap: 8px;
+}
+
+.pos-payment-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fafbfc;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.pos-payment-btn.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+  font-weight: 700;
+}
