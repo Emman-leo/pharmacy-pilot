@@ -255,6 +255,7 @@ export default function LandingPage() {
           <p className="landing-pricing-sub">
             Pay monthly via mobile money. No contracts. Upgrade or downgrade anytime.
           </p>
+          <p className="pricing-note pricing-note-global">First month free on any plan.</p>
           <div className="pricing-tiers">
 
             {/* STARTER */}
@@ -330,6 +331,10 @@ export default function LandingPage() {
               <ul className="pricing-features">
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Unlimited staff accounts</li>
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Everything in Growth</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Expense tracking</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Daily cash reconciliation</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Profit &amp; Loss reports</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Cost price vs selling price tracking</li>
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Multi-branch support</li>
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Dedicated onboarding</li>
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Fastest support response</li>
@@ -341,7 +346,6 @@ export default function LandingPage() {
                 >
                   Get started
                 </button>
-                <p className="pricing-note">First month free on any plan.</p>
               </div>
             </div>
 
