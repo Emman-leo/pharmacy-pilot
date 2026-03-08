@@ -12,6 +12,8 @@ import * as auditController from '../controllers/auditController.js';
 import * as pharmacyController from '../controllers/pharmacyController.js';
 import * as contactController from '../controllers/contactController.js';
 import * as accountingController from '../controllers/accountingController.js';
+import * as superAdminController from '../controllers/superAdminController.js';
+import { requireSuperAdmin } from '../middleware/superAdminMiddleware.js';
 
 const router = Router();
 
@@ -98,5 +100,13 @@ router.get('/accounting/daily-close/preview',    authMiddleware, tierMiddleware,
 router.post('/accounting/daily-close',           authMiddleware, tierMiddleware, requireFeature('accounting'), requireRole('ADMIN'), accountingController.submitDailyClose);
 router.get('/accounting/daily-close/history',    authMiddleware, tierMiddleware, requireFeature('accounting'), accountingController.getDailyCloseHistory);
 router.get('/accounting/pl',                     authMiddleware, tierMiddleware, requireFeature('accounting'), accountingController.getProfitAndLoss);
+
+// Super-admin panel — no pharmacy users only
+router.get('/admin/stats',                    authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.getStats);
+router.get('/admin/pharmacies',               authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.listPharmacies);
+router.post('/admin/pharmacies',              authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.createPharmacy);
+router.put('/admin/pharmacies/:id',           authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.updatePharmacy);
+router.get('/admin/pharmacies/:id/users',     authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.listPharmacyUsers);
+router.post('/admin/pharmacies/:id/users',    authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.createPharmacyUser);
 
 export default router;

@@ -3,23 +3,21 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTier } from '../../hooks/useTier';
 import './Sidebar.css';
 
-const navItems = [
-  { to: '/app',                  label: 'Dashboard',          icon: '🏠', end: true },
-  { to: '/app/inventory',        label: 'Inventory',           icon: '📦', end: true },
-  { to: '/app/inventory/drugs',  label: 'Drugs',               icon: '💊', nested: true, end: true },
-  { to: '/app/inventory/alerts', label: 'Alerts',              icon: '⚠️', nested: true, end: true },
-  { to: '/app/sales',            label: 'Point of Sale',       icon: '🧾', end: true },
-  { to: '/app/sales/history',    label: 'Sales History',       icon: '📋', end: true },
-  { to: '/app/reports',          label: 'Reports & Analytics', icon: '📊', end: true },
-  { to: '/app/accounting/expenses',    label: 'Expenses',     icon: '💸', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting' },
-  { to: '/app/accounting/daily-close', label: 'Daily Close',  icon: '🔒', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting', adminOnly: true },
-  { to: '/app/accounting/pl',          label: 'P&L',          icon: '📈', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting' },
-  { to: '/app/admin/audit-log',  label: 'Audit Log',           icon: '🔍', adminOnly: true, feature: 'auditLog', end: true },
-];
-
-export default function Sidebar({ isOpen, onClose }) {
-  const { isAdmin } = useAuth();
-  const { can } = useTier();
+// Pharmacy navigation (existing behavior)
+function PharmacyNav({ onClose, isAdmin, can }) {
+  const navItems = [
+    { to: '/app',                  label: 'Dashboard',          icon: '🏠', end: true },
+    { to: '/app/inventory',        label: 'Inventory',           icon: '📦', end: true },
+    { to: '/app/inventory/drugs',  label: 'Drugs',               icon: '💊', nested: true, end: true },
+    { to: '/app/inventory/alerts', label: 'Alerts',              icon: '⚠️', nested: true, end: true },
+    { to: '/app/sales',            label: 'Point of Sale',       icon: '🧾', end: true },
+    { to: '/app/sales/history',    label: 'Sales History',       icon: '📋', end: true },
+    { to: '/app/reports',          label: 'Reports & Analytics', icon: '📊', end: true },
+    { to: '/app/accounting/expenses',    label: 'Expenses',     icon: '💸', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting' },
+    { to: '/app/accounting/daily-close', label: 'Daily Close',  icon: '🔒', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting', adminOnly: true },
+    { to: '/app/accounting/pl',          label: 'P&L',          icon: '📈', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting' },
+    { to: '/app/admin/audit-log',  label: 'Audit Log',           icon: '🔍', adminOnly: true, feature: 'auditLog', end: true },
+  ];
 
   const items = navItems.filter((i) => {
     if (i.adminOnly && !isAdmin) return false;
@@ -32,7 +30,6 @@ export default function Sidebar({ isOpen, onClose }) {
     let lastGroup = null;
     
     items.forEach(({ to, label, icon, end, nested }) => {
-      
       elements.push(
         <NavLink
           key={to}
@@ -53,6 +50,41 @@ export default function Sidebar({ isOpen, onClose }) {
     return elements;
   };
 
+  return <>{renderNavItems()}</>;
+}
+
+// Super admin navigation
+function SuperAdminNav({ onClose }) {
+  const navItems = [
+    { to: '/super-admin',         label: 'Overview',    icon: '📊', end: true },
+    { to: '/super-admin/pharmacies', label: 'Pharmacies',  icon: '🏥', end: true },
+    { to: '/super-admin/users',      label: 'All Users',   icon: '👥', end: true },
+  ];
+
+  return (
+    <>
+      {navItems.map(({ to, label, icon, end }) => (
+        <NavLink
+          key={to}
+          to={to}
+          end={end}
+          className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+          onClick={onClose}
+        >
+          <span className="sidebar-icon" aria-hidden>{icon}</span>
+          <span>{label}</span>
+        </NavLink>
+      ))}
+    </>
+  );
+}
+
+export default function Sidebar({ isOpen, onClose }) {
+  const { profile, isAdmin } = useAuth();
+  const { can } = useTier();
+  
+  const isSuperAdmin = !profile?.pharmacy_id;
+
   return (
     <>
       <div
@@ -63,7 +95,10 @@ export default function Sidebar({ isOpen, onClose }) {
       />
       <aside className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}>
         <nav>
-          {renderNavItems()}
+          {isSuperAdmin
+            ? <SuperAdminNav onClose={onClose} />
+            : <PharmacyNav onClose={onClose} isAdmin={isAdmin} can={can} />
+          }
         </nav>
       </aside>
     </>

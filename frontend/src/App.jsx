@@ -20,19 +20,35 @@ import AuditLogPage from './components/admin/AuditLogPage';
 import ExpensesPage from './components/accounting/ExpensesPage';
 import DailyClosePage from './components/accounting/DailyClosePage';
 import PLPage from './components/accounting/PLPage';
+import SuperAdminRoute from './components/superadmin/SuperAdminRoute';
+import SuperAdminLayout from './components/superadmin/SuperAdminLayout';
+import PlatformStats from './components/superadmin/PlatformStats';
+import PharmaciesList from './components/superadmin/PharmaciesList';
+import CreatePharmacyForm from './components/superadmin/CreatePharmacyForm';
+import PharmacyDetail from './components/superadmin/PharmacyDetail';
 
 function ProtectedRoute({ children, adminOnly }) {
-  const { isAuthenticated, loading, isAdmin } = useAuth();
+  const { isAuthenticated, loading, isAdmin, profile } = useAuth();
   if (loading) return <Spinner label="Loading session…" />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (adminOnly && !isAdmin) return <Navigate to="/app" replace />;
+  // Redirect super-admins away from pharmacy routes (except if already on super-admin routes)
+  if (!profile?.pharmacy_id && window.location.pathname !== '/super-admin' && !window.location.pathname.startsWith('/super-admin/')) {
+    return <Navigate to="/super-admin" replace />;
+  }
   return children;
 }
 
 function LandingOrRedirect() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, profile } = useAuth();
   if (loading) return <Spinner label="Loading…" />;
-  if (isAuthenticated) return <Navigate to="/app" replace />;
+  if (isAuthenticated) {
+    // Super admins (no pharmacy) go to admin panel, others go to app
+    if (!profile?.pharmacy_id) {
+      return <Navigate to="/super-admin" replace />;
+    }
+    return <Navigate to="/app" replace />;
+  }
   return <LandingPage />;
 }
 
@@ -87,6 +103,21 @@ export default function App() {
         />
         <Route path="accounting/pl" element={<PLPage />} />
       </Route>
+      
+      <Route
+        path="/super-admin"
+        element={
+          <SuperAdminRoute>
+            <SuperAdminLayout />
+          </SuperAdminRoute>
+        }
+      >
+        <Route index element={<PlatformStats />} />
+        <Route path="pharmacies" element={<PharmaciesList />} />
+        <Route path="pharmacies/new" element={<CreatePharmacyForm />} />
+        <Route path="pharmacies/:id" element={<PharmacyDetail />} />
+      </Route>
+      
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
