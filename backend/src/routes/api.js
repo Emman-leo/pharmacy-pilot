@@ -104,6 +104,7 @@ router.get('/accounting/pl',                     authMiddleware, tierMiddleware,
 // Super-admin panel — no pharmacy users only
 router.get('/admin/stats',                    authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.getStats);
 router.get('/admin/pharmacies',               authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.listPharmacies);
+router.get('/admin/pharmacies/:id',           authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.getPharmacy);
 router.post('/admin/pharmacies',              authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.createPharmacy);
 router.put('/admin/pharmacies/:id',           authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.updatePharmacy);
 router.get('/admin/pharmacies/:id/users',     authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.listPharmacyUsers);

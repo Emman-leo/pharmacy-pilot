@@ -182,6 +182,45 @@ export async function listPharmacyUsers(req, res) {
   }
 }
 
+export async function getPharmacy(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Get pharmacy details
+    const { data: pharmacy, error: pharmacyError } = await supabaseAdmin
+      .from('pharmacies')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (pharmacyError) {
+      if (pharmacyError.code === 'PGRST116') {
+        return res.status(404).json({ error: 'Pharmacy not found' });
+      }
+      throw pharmacyError;
+    }
+
+    // Get staff count for this pharmacy
+    const { data: staff, error: staffError } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('pharmacy_id', id)
+      .eq('is_active', true);
+
+    if (staffError) throw staffError;
+
+    const pharmacyWithStaff = {
+      ...pharmacy,
+      staff_count: staff.length
+    };
+
+    res.json(pharmacyWithStaff);
+  } catch (error) {
+    console.error('Error fetching pharmacy:', error);
+    res.status(500).json({ error: 'Failed to fetch pharmacy' });
+  }
+}
+
 export async function createPharmacyUser(req, res) {
   try {
     const { id: pharmacyId } = req.params;
