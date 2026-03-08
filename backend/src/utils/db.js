@@ -12,14 +12,7 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
     autoRefreshToken: false,
     persistSession: false,
   },
-  global: {
-    headers: {
-      'x-supabase-bypass-rls': 'true',
-    }
-  }
 });
-
-console.log('[db] supabaseAdmin key prefix:', supabaseServiceKey?.slice(0, 15));
 
 export function createSupabaseClient(accessToken) {
   return createClient(supabaseUrl, process.env.SUPABASE_ANON_KEY || supabaseServiceKey, {
