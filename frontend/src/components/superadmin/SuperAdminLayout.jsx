@@ -44,38 +44,37 @@ export default function SuperAdminLayout() {
       </header>
       
       <div className="layout-body">
-        <nav className={`superadmin-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
-          <div className={`sidebar-overlay ${sidebarOpen ? 'sidebar-overlay-visible' : ''}`}
-               onClick={() => setSidebarOpen(false)}
-               onKeyDown={(e) => e.key === 'Escape' && setSidebarOpen(false)}
-               aria-hidden="true" />
-          <div className="sidebar-content">
-            <NavLink
-              to="/super-admin"
-              end
-              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <span className="sidebar-icon" aria-hidden>📊</span>
-              <span>Overview</span>
-            </NavLink>
-            <NavLink
-              to="/super-admin/pharmacies"
-              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <span className="sidebar-icon" aria-hidden>🏥</span>
-              <span>Pharmacies</span>
-            </NavLink>
-            <NavLink
-              to="/super-admin/users"
-              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <span className="sidebar-icon" aria-hidden>👥</span>
-              <span>All Users</span>
-            </NavLink>
-          </div>
+        <div className={`sidebar-overlay ${sidebarOpen ? 'sidebar-overlay-visible' : ''}`}
+             onClick={() => setSidebarOpen(false)}
+             onKeyDown={(e) => e.key === 'Escape' && setSidebarOpen(false)}
+             aria-hidden="true" />
+        
+        <nav className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
+          <NavLink
+            to="/super-admin"
+            end
+            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <span className="sidebar-icon" aria-hidden>📊</span>
+            <span>Overview</span>
+          </NavLink>
+          <NavLink
+            to="/super-admin/pharmacies"
+            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <span className="sidebar-icon" aria-hidden>🏥</span>
+            <span>Pharmacies</span>
+          </NavLink>
+          <NavLink
+            to="/super-admin/users"
+            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <span className="sidebar-icon" aria-hidden>👥</span>
+            <span>All Users</span>
+          </NavLink>
         </nav>
         
         <main className="layout-main">
