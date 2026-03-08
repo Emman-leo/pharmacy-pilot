@@ -1,0 +1,23 @@
+/* Super Admin Layout Styles */
+.superadmin-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.superadmin-sidebar.sidebar-open {
+  transform: translateX(0);
+}
+
+.sidebar-content {
+  padding: 2rem 0;
+}
+
+/* Use existing sidebar styles from main Layout.css */

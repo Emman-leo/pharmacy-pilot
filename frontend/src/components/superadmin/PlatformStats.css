@@ -1,0 +1,24 @@
+/* Platform Stats Styles */
+.platform-stats {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.platform-stats-header {
+  margin-bottom: 2rem;
+}
+
+.platform-stats-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+
+.platform-stats-header p {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+/* Use existing dashboard-cards and sales-history-table styles from main app */
