@@ -15,8 +15,8 @@ export default function PlatformStats() {
     async function fetchData() {
       try {
         const [statsData, pharmaciesData] = await Promise.all([
-          api.get('/admin/stats'),
-          api.get('/admin/pharmacies')
+          api.get(`/admin/stats?_=${Date.now()}`),
+          api.get(`/admin/pharmacies?_=${Date.now()}`)
         ]);
         setStats(statsData);
         setPharmacies(pharmaciesData);
@@ -28,7 +28,7 @@ export default function PlatformStats() {
     }
 
     fetchData();
-  }, [api]);
+  }, []);
 
   if (loading) return <Spinner label="Loading platform stats..." />;
   if (error) return <div className="error-banner">{error}</div>;
