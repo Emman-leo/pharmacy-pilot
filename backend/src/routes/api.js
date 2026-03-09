@@ -50,8 +50,8 @@ router.post('/inventory/drugs', authMiddleware, requireRole('ADMIN'), inventoryC
 router.put('/inventory/drugs/:id', authMiddleware, requireRole('ADMIN'), inventoryController.updateDrug);
 router.get('/inventory/active-stock', authMiddleware, inventoryController.getActiveStock);
 router.get('/inventory/batches', authMiddleware, inventoryController.getBatches);
-router.post('/inventory/batches', authMiddleware, inventoryController.addBatch);
-router.put('/inventory/batches/:id', authMiddleware, inventoryController.updateBatch);
+router.post('/inventory/batches', authMiddleware, tierMiddleware, requireRole('ADMIN'), inventoryController.addBatch);
+router.put('/inventory/batches/:id', authMiddleware, tierMiddleware, requireRole('ADMIN'), inventoryController.updateBatch);
 router.get('/inventory/alerts', authMiddleware, inventoryController.getAlerts);
 
 // Sales
