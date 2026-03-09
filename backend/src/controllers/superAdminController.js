@@ -321,3 +321,22 @@ export async function createPharmacyUser(req, res) {
     res.status(500).json({ error: 'Failed to create user' });
   }
 }
+
+export async function listAllUsers(req, res) {
+  try {
+    const { data: users, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id, email, full_name, role, pharmacy_id, is_active, created_at, pharmacies(name)')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    const result = users.map(u => ({
+      ...u,
+      pharmacy_name: u.pharmacies?.name || null,
+      pharmacies: undefined,
+    }));
+    res.json(result);
+  } catch (error) {
+    console.error('Error listing all users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+}

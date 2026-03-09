@@ -109,5 +109,6 @@ router.post('/admin/pharmacies',              authMiddleware, tierMiddleware, re
 router.put('/admin/pharmacies/:id',           authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.updatePharmacy);
 router.get('/admin/pharmacies/:id/users',     authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.listPharmacyUsers);
 router.post('/admin/pharmacies/:id/users',    authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.createPharmacyUser);
+router.get('/admin/users',                    authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.listAllUsers);
 
 export default router;

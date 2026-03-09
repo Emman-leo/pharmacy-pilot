@@ -26,6 +26,7 @@ import PlatformStats from './components/superadmin/PlatformStats';
 import PharmaciesList from './components/superadmin/PharmaciesList';
 import CreatePharmacyForm from './components/superadmin/CreatePharmacyForm';
 import PharmacyDetail from './components/superadmin/PharmacyDetail';
+import AllUsersList from './components/superadmin/AllUsersList';
 
 function ProtectedRoute({ children, adminOnly }) {
   const { isAuthenticated, loading, isAdmin, profile } = useAuth();
@@ -116,6 +117,7 @@ export default function App() {
         <Route path="pharmacies" element={<PharmaciesList />} />
         <Route path="pharmacies/new" element={<CreatePharmacyForm />} />
         <Route path="pharmacies/:id" element={<PharmacyDetail />} />
+        <Route path="users" element={<AllUsersList />} />
       </Route>
       
       <Route path="*" element={<Navigate to="/" replace />} />
