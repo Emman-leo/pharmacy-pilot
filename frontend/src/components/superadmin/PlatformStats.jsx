@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
+import { useAuth } from '../../contexts/AuthContext';
 import Spinner from '../common/Spinner';
 import './PlatformStats.css';
 
 export default function PlatformStats() {
+  const { user, loading: authLoading } = useAuth();
   const api = useApi();
   const [stats, setStats] = useState(null);
   const [pharmacies, setPharmacies] = useState([]);
@@ -12,6 +14,7 @@ export default function PlatformStats() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (authLoading || !user) return; // wait for auth to settle
     async function fetchData() {
       try {
         const [statsData, pharmaciesData] = await Promise.all([
@@ -28,7 +31,7 @@ export default function PlatformStats() {
     }
 
     fetchData();
-  }, []);
+  }, [user, authLoading]);
 
   if (loading) return <Spinner label="Loading platform stats..." />;
   if (error) return <div className="error-banner">{error}</div>;
