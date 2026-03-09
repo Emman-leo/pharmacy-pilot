@@ -274,7 +274,7 @@ export async function updateUserStatus(req, res) {
     }
 
     // Ban or unban in Supabase Auth
-    await supabaseAdmin.auth.admin.updateUser(id, {
+    await supabaseAdmin.auth.admin.updateUserById(id, {
       ban_duration: is_active ? 'none' : '876600h',
     });
 
