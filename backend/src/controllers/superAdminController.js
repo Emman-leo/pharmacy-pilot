@@ -18,11 +18,11 @@ export async function getStats(req, res) {
 
     if (pharmaciesError) throw pharmaciesError;
 
-    const { count: totalUsers, error: usersError } = await supabaseAdmin
+    const { data: allProfiles, error: usersError } = await supabaseAdmin
       .from('profiles')
-      .select('*', { count: 'exact', head: true });
+      .select('id, email, pharmacy_id');
 
-    console.log('[getStats] users result:', totalUsers, 'error:', usersError?.message);
+    console.log('[getStats] profiles:', JSON.stringify(allProfiles));
 
     if (usersError) throw usersError;
 
@@ -30,7 +30,7 @@ export async function getStats(req, res) {
       total_pharmacies: pharmacies.length,
       active_subscriptions: pharmacies.filter(p => p.subscription_status === 'active').length,
       trial_pharmacies: pharmacies.filter(p => p.subscription_status === 'trial').length,
-      total_users: totalUsers,
+      total_users: allProfiles.length,
       by_tier: {
         starter: pharmacies.filter(p => p.tier === 'starter').length,
         growth: pharmacies.filter(p => p.tier === 'growth').length,
