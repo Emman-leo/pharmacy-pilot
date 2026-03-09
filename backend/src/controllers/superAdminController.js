@@ -9,6 +9,8 @@ const TIER_LIMITS = {
 };
 
 export async function getStats(req, res) {
+  console.log('[getStats] service key prefix:', process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 20));
+  console.log('[getStats] url:', process.env.SUPABASE_URL?.slice(0, 30));
   try {
     const { data: pharmacies, error: pharmaciesError } = await supabaseAdmin
       .from('pharmacies')
@@ -19,6 +21,8 @@ export async function getStats(req, res) {
     const { count: totalUsers, error: usersError } = await supabaseAdmin
       .from('profiles')
       .select('*', { count: 'exact', head: true });
+
+    console.log('[getStats] users result:', totalUsers, 'error:', usersError?.message);
 
     if (usersError) throw usersError;
 
