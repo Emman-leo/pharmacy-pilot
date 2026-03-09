@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../utils/db.js';
 import { recordAuditEvent } from '../utils/auditLogger.js';
+import { createClient } from '@supabase/supabase-js';
 
 export async function login(req, res) {
   const { email, password } = req.body || {};
@@ -7,7 +8,12 @@ export async function login(req, res) {
     return res.status(400).json({ error: 'Email and password required' });
   }
   try {
-    const { data, error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
+    const authClient = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_ANON_KEY,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+    const { data, error } = await authClient.auth.signInWithPassword({ email, password });
     if (error) return res.status(401).json({ error: error.message });
 
     await recordAuditEvent(
