@@ -35,7 +35,7 @@ const contactLimiter = rateLimit({
 router.post('/auth/login', authLimiter, authController.login);
 router.post('/auth/register', authLimiter, authController.register);
 router.get('/auth/user', authMiddleware, tierMiddleware, authController.getUser);
-router.get('/auth/users', authMiddleware, requireRole('ADMIN'), authController.listUsers);
+router.get('/auth/users', authMiddleware, tierMiddleware, requireRole('ADMIN'), authController.listUsers);
 router.post('/auth/users', authMiddleware, tierMiddleware, requireRole('ADMIN'), authController.addStaff);
 router.put('/auth/users/:id/role', authMiddleware, tierMiddleware, requireRole('ADMIN'), authController.updateUserRole);
 router.put('/auth/users/:id/status', authMiddleware, tierMiddleware, requireRole('ADMIN'), authController.updateUserStatus);
@@ -49,8 +49,8 @@ router.get('/pharmacies/staff-count', authMiddleware, tierMiddleware, pharmacyCo
 
 // Inventory (auth required; ADMIN for create/update drugs)
 router.get('/inventory/drugs', authMiddleware, inventoryController.getDrugs);
-router.post('/inventory/drugs', authMiddleware, requireRole('ADMIN'), inventoryController.createDrug);
-router.put('/inventory/drugs/:id', authMiddleware, requireRole('ADMIN'), inventoryController.updateDrug);
+router.post('/inventory/drugs', authMiddleware, tierMiddleware, requireRole('ADMIN'), inventoryController.createDrug);
+router.put('/inventory/drugs/:id', authMiddleware, tierMiddleware, requireRole('ADMIN'), inventoryController.updateDrug);
 router.get('/inventory/active-stock', authMiddleware, inventoryController.getActiveStock);
 router.get('/inventory/batches', authMiddleware, inventoryController.getBatches);
 router.post('/inventory/batches', authMiddleware, tierMiddleware, requireRole('ADMIN'), inventoryController.addBatch);
@@ -62,7 +62,7 @@ router.post('/sales/estimate', authMiddleware, salesController.estimate);
 router.post('/sales/checkout', authMiddleware, salesController.checkout);
 router.get('/sales/history', authMiddleware, salesController.getHistory);
 router.get('/sales/receipt/:id', authMiddleware, salesController.getReceipt);
-router.post('/sales/:id/void', authMiddleware, requireRole('ADMIN'), salesController.voidSale);
+router.post('/sales/:id/void', authMiddleware, tierMiddleware, requireRole('ADMIN'), salesController.voidSale);
 
 // Public contact form
 router.post('/contact', contactLimiter, contactController.submitContact);
@@ -70,9 +70,9 @@ router.post('/contact', contactLimiter, contactController.submitContact);
 // Prescriptions
 router.post('/prescriptions', authMiddleware, prescriptionController.create);
 router.get('/prescriptions', authMiddleware, prescriptionController.list);
-router.get('/prescriptions/pending', authMiddleware, requireRole('ADMIN'), prescriptionController.getPending);
-router.put('/prescriptions/:id/approve', authMiddleware, requireRole('ADMIN'), prescriptionController.approve);
-router.put('/prescriptions/:id/reject', authMiddleware, requireRole('ADMIN'), prescriptionController.reject);
+router.get('/prescriptions/pending', authMiddleware, tierMiddleware, requireRole('ADMIN'), prescriptionController.getPending);
+router.put('/prescriptions/:id/approve', authMiddleware, tierMiddleware, requireRole('ADMIN'), prescriptionController.approve);
+router.put('/prescriptions/:id/reject', authMiddleware, tierMiddleware, requireRole('ADMIN'), prescriptionController.reject);
 
 // Reports
 router.get('/reports/overview', authMiddleware, reportController.overview);
