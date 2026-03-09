@@ -16,7 +16,7 @@ export default function SettingsPage() {
   
   // Staff data
   const [staff, setStaff] = useState([]);
-  const [staffCount, setStaffCount] = useState({ current: 0, max: Infinity });
+  const [staffCount, setStaffCount] = useState({ count: 0, max: null });
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState({
     full_name: '',
@@ -28,8 +28,9 @@ export default function SettingsPage() {
 
   const loadPharmacyData = async () => {
     try {
-      const data = await api.get('/pharmacies/my-settings');
-      setPharmacyData(data);
+      const data = await api.get('/pharmacies');
+      // data is an array, take the first (user's pharmacy)
+      setPharmacyData(data?.[0] || null);
     } catch (e) {
       setError(e.message || 'Failed to load pharmacy data');
     }
@@ -42,7 +43,7 @@ export default function SettingsPage() {
         api.get('/pharmacies/staff-count')
       ]);
       setStaff(users || []);
-      setStaffCount(count || { current: 0, max: Infinity });
+      setStaffCount(count || { count: 0, max: null });
     } catch (e) {
       setError(e.message || 'Failed to load staff data');
     }
@@ -108,7 +109,7 @@ export default function SettingsPage() {
     }
   };
 
-  const canAddStaff = staffCount.current < staffCount.max;
+  const canAddStaff = staffCount.max === null || staffCount.count < staffCount.max;
 
   if (authLoading || loading) {
     return <Spinner />;
@@ -164,8 +165,8 @@ export default function SettingsPage() {
             </div>
             <div className="info-row">
               <label>Subscription:</label>
-              <span className={`status-badge ${pharmacyData.subscriptionStatus === 'active' ? 'active' : 'inactive'}`}>
-                {pharmacyData.subscriptionStatus === 'active' ? 'Active' : 'Inactive'}
+              <span className={`status-badge ${pharmacyData.subscription_status === 'active' ? 'active' : 'inactive'}`}>
+                {pharmacyData.subscription_status === 'active' ? 'Active' : 'Inactive'}
               </span>
             </div>
           </div>
@@ -177,7 +178,7 @@ export default function SettingsPage() {
           <div className="staff-header">
             <div className="staff-usage">
               <span className="usage-text">
-                {staffCount.current} / {staffCount.max === Infinity ? '∞' : staffCount.max} staff slots used
+                {staffCount.count} / {staffCount.max === null ? '∞' : staffCount.max} staff slots used
               </span>
             </div>
             <button
