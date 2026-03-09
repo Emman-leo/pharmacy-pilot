@@ -15,7 +15,11 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
 });
 
 export function createSupabaseClient(accessToken) {
-  return createClient(supabaseUrl, process.env.SUPABASE_ANON_KEY || supabaseServiceKey, {
+  return createClient(supabaseUrl, process.env.SUPABASE_ANON_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
     global: {
       headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     },
