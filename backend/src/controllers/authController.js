@@ -127,8 +127,8 @@ export async function listUsers(req, res) {
 
     let q = supabaseAdmin
       .from('profiles')
-      .select('id, full_name, email, role')
-      .order('full_name');
+      .select('id, full_name, email, role, is_active, created_at')
+      .order('created_at', { ascending: true });
 
     if (pharmacyId) q = q.eq('pharmacy_id', pharmacyId);
 
@@ -137,5 +137,165 @@ export async function listUsers(req, res) {
     res.json(data || []);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to fetch users' });
+  }
+}
+
+export async function addStaff(req, res) {
+  try {
+    const pharmacyId = req.userPharmacyId;
+    const { email, full_name, password, role = 'STAFF' } = req.body || {};
+
+    if (!email || !full_name || !password) {
+      return res.status(400).json({ error: 'Email, full name and password are required' });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
+    if (!['ADMIN', 'STAFF'].includes(role)) {
+      return res.status(400).json({ error: 'Role must be ADMIN or STAFF' });
+    }
+
+    // Check staff count vs tier limit
+    const maxStaff = req.tierFeatures?.maxStaff;
+    if (maxStaff && maxStaff !== Infinity) {
+      const { count } = await supabaseAdmin
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('pharmacy_id', pharmacyId);
+      if (count >= maxStaff) {
+        return res.status(400).json({
+          error: `Staff limit reached. Your ${req.tier} plan allows ${maxStaff} staff members.` 
+        });
+      }
+    }
+
+    // Create auth user
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name },
+    });
+    if (authError) return res.status(400).json({ error: authError.message });
+
+    // Upsert profile
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .upsert({
+        id: authData.user.id,
+        email,
+        full_name,
+        role,
+        pharmacy_id: pharmacyId,
+        is_active: true,
+      }, { onConflict: 'id' })
+      .select()
+      .single();
+    if (profileError) throw profileError;
+
+    await recordAuditEvent(req, {
+      action: 'ADD_STAFF',
+      resource: 'profile',
+      resourceId: profile.id,
+      details: { email, full_name, role },
+    });
+
+    res.status(201).json(profile);
+  } catch (error) {
+    console.error('Error adding staff:', error);
+    res.status(500).json({ error: 'Failed to add staff member' });
+  }
+}
+
+export async function updateUserRole(req, res) {
+  try {
+    const { id } = req.params;
+    const { role } = req.body || {};
+
+    if (!['ADMIN', 'STAFF'].includes(role)) {
+      return res.status(400).json({ error: 'Role must be ADMIN or STAFF' });
+    }
+    if (id === req.user.id) {
+      return res.status(400).json({ error: 'You cannot change your own role' });
+    }
+
+    // Verify target user belongs to same pharmacy
+    const { data: target } = await supabaseAdmin
+      .from('profiles')
+      .select('pharmacy_id, full_name')
+      .eq('id', id)
+      .single();
+    if (!target || target.pharmacy_id !== req.userPharmacyId) {
+      return res.status(403).json({ error: 'User not found in your pharmacy' });
+    }
+
+    const { data: profile, error } = await supabaseAdmin
+      .from('profiles')
+      .update({ role })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+
+    await recordAuditEvent(req, {
+      action: 'UPDATE_STAFF_ROLE',
+      resource: 'profile',
+      resourceId: id,
+      details: { full_name: target.full_name, new_role: role },
+    });
+
+    res.json(profile);
+  } catch (error) {
+    console.error('Error updating role:', error);
+    res.status(500).json({ error: 'Failed to update role' });
+  }
+}
+
+export async function updateUserStatus(req, res) {
+  try {
+    const { id } = req.params;
+    const { is_active } = req.body || {};
+
+    if (typeof is_active !== 'boolean') {
+      return res.status(400).json({ error: 'is_active must be a boolean' });
+    }
+    if (id === req.user.id) {
+      return res.status(400).json({ error: 'You cannot deactivate your own account' });
+    }
+
+    // Verify target user belongs to same pharmacy
+    const { data: target } = await supabaseAdmin
+      .from('profiles')
+      .select('pharmacy_id, full_name')
+      .eq('id', id)
+      .single();
+    if (!target || target.pharmacy_id !== req.userPharmacyId) {
+      return res.status(403).json({ error: 'User not found in your pharmacy' });
+    }
+
+    // Ban or unban in Supabase Auth
+    await supabaseAdmin.auth.admin.updateUser(id, {
+      ban_duration: is_active ? 'none' : '876600h',
+    });
+
+    const { data: profile, error } = await supabaseAdmin
+      .from('profiles')
+      .update({ is_active })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+
+    await recordAuditEvent(req, {
+      action: is_active ? 'REACTIVATE_STAFF' : 'DEACTIVATE_STAFF',
+      resource: 'profile',
+      resourceId: id,
+      details: { full_name: target.full_name },
+    });
+
+    res.json(profile);
+  } catch (error) {
+    console.error('Error updating status:', error);
+    res.status(500).json({ error: 'Failed to update user status' });
   }
 }

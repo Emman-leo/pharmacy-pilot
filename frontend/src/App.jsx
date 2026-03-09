@@ -20,6 +20,7 @@ import AuditLogPage from './components/admin/AuditLogPage';
 import ExpensesPage from './components/accounting/ExpensesPage';
 import DailyClosePage from './components/accounting/DailyClosePage';
 import PLPage from './components/accounting/PLPage';
+import SettingsPage from './components/settings/SettingsPage';
 import SuperAdminRoute from './components/superadmin/SuperAdminRoute';
 import SuperAdminLayout from './components/superadmin/SuperAdminLayout';
 import PlatformStats from './components/superadmin/PlatformStats';
@@ -90,6 +91,14 @@ export default function App() {
           element={
             <ProtectedRoute adminOnly>
               <AuditLogPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="settings"
+          element={
+            <ProtectedRoute adminOnly>
+              <SettingsPage />
             </ProtectedRoute>
           }
         />

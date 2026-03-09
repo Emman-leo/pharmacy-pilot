@@ -36,6 +36,9 @@ router.post('/auth/login', authLimiter, authController.login);
 router.post('/auth/register', authLimiter, authController.register);
 router.get('/auth/user', authMiddleware, tierMiddleware, authController.getUser);
 router.get('/auth/users', authMiddleware, requireRole('ADMIN'), authController.listUsers);
+router.post('/auth/users', authMiddleware, tierMiddleware, requireRole('ADMIN'), authController.addStaff);
+router.put('/auth/users/:id/role', authMiddleware, tierMiddleware, requireRole('ADMIN'), authController.updateUserRole);
+router.put('/auth/users/:id/status', authMiddleware, tierMiddleware, requireRole('ADMIN'), authController.updateUserStatus);
 router.post('/auth/logout', authController.logout);
 router.post('/auth/forgot-password', authLimiter, authController.forgotPassword);
 

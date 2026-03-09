@@ -17,6 +17,7 @@ function PharmacyNav({ onClose, isAdmin, can }) {
     { to: '/app/accounting/daily-close', label: 'Daily Close',  icon: '🔒', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting', adminOnly: true },
     { to: '/app/accounting/pl',          label: 'P&L',          icon: '📈', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting' },
     { to: '/app/admin/audit-log',  label: 'Audit Log',           icon: '🔍', adminOnly: true, feature: 'auditLog', end: true },
+    { to: '/app/settings',        label: 'Settings',            icon: '⚙️', adminOnly: true, end: true },
   ];
 
   const items = navItems.filter((i) => {
