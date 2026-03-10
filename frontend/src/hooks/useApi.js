@@ -37,6 +37,11 @@ export function useApi() {
             window.location.href = '/login';
           }
         }
+        if (res.status === 402) {
+          if (!window.location.pathname.startsWith('/expired')) {
+            window.location.href = '/expired';
+          }
+        }
         const err = new Error(data.error || res.statusText);
         err.data = data;
         throw err;

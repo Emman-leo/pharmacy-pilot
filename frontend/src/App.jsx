@@ -3,6 +3,7 @@ import { useAuth } from './contexts/AuthContext';
 import Layout from './components/layout/Layout';
 import Login from './components/auth/Login';
 import ResetPassword from './components/auth/ResetPassword';
+import SubscriptionExpired from './components/auth/SubscriptionExpired';
 import LandingPage from './components/landing/LandingPage';
 import Spinner from './components/common/Spinner';
 import Dashboard from './components/Dashboard';
@@ -60,6 +61,7 @@ export default function App() {
       <Route path="/" element={<LandingOrRedirect />} />
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/expired" element={<SubscriptionExpired />} />
       <Route
         path="/app"
         element={
