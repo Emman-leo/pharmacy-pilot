@@ -63,7 +63,11 @@ export async function tierMiddleware(req, res, next) {
     const isTrial = subscription_status === 'trial';
     const trialValid = isTrial && (!trial_ends_at || new Date(trial_ends_at) >= new Date());
 
-    if (!isActive && !trialValid) {
+    // Allow auth/user through regardless of subscription status
+    // so users can log in and see an expired subscription screen
+    const isAuthUserRoute = req.path === '/auth/user' || req.originalUrl?.includes('/auth/user');
+
+    if (!isActive && !trialValid && !isAuthUserRoute) {
       return res.status(402).json({
         error: 'Your subscription has expired or been cancelled. Please contact support to reactivate.',
         subscription_status,
