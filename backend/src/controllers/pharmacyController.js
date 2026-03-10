@@ -10,7 +10,7 @@ export async function listPharmacies(req, res) {
       .single();
 
     const pharmacyId = profile?.pharmacy_id;
-    let q = req.supabase.from('pharmacies').select('id, name, address, phone').order('name');
+    let q = req.supabase.from('pharmacies').select('id, name, address, phone, tier, subscription_status').order('name');
     if (pharmacyId) {
       q = q.eq('id', pharmacyId);
     }
