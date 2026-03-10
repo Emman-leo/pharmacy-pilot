@@ -52,13 +52,28 @@ export async function tierMiddleware(req, res, next) {
 
     const { data: pharmacy } = await supabaseAdmin
       .from('pharmacies')
-      .select('tier')
+      .select('tier, subscription_status, trial_ends_at')
       .eq('id', pharmacyId)
       .single();
+
+    const { subscription_status, trial_ends_at } = pharmacy || {};
+
+    // Check if subscription is active
+    const isActive = subscription_status === 'active';
+    const isTrial = subscription_status === 'trial';
+    const trialValid = isTrial && (!trial_ends_at || new Date(trial_ends_at) >= new Date());
+
+    if (!isActive && !trialValid) {
+      return res.status(402).json({
+        error: 'Your subscription has expired or been cancelled. Please contact support to reactivate.',
+        subscription_status,
+      });
+    }
 
     const tier = pharmacy?.tier || 'starter';
     req.tier = tier;
     req.tierFeatures = TIER_FEATURES[tier] || TIER_FEATURES.starter;
+    req.subscriptionStatus = subscription_status;
     next();
   } catch (err) {
     // Log with enough context for diagnosis
