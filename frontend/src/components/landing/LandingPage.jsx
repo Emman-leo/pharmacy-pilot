@@ -83,8 +83,8 @@ export default function LandingPage() {
                     <div className="sidebar-item active">Dashboard</div>
                     <div className="sidebar-item">Inventory</div>
                     <div className="sidebar-item">Point of Sale</div>
-                    <div className="sidebar-item">Prescriptions</div>
                     <div className="sidebar-item">Reports</div>
+                    <div className="sidebar-item">Settings</div>
                   </div>
                   <div className="screenshot-main">
                     <div className="screenshot-metric-cards">
@@ -335,7 +335,7 @@ export default function LandingPage() {
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Daily cash reconciliation</li>
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Profit &amp; Loss reports</li>
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Cost price vs selling price tracking</li>
-                <li className="pricing-feature"><span className="pricing-check">✓</span>Multi-branch support</li>
+                <li className="pricing-feature"><span className="pricing-check">✓</span>Staff management &amp; roles</li>
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Dedicated onboarding</li>
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Fastest support response</li>
               </ul>
