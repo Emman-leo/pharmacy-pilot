@@ -11,6 +11,8 @@ const TIER_AMOUNTS = {
 export async function initializePayment(req, res) {
   try {
     const pharmacyId = req.userPharmacyId;
+    const { months = 1 } = req.body;
+    const validMonths = [1, 3, 6, 12].includes(months) ? months : 1;
 
     const { data: pharmacy, error } = await supabaseAdmin
       .from('pharmacies')
@@ -28,7 +30,7 @@ export async function initializePayment(req, res) {
       .eq('id', req.user.id)
       .single();
 
-    const amount = TIER_AMOUNTS[pharmacy.tier] || TIER_AMOUNTS.starter;
+    const amount = (TIER_AMOUNTS[pharmacy.tier] || TIER_AMOUNTS.starter) * validMonths;
     const callbackUrl = `${process.env.FRONTEND_URL}/payment-success`;
 
     const response = await fetch('https://api.paystack.co/transaction/initialize', {
@@ -46,6 +48,7 @@ export async function initializePayment(req, res) {
           pharmacy_id: pharmacyId,
           pharmacy_name: pharmacy.name,
           tier: pharmacy.tier,
+          months: validMonths,
         },
       }),
     });
@@ -101,12 +104,13 @@ export async function paystackWebhook(req, res) {
 
   if (event.event === 'charge.success') {
     const { pharmacy_id } = event.data.metadata || {};
+    const months = event.data.metadata?.months || 1;
     if (!pharmacy_id) return res.sendStatus(200);
 
     try {
-      // Extend subscription by 30 days from today
+      // Extend subscription by the specified number of months
       const newPeriodEnd = new Date();
-      newPeriodEnd.setDate(newPeriodEnd.getDate() + 30);
+      newPeriodEnd.setDate(newPeriodEnd.getDate() + (months * 30));
 
       await supabaseAdmin
         .from('pharmacies')
@@ -116,7 +120,7 @@ export async function paystackWebhook(req, res) {
         })
         .eq('id', pharmacy_id);
 
-      console.log(`[payments] Subscription activated for pharmacy ${pharmacy_id}`);
+      console.log(`[payments] Subscription activated for pharmacy ${pharmacy_id} for ${months} month(s)`);
     } catch (err) {
       console.error('[payments] Failed to update subscription', err);
     }

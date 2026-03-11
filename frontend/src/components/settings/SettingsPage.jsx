@@ -14,6 +14,14 @@ export default function SettingsPage() {
   // Billing state
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+  const [selectedMonths, setSelectedMonths] = useState(1);
+  
+  const DURATION_OPTIONS = [
+    { label: '1 month', months: 1 },
+    { label: '3 months', months: 3 },
+    { label: '6 months', months: 6 },
+    { label: '12 months', months: 12 },
+  ];
   
   // Pharmacy data
   const [pharmacyData, setPharmacyData] = useState(null);
@@ -119,7 +127,7 @@ export default function SettingsPage() {
     setPaymentLoading(true);
     setPaymentError('');
     try {
-      const data = await api.post('/payments/initialize');
+      const data = await api.post('/payments/initialize', { months: selectedMonths });
       window.location.href = data.authorization_url;
     } catch (err) {
       setPaymentError(err.message || 'Failed to initialize payment');
@@ -220,6 +228,24 @@ export default function SettingsPage() {
               </div>
             )}
             <div className="info-row">
+              <label>Duration:</label>
+              <div className="duration-selector">
+                {DURATION_OPTIONS.map((option) => (
+                  <button
+                    key={option.months}
+                    className={`duration-button ${selectedMonths === option.months ? 'selected' : ''}`}
+                    onClick={() => setSelectedMonths(option.months)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="info-row">
+              <label>Total:</label>
+              <span className="total-amount">GHS {currentPrice * selectedMonths}</span>
+            </div>
+            <div className="info-row">
               <label></label>
               <div>
                 {paymentError && <div className="payment-error">{paymentError}</div>}
@@ -228,7 +254,7 @@ export default function SettingsPage() {
                   disabled={paymentLoading}
                   className="pay-button"
                 >
-                  {paymentLoading ? 'Redirecting...' : `Pay GHS ${currentPrice} →`}
+                  {paymentLoading ? 'Redirecting...' : `Pay GHS ${currentPrice * selectedMonths} →`}
                 </button>
               </div>
             </div>
