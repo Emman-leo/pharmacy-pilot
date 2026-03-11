@@ -62,6 +62,13 @@ export async function tierMiddleware(req, res, next) {
     const isActive = subscription_status === 'active' && 
       (!current_period_end || new Date(current_period_end) >= new Date());
 
+    // Routes that bypass subscription enforcement
+    const isExemptRoute = 
+      req.path === '/auth/user' || 
+      req.originalUrl?.includes('/auth/user') ||
+      req.path === '/payments/initialize' ||
+      req.originalUrl?.includes('/payments/initialize');
+
     // If current_period_end has passed, update status to past_due and block access
     if (current_period_end && new Date(current_period_end) < new Date()) {
       try {
@@ -73,14 +80,20 @@ export async function tierMiddleware(req, res, next) {
         console.error('[tierMiddleware] Failed to update past_due status', err);
       }
       
-      // Allow auth/user through so users can see their expired status
-      const isAuthUserRoute = req.path === '/auth/user' || req.originalUrl?.includes('/auth/user');
-      if (!isAuthUserRoute) {
+      if (!isExemptRoute) {
         return res.status(402).json({
           error: 'Your subscription has expired. Please renew to continue.',
           subscription_status: 'past_due',
         });
       }
+    }
+
+    // Block access if subscription is not active (except for exempt routes)
+    if (!isActive && !isExemptRoute) {
+      return res.status(402).json({
+        error: 'Your subscription has expired or been cancelled.',
+        subscription_status,
+      });
     }
 
     const tier = pharmacy?.tier || 'starter';
