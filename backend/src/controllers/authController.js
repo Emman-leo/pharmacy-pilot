@@ -66,7 +66,7 @@ export async function getUser(req, res) {
   try {
     let { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('*, pharmacies(id, name, address, phone)')
+      .select('*, pharmacies(id, name, address, phone, tier, subscription_status, trial_ends_at, current_period_end)')
       .eq('id', req.user.id)
       .single();
 
@@ -82,7 +82,16 @@ export async function getUser(req, res) {
 
     const out = profile ? { ...profile, pharmacy: profile.pharmacies || null } : {};
     if (out.pharmacies !== undefined) delete out.pharmacies;
-    res.json({ user: req.user, profile: out, tier: req.tier || 'starter' });
+    
+    const pharmacy = profile?.pharmacies || {};
+    res.json({ 
+      user: req.user, 
+      profile: out, 
+      tier: pharmacy.tier || 'starter',
+      subscription_status: pharmacy.subscription_status || 'trial',
+      trial_ends_at: pharmacy.trial_ends_at,
+      current_period_end: pharmacy.current_period_end
+    });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch user' });
   }

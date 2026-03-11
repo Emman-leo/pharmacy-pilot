@@ -52,14 +52,15 @@ export async function tierMiddleware(req, res, next) {
 
     const { data: pharmacy } = await supabaseAdmin
       .from('pharmacies')
-      .select('tier, subscription_status, trial_ends_at')
+      .select('tier, subscription_status, trial_ends_at, current_period_end')
       .eq('id', pharmacyId)
       .single();
 
-    const { subscription_status, trial_ends_at } = pharmacy || {};
+    const { subscription_status, trial_ends_at, current_period_end } = pharmacy || {};
 
     // Check if subscription is active
-    const isActive = subscription_status === 'active';
+    const isActive = subscription_status === 'active' && 
+      (!current_period_end || new Date(current_period_end) >= new Date());
     const isTrial = subscription_status === 'trial';
     const trialValid = isTrial && (!trial_ends_at || new Date(trial_ends_at) >= new Date());
 

@@ -105,14 +105,14 @@ export async function paystackWebhook(req, res) {
 
     try {
       // Extend subscription by 30 days from today
-      const newExpiry = new Date();
-      newExpiry.setDate(newExpiry.getDate() + 30);
+      const newPeriodEnd = new Date();
+      newPeriodEnd.setDate(newPeriodEnd.getDate() + 30);
 
       await supabaseAdmin
         .from('pharmacies')
         .update({
           subscription_status: 'active',
-          trial_ends_at: newExpiry.toISOString().slice(0, 10),
+          current_period_end: newPeriodEnd.toISOString().slice(0, 10),
         })
         .eq('id', pharmacy_id);
 

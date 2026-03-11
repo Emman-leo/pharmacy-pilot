@@ -3,16 +3,20 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useApi } from '../../hooks/useApi';
 
 export default function RenewalBanner() {
-  const { tier, subscriptionStatus, trialEndsAt } = useAuth();
+  const { tier, subscriptionStatus, trialEndsAt, currentPeriodEnd } = useAuth();
   const api = useApi();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Show banner if trial ends within 7 days or past_due
+  // Show banner if trial ends within 7 days or past_due or active subscription ends within 7 days
   const shouldShow = () => {
     if (subscriptionStatus === 'past_due') return true;
     if (subscriptionStatus === 'trial' && trialEndsAt) {
       const daysLeft = Math.ceil((new Date(trialEndsAt) - new Date()) / (1000 * 60 * 60 * 24));
+      return daysLeft <= 7;
+    }
+    if (subscriptionStatus === 'active' && currentPeriodEnd) {
+      const daysLeft = Math.ceil((new Date(currentPeriodEnd) - new Date()) / (1000 * 60 * 60 * 24));
       return daysLeft <= 7;
     }
     return false;
@@ -22,6 +26,8 @@ export default function RenewalBanner() {
 
   const daysLeft = trialEndsAt
     ? Math.ceil((new Date(trialEndsAt) - new Date()) / (1000 * 60 * 60 * 24))
+    : currentPeriodEnd
+    ? Math.ceil((new Date(currentPeriodEnd) - new Date()) / (1000 * 60 * 60 * 24))
     : 0;
 
   const tierPrices = { starter: 250, growth: 550, pro: 900 };
@@ -53,6 +59,8 @@ export default function RenewalBanner() {
       <span style={{ color: subscriptionStatus === 'past_due' ? '#991b1b' : '#92400e', fontWeight: 500 }}>
         {subscriptionStatus === 'past_due'
           ? '⚠️ Your subscription is past due. Renew now to avoid losing access.'
+          : subscriptionStatus === 'active'
+          ? `⏰ Your subscription renews in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}. Pay now to avoid interruption.`
           : `⏰ Your trial ends in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}. Renew now to keep access.`}
       </span>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

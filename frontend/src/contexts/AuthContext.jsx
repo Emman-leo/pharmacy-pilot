@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
   const [tier, setTier]       = useState('starter');
   const [subscriptionStatus, setSubscriptionStatus] = useState('trial');
   const [trialEndsAt, setTrialEndsAt] = useState(null);
+  const [currentPeriodEnd, setCurrentPeriodEnd] = useState(null);
   const [loading, setLoading] = useState(true);
   const api = useApi();
   const apiRef = useRef(api);
@@ -20,12 +21,13 @@ export function AuthProvider({ children }) {
       return;
     }
     apiRef.current.get('/auth/user')
-      .then(({ user: u, profile: p, tier: t, subscription_status: ss, trial_ends_at: tea }) => {
+      .then(({ user: u, profile: p, tier: t, subscription_status: ss, trial_ends_at: tea, current_period_end: cpe }) => {
         setUser(u);
         setProfile(p || {});
         setTier(t || 'starter');
         setSubscriptionStatus(ss || 'trial');
         setTrialEndsAt(tea);
+        setCurrentPeriodEnd(cpe);
       })
       .catch(() => {
         localStorage.removeItem('pharmacy_token');
@@ -37,12 +39,13 @@ export function AuthProvider({ children }) {
     const { user: u, session } = await api.post('/auth/login', { email, password });
     if (session?.access_token) {
       localStorage.setItem('pharmacy_token', session.access_token);
-      const { user, profile, tier: t, subscription_status: ss, trial_ends_at: tea } = await api.get('/auth/user');
+      const { user, profile, tier: t, subscription_status: ss, trial_ends_at: tea, current_period_end: cpe } = await api.get('/auth/user');
       setUser(user);
       setProfile(profile || {});
       setTier(t || 'starter');
       setSubscriptionStatus(ss || 'trial');
       setTrialEndsAt(tea);
+      setCurrentPeriodEnd(cpe);
       return user;
     }
     throw new Error('Login failed');
@@ -52,12 +55,13 @@ export function AuthProvider({ children }) {
     const { user: u, session } = await api.post('/auth/register', { email, password, full_name });
     if (session?.access_token) {
       localStorage.setItem('pharmacy_token', session.access_token);
-      const { user, profile, tier: t, subscription_status: ss, trial_ends_at: tea } = await api.get('/auth/user');
+      const { user, profile, tier: t, subscription_status: ss, trial_ends_at: tea, current_period_end: cpe } = await api.get('/auth/user');
       setUser(user);
       setProfile(profile || {});
       setTier(t || 'starter');
       setSubscriptionStatus(ss || 'trial');
       setTrialEndsAt(tea);
+      setCurrentPeriodEnd(cpe);
       return user;
     }
     return u;
@@ -70,6 +74,7 @@ export function AuthProvider({ children }) {
     setTier('starter');
     setSubscriptionStatus('trial');
     setTrialEndsAt(null);
+    setCurrentPeriodEnd(null);
   };
 
   const value = {
@@ -78,6 +83,7 @@ export function AuthProvider({ children }) {
     tier,
     subscriptionStatus,
     trialEndsAt,
+    currentPeriodEnd,
     loading,
     isAuthenticated: !!user,
     isAdmin: profile?.role === 'ADMIN',
