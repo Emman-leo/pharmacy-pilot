@@ -116,7 +116,7 @@ router.post('/admin/pharmacies/:id/users',    authMiddleware, tierMiddleware, re
 router.get('/admin/users',                    authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.listAllUsers);
 
 // Authenticated payment routes
-router.post('/payments/initialize', tierMiddleware, initializePayment);
+router.post('/payments/initialize', authMiddleware, tierMiddleware, initializePayment);
 router.get('/payments/verify/:reference', verifyPayment);
 
 export default router;
