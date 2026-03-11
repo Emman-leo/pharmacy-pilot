@@ -56,23 +56,31 @@ export async function tierMiddleware(req, res, next) {
       .eq('id', pharmacyId)
       .single();
 
-    const { subscription_status, trial_ends_at, current_period_end } = pharmacy || {};
+    const { subscription_status, current_period_end } = pharmacy || {};
 
     // Check if subscription is active
     const isActive = subscription_status === 'active' && 
       (!current_period_end || new Date(current_period_end) >= new Date());
-    const isTrial = subscription_status === 'trial';
-    const trialValid = isTrial && (!trial_ends_at || new Date(trial_ends_at) >= new Date());
 
-    // Allow auth/user through regardless of subscription status
-    // so users can log in and see an expired subscription screen
-    const isAuthUserRoute = req.path === '/auth/user' || req.originalUrl?.includes('/auth/user');
-
-    if (!isActive && !trialValid && !isAuthUserRoute) {
-      return res.status(402).json({
-        error: 'Your subscription has expired or been cancelled. Please contact support to reactivate.',
-        subscription_status,
-      });
+    // If current_period_end has passed, update status to past_due and block access
+    if (current_period_end && new Date(current_period_end) < new Date()) {
+      try {
+        await supabaseAdmin
+          .from('pharmacies')
+          .update({ subscription_status: 'past_due' })
+          .eq('id', pharmacyId);
+      } catch (err) {
+        console.error('[tierMiddleware] Failed to update past_due status', err);
+      }
+      
+      // Allow auth/user through so users can see their expired status
+      const isAuthUserRoute = req.path === '/auth/user' || req.originalUrl?.includes('/auth/user');
+      if (!isAuthUserRoute) {
+        return res.status(402).json({
+          error: 'Your subscription has expired. Please renew to continue.',
+          subscription_status: 'past_due',
+        });
+      }
     }
 
     const tier = pharmacy?.tier || 'starter';

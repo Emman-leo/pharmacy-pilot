@@ -8,14 +8,10 @@ export default function RenewalBanner() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Show banner if trial ends within 7 days or past_due or active subscription ends within 7 days
+  // Show banner if past due or current period ends within 7 days
   const shouldShow = () => {
     if (subscriptionStatus === 'past_due') return true;
-    if (subscriptionStatus === 'trial' && trialEndsAt) {
-      const daysLeft = Math.ceil((new Date(trialEndsAt) - new Date()) / (1000 * 60 * 60 * 24));
-      return daysLeft <= 7;
-    }
-    if (subscriptionStatus === 'active' && currentPeriodEnd) {
+    if (currentPeriodEnd) {
       const daysLeft = Math.ceil((new Date(currentPeriodEnd) - new Date()) / (1000 * 60 * 60 * 24));
       return daysLeft <= 7;
     }
@@ -24,9 +20,7 @@ export default function RenewalBanner() {
 
   if (!shouldShow()) return null;
 
-  const daysLeft = trialEndsAt
-    ? Math.ceil((new Date(trialEndsAt) - new Date()) / (1000 * 60 * 60 * 24))
-    : currentPeriodEnd
+  const daysLeft = currentPeriodEnd
     ? Math.ceil((new Date(currentPeriodEnd) - new Date()) / (1000 * 60 * 60 * 24))
     : 0;
 
@@ -59,9 +53,7 @@ export default function RenewalBanner() {
       <span style={{ color: subscriptionStatus === 'past_due' ? '#991b1b' : '#92400e', fontWeight: 500 }}>
         {subscriptionStatus === 'past_due'
           ? '⚠️ Your subscription is past due. Renew now to avoid losing access.'
-          : subscriptionStatus === 'active'
-          ? `⏰ Your subscription renews in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}. Pay now to avoid interruption.`
-          : `⏰ Your trial ends in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}. Renew now to keep access.`}
+          : `⏰ Your subscription renews in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}. Pay now to avoid interruption.`}
       </span>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         {error && <span style={{ color: '#dc2626', fontSize: '0.8rem' }}>{error}</span>}
