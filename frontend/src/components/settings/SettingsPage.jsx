@@ -6,10 +6,14 @@ import './SettingsPage.css';
 
 export default function SettingsPage() {
   const api = useApi();
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, tier, subscriptionStatus, currentPeriodEnd, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('pharmacy');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Billing state
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
   
   // Pharmacy data
   const [pharmacyData, setPharmacyData] = useState(null);
@@ -111,6 +115,21 @@ export default function SettingsPage() {
 
   const canAddStaff = staffCount.max === null || staffCount.count < staffCount.max;
 
+  const handlePayment = async () => {
+    setPaymentLoading(true);
+    setPaymentError('');
+    try {
+      const data = await api.post('/payments/initialize');
+      window.location.href = data.authorization_url;
+    } catch (err) {
+      setPaymentError(err.message || 'Failed to initialize payment');
+      setPaymentLoading(false);
+    }
+  };
+
+  const tierPrices = { starter: 250, growth: 550, pro: 900 };
+  const currentPrice = tierPrices[tier] || 250;
+
   if (authLoading || loading) {
     return <Spinner />;
   }
@@ -131,6 +150,12 @@ export default function SettingsPage() {
             onClick={() => setActiveTab('staff')}
           >
             Staff
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'billing' ? 'active' : ''}`}
+            onClick={() => setActiveTab('billing')}
+          >
+            Billing
           </button>
         </div>
       </div>
@@ -168,6 +193,44 @@ export default function SettingsPage() {
               <span className={`status-badge ${pharmacyData.subscription_status === 'active' ? 'active' : 'inactive'}`}>
                 {pharmacyData.subscription_status === 'active' ? 'Active' : 'Inactive'}
               </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'billing' && (
+        <div className="settings-section">
+          <div className="billing-info">
+            <div className="info-row">
+              <label>Current Plan:</label>
+              <span className={`tier-badge tier-${tier}`}>
+                {tier?.toUpperCase()} - GHS {currentPrice}
+              </span>
+            </div>
+            <div className="info-row">
+              <label>Subscription Status:</label>
+              <span className={`status-badge ${subscriptionStatus === 'active' ? 'active' : subscriptionStatus === 'past_due' ? 'past-due' : 'trial'}`}>
+                {subscriptionStatus === 'active' ? 'Active' : subscriptionStatus === 'past_due' ? 'Past Due' : 'Trial'}
+              </span>
+            </div>
+            {currentPeriodEnd && (
+              <div className="info-row">
+                <label>Current Period Ends:</label>
+                <span>{new Date(currentPeriodEnd).toLocaleDateString()}</span>
+              </div>
+            )}
+            <div className="info-row">
+              <label></label>
+              <div>
+                {paymentError && <div className="payment-error">{paymentError}</div>}
+                <button
+                  onClick={handlePayment}
+                  disabled={paymentLoading}
+                  className="pay-button"
+                >
+                  {paymentLoading ? 'Redirecting...' : `Pay GHS ${currentPrice} →`}
+                </button>
+              </div>
             </div>
           </div>
         </div>
