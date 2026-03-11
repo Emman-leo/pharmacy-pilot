@@ -6,6 +6,7 @@ import ResetPassword from './components/auth/ResetPassword';
 import SubscriptionExpired from './components/auth/SubscriptionExpired';
 import LandingPage from './components/landing/LandingPage';
 import Spinner from './components/common/Spinner';
+import PaymentSuccess from './components/payments/PaymentSuccess';
 import Dashboard from './components/Dashboard';
 import InventoryPage from './components/inventory/InventoryPage';
 import DrugList from './components/inventory/DrugList';
@@ -62,6 +63,7 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/expired" element={<SubscriptionExpired />} />
+      <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route
         path="/app"
         element={

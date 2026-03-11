@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import RenewalBanner from '../payments/RenewalBanner';
 import './Layout.css';
 
 export default function Layout() {
@@ -9,6 +10,7 @@ export default function Layout() {
   return (
     <div className="layout">
       <Header onMenuClick={() => setSidebarOpen((o) => !o)} sidebarOpen={sidebarOpen} />
+      <RenewalBanner />
       <div className="layout-body">
         <Sidebar
           isOpen={sidebarOpen}

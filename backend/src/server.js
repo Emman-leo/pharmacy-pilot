@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import apiRoutes from './routes/api.js';
+import { paystackWebhook } from './controllers/paymentsController.js';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -29,6 +30,10 @@ app.use(cors({
   credentials: true,
 }));
 app.use(morgan('combined'));
+
+// Must be before express.json()
+app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), paystackWebhook);
+
 app.use(express.json());
 
 app.get('/', (_, res) => res.json({ message: 'Pharmacy Pilot API', docs: '/api', health: '/health' }));

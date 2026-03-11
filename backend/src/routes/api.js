@@ -14,6 +14,7 @@ import * as contactController from '../controllers/contactController.js';
 import * as accountingController from '../controllers/accountingController.js';
 import * as superAdminController from '../controllers/superAdminController.js';
 import { requireSuperAdmin } from '../middleware/superAdminMiddleware.js';
+import { initializePayment, verifyPayment } from '../controllers/paymentsController.js';
 
 const router = Router();
 
@@ -113,5 +114,9 @@ router.put('/admin/pharmacies/:id',           authMiddleware, tierMiddleware, re
 router.get('/admin/pharmacies/:id/users',     authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.listPharmacyUsers);
 router.post('/admin/pharmacies/:id/users',    authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.createPharmacyUser);
 router.get('/admin/users',                    authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.listAllUsers);
+
+// Authenticated payment routes
+router.post('/payments/initialize', tierMiddleware, initializePayment);
+router.get('/payments/verify/:reference', verifyPayment);
 
 export default router;

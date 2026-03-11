@@ -7,6 +7,8 @@ export function AuthProvider({ children }) {
   const [user, setUser]       = useState(null);
   const [profile, setProfile] = useState(null);
   const [tier, setTier]       = useState('starter');
+  const [subscriptionStatus, setSubscriptionStatus] = useState('trial');
+  const [trialEndsAt, setTrialEndsAt] = useState(null);
   const [loading, setLoading] = useState(true);
   const api = useApi();
   const apiRef = useRef(api);
@@ -18,10 +20,12 @@ export function AuthProvider({ children }) {
       return;
     }
     apiRef.current.get('/auth/user')
-      .then(({ user: u, profile: p, tier: t }) => {
+      .then(({ user: u, profile: p, tier: t, subscription_status: ss, trial_ends_at: tea }) => {
         setUser(u);
         setProfile(p || {});
         setTier(t || 'starter');
+        setSubscriptionStatus(ss || 'trial');
+        setTrialEndsAt(tea);
       })
       .catch(() => {
         localStorage.removeItem('pharmacy_token');
@@ -33,10 +37,12 @@ export function AuthProvider({ children }) {
     const { user: u, session } = await api.post('/auth/login', { email, password });
     if (session?.access_token) {
       localStorage.setItem('pharmacy_token', session.access_token);
-      const { user, profile, tier: t } = await api.get('/auth/user');
+      const { user, profile, tier: t, subscription_status: ss, trial_ends_at: tea } = await api.get('/auth/user');
       setUser(user);
       setProfile(profile || {});
       setTier(t || 'starter');
+      setSubscriptionStatus(ss || 'trial');
+      setTrialEndsAt(tea);
       return user;
     }
     throw new Error('Login failed');
@@ -46,10 +52,12 @@ export function AuthProvider({ children }) {
     const { user: u, session } = await api.post('/auth/register', { email, password, full_name });
     if (session?.access_token) {
       localStorage.setItem('pharmacy_token', session.access_token);
-      const { user, profile, tier: t } = await api.get('/auth/user');
+      const { user, profile, tier: t, subscription_status: ss, trial_ends_at: tea } = await api.get('/auth/user');
       setUser(user);
       setProfile(profile || {});
       setTier(t || 'starter');
+      setSubscriptionStatus(ss || 'trial');
+      setTrialEndsAt(tea);
       return user;
     }
     return u;
@@ -60,12 +68,16 @@ export function AuthProvider({ children }) {
     setUser(null);
     setProfile(null);
     setTier('starter');
+    setSubscriptionStatus('trial');
+    setTrialEndsAt(null);
   };
 
   const value = {
     user,
     profile,
     tier,
+    subscriptionStatus,
+    trialEndsAt,
     loading,
     isAuthenticated: !!user,
     isAdmin: profile?.role === 'ADMIN',
