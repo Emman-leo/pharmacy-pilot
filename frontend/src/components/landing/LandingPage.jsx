@@ -434,8 +434,8 @@ export default function LandingPage() {
             <p>Pharmacy Pilot · Built in Ghana 🇬🇭</p>
           </div>
           <div className="footer-links">
-            <a href="#privacy" className="footer-link">Privacy Policy</a>
-            <a href="#terms" className="footer-link">Terms of Service</a>
+            <Link to="/privacy" className="footer-link">Privacy Policy</Link>
+            <Link to="/terms" className="footer-link">Terms of Service</Link>
             <a href="#contact" className="footer-link">Contact</a>
           </div>
           <div className="footer-copyright">

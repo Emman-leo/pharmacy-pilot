@@ -30,6 +30,8 @@ import PharmaciesList from './components/superadmin/PharmaciesList';
 import CreatePharmacyForm from './components/superadmin/CreatePharmacyForm';
 import PharmacyDetail from './components/superadmin/PharmacyDetail';
 import AllUsersList from './components/superadmin/AllUsersList';
+import PrivacyPolicy from './components/legal/PrivacyPolicy';
+import TermsOfService from './components/legal/TermsOfService';
 
 function ProtectedRoute({ children, adminOnly }) {
   const { isAuthenticated, loading, isAdmin, profile } = useAuth();
@@ -64,6 +66,8 @@ export default function App() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/expired" element={<SubscriptionExpired />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
       <Route
         path="/app"
         element={
