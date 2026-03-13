@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useAuth } from './contexts/AuthContext';
 import Layout from './components/layout/Layout';
 import Login from './components/auth/Login';
@@ -60,8 +61,9 @@ function LandingOrRedirect() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingOrRedirect />} />
+    <>
+      <Routes>
+        <Route path="/" element={<LandingOrRedirect />} />
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/expired" element={<SubscriptionExpired />} />
@@ -138,6 +140,8 @@ export default function App() {
       </Route>
       
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+      <SpeedInsights />
+    </>
   );
 }
