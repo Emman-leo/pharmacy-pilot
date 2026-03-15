@@ -81,6 +81,22 @@ export async function verifyPayment(req, res) {
       return res.status(400).json({ error: 'Payment not successful' });
     }
 
+    // Update pharmacy subscription when payment is confirmed successful
+    if (data.data.status === 'success') {
+      const { pharmacy_id, months = 1 } = data.data.metadata || {};
+      if (pharmacy_id) {
+        const newExpiry = new Date();
+        newExpiry.setDate(newExpiry.getDate() + (months * 30));
+        await supabaseAdmin
+          .from('pharmacies')
+          .update({
+            subscription_status: 'active',
+            current_period_end: newExpiry.toISOString().slice(0, 10),
+          })
+          .eq('id', pharmacy_id);
+      }
+    }
+
     return res.json({ status: 'success', amount: data.data.amount / 100, reference });
   } catch (err) {
     console.error('[payments] verifyPayment error', err);
