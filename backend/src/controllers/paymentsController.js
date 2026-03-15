@@ -5,7 +5,7 @@ const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 const TIER_AMOUNTS = {
   starter: 25000,
   growth: 55000,
-  pro: 90000,
+  pro: 100,
 };
 
 export async function initializePayment(req, res) {
