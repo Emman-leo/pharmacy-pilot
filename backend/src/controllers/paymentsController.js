@@ -5,7 +5,7 @@ const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 const TIER_AMOUNTS = {
   starter: 25000,
   growth: 55000,
-  pro: 100,
+  pro: 90000,
 };
 
 export async function initializePayment(req, res) {
@@ -85,8 +85,9 @@ export async function verifyPayment(req, res) {
     if (data.data.status === 'success') {
       const { pharmacy_id, months = 1 } = data.data.metadata || {};
       if (pharmacy_id) {
+        const validMonths = [1, 3, 6, 12].includes(Number(months)) ? Number(months) : 1;
         const newExpiry = new Date();
-        newExpiry.setDate(newExpiry.getDate() + (months * 30));
+        newExpiry.setDate(newExpiry.getDate() + (validMonths * 30));
         await supabaseAdmin
           .from('pharmacies')
           .update({
