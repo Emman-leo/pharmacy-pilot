@@ -50,14 +50,16 @@ export default function LandingPage() {
         <div className="landing-hero-content">
           <div className="landing-hero-left">
             <div className="landing-hero-badge">
-              🇬🇭 Built for Ghanaian pharmacies
+              🇬🇭 Built for Ghanaian pharmacies · Sign up in minutes
             </div>
             <h1>Your pharmacy's accountant, stock manager, and cashier — in one app.</h1>
             <p className="landing-hero-sub">
               Pharmacy Pilot handles inventory, sales, expiry alerts, and reports — so you focus on your patients, not your spreadsheets.
             </p>
             <div className="landing-hero-actions">
-              <a href="#contact" className="btn btn-primary">Register your pharmacy</a>
+              <Link to="/register" className="btn btn-primary btn-large">
+                Get started free →
+              </Link>
               <button className="btn btn-ghost" onClick={() => document.getElementById('screenshots')?.scrollIntoView({ behavior: 'smooth' })}>
                 See how it works <ArrowRight size={16} style={{ marginLeft: '4px' }} />
               </button>
@@ -278,12 +280,9 @@ export default function LandingPage() {
                 <li className="pricing-feature"><span className="pricing-check">✓</span>WhatsApp support</li>
               </ul>
               <div className="pricing-tier-footer">
-                <button
-                  className="btn btn-outline btn-block"
-                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                >
+                <Link to="/register" className="btn btn-primary btn-block">
                   Get started
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -308,12 +307,9 @@ export default function LandingPage() {
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Priority WhatsApp support</li>
               </ul>
               <div className="pricing-tier-footer">
-                <button
-                  className="btn btn-primary btn-block"
-                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                >
+                <Link to="/register" className="btn btn-primary btn-block">
                   Get started
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -340,12 +336,9 @@ export default function LandingPage() {
                 <li className="pricing-feature"><span className="pricing-check">✓</span>Fastest support response</li>
               </ul>
               <div className="pricing-tier-footer">
-                <button
-                  className="btn btn-outline btn-block"
-                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                >
+                <Link to="/register" className="btn btn-primary btn-block">
                   Get started
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -360,22 +353,22 @@ export default function LandingPage() {
             <div className="step">
               <div className="step-number">1</div>
               <div className="step-content">
-                <h3>Register</h3>
-                <p>Fill out the form below. We'll contact you within 24 hours to set up your pharmacy on the platform.</p>
+                <h3>Create your account</h3>
+                <p>Sign up in minutes. Enter your pharmacy details and choose a plan — no waiting, no approval needed.</p>
               </div>
             </div>
             <div className="step">
               <div className="step-number">2</div>
               <div className="step-content">
-                <h3>Onboarding</h3>
-                <p>We sit with your team for a few hours and set everything up — drugs, stock levels, user accounts. You don't touch a line of code.</p>
+                <h3>Set up your pharmacy</h3>
+                <p>Add your drugs, enter your stock with cost and selling prices. Everything is guided and straightforward.</p>
               </div>
             </div>
             <div className="step">
               <div className="step-number">3</div>
               <div className="step-content">
-                <h3>Go live</h3>
-                <p>Your pharmacy is live. Process sales, track stock, and view reports from day one.</p>
+                <h3>Go live immediately</h3>
+                <p>Start processing sales, tracking inventory, and viewing reports from day one — from anywhere in Ghana.</p>
               </div>
             </div>
           </div>
@@ -384,8 +377,8 @@ export default function LandingPage() {
 
       <section id="contact" className="landing-contact">
         <div className="landing-contact-header">
-          <h2>Ready to get started?</h2>
-          <p>We'll reach out within 24 hours.</p>
+          <h2>Have questions?</h2>
+          <p>We're happy to help before you sign up.</p>
         </div>
         <p>
           Fill out the form below and we&apos;ll reach out shortly, or email us directly at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
@@ -423,7 +416,7 @@ export default function LandingPage() {
             disabled={formSubmitted}
           />
           <button type="submit" className="btn btn-primary btn-block" disabled={formSubmitted}>
-            {formSubmitted ? 'Request sent' : 'Request registration'}
+            {formSubmitted ? 'Message sent' : 'Send message'}
           </button>
         </form>
       </section>
