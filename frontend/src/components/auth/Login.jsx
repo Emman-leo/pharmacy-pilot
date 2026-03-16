@@ -26,6 +26,15 @@ export default function Login({ defaultMode = 'login' }) {
         await login(email, password);
         navigate('/app');
       } else {
+        // Password strength validation for register
+        if (password.length < 8) {
+          setLoading(false);
+          return setError('Password must be at least 8 characters');
+        }
+        if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+          setLoading(false);
+          return setError('Password must contain at least one uppercase letter and one number');
+        }
         await register(email, password, fullName);
         navigate('/onboarding');
       }

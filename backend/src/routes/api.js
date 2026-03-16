@@ -121,6 +121,6 @@ router.post('/payments/initialize', authMiddleware, tierMiddleware, initializePa
 router.get('/payments/verify/:reference', verifyPayment);
 
 // Onboarding — authenticated but no tier/subscription check
-router.post('/onboarding/complete', authMiddleware, onboardingController.completeOnboarding);
+router.post('/onboarding/complete', authLimiter, authMiddleware, onboardingController.completeOnboarding);
 
 export default router;

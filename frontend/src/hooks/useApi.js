@@ -33,9 +33,8 @@ export function useApi() {
       if (!res.ok) {
         if (res.status === 401) {
           localStorage.removeItem('pharmacy_token');
-          if (!window.location.pathname.startsWith('/login')) {
-            window.location.href = '/login';
-          }
+          window.location.href = '/login';
+          throw new Error('Session expired. Please log in again.');
         }
         if (res.status === 402) {
           if (!window.location.pathname.startsWith('/expired')) {
