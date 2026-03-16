@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useApi } from '../../hooks/useApi';
 import './Login.css';
 
-export default function Login() {
+export default function Login({ defaultMode = 'login' }) {
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

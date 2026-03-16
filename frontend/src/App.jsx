@@ -84,6 +84,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingOrRedirect />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Login defaultMode="register" />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/expired" element={<SubscriptionExpired />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
