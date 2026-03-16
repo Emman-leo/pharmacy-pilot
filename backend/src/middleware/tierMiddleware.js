@@ -33,80 +33,84 @@ export async function tierMiddleware(req, res, next) {
   try {
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('pharmacy_id, role')  // <-- also fetch role
+      .select('pharmacy_id, role, is_super_admin')
       .eq('id', req.user.id)
       .single();
 
-    const pharmacyId = profile?.pharmacy_id;
-    const role = profile?.role || 'STAFF';
-    
-    // Cache role on req for rbacMiddleware to use
-    req.userRole = role;
+    const pharmacyId   = profile?.pharmacy_id;
+    const isSuperAdmin = profile?.is_super_admin || false;
+
+    req.userRole       = profile?.role || 'STAFF';
     req.userPharmacyId = pharmacyId;
-    if (!pharmacyId) {
-      // Super admin / unassigned user — no tier restrictions
-      req.tier = 'pro';
+    req.isSuperAdmin   = isSuperAdmin;
+
+    // Super admin — full access, no restrictions
+    if (isSuperAdmin) {
+      req.tier         = 'pro';
       req.tierFeatures = TIER_FEATURES.pro;
       return next();
     }
 
+    // No pharmacy and not super admin — onboarding incomplete
+    if (!pharmacyId) {
+      const isExemptRoute =
+        req.originalUrl?.includes('/auth/user') ||
+        req.originalUrl?.includes('/onboarding/complete');
+
+      if (isExemptRoute) return next();
+
+      return res.status(403).json({
+        error:            'Account setup incomplete. Please complete onboarding.',
+        needs_onboarding: true,
+      });
+    }
+
+    // Normal pharmacy user — resolve tier and subscription
     const { data: pharmacy } = await supabaseAdmin
       .from('pharmacies')
       .select('tier, subscription_status, trial_ends_at, current_period_end')
       .eq('id', pharmacyId)
       .single();
 
-    const { subscription_status, current_period_end } = pharmacy || {};
+    const { subscription_status, current_period_end, trial_ends_at } = pharmacy || {};
 
-    // Check if subscription is active
-    const isActive = subscription_status === 'active' && 
+    // Check trial
+    const trialActive = subscription_status === 'trial' &&
+      trial_ends_at && new Date(trial_ends_at) >= new Date();
+
+    // Check active subscription
+    const subActive = subscription_status === 'active' &&
       (!current_period_end || new Date(current_period_end) >= new Date());
 
-    // Routes that bypass subscription enforcement
-    const isExemptRoute = 
-      req.path === '/auth/user' || 
+    const isExemptRoute =
       req.originalUrl?.includes('/auth/user') ||
-      req.path === '/payments/initialize' ||
       req.originalUrl?.includes('/payments/initialize') ||
-      req.originalUrl?.includes('/onboarding/complete'); // ← add this
+      req.originalUrl?.includes('/onboarding/complete');
 
-    // If current_period_end has passed, update status to past_due and block access
-    if (current_period_end && new Date(current_period_end) < new Date()) {
-      try {
+    // Expired subscription — mark as past_due
+    if (!trialActive && !subActive && !isExemptRoute) {
+      if (current_period_end && new Date(current_period_end) < new Date()) {
         await supabaseAdmin
           .from('pharmacies')
           .update({ subscription_status: 'past_due' })
-          .eq('id', pharmacyId);
-      } catch (err) {
-        console.error('[tierMiddleware] Failed to update past_due status', err);
+          .eq('id', pharmacyId)
+          .catch(err => console.error('[tierMiddleware] past_due update failed', err));
       }
-      
-      if (!isExemptRoute) {
-        return res.status(402).json({
-          error: 'Your subscription has expired. Please renew to continue.',
-          subscription_status: 'past_due',
-        });
-      }
-    }
-
-    // Block access if subscription is not active (except for exempt routes)
-    if (!isActive && !isExemptRoute) {
       return res.status(402).json({
-        error: 'Your subscription has expired or been cancelled.',
-        subscription_status,
+        error:               'Your subscription has expired. Please renew to continue.',
+        subscription_status: 'past_due',
       });
     }
 
-    const tier = pharmacy?.tier || 'starter';
-    req.tier = tier;
-    req.tierFeatures = TIER_FEATURES[tier] || TIER_FEATURES.starter;
+    const tier         = pharmacy?.tier || 'starter';
+    req.tier           = tier;
+    req.tierFeatures   = TIER_FEATURES[tier] || TIER_FEATURES.starter;
     req.subscriptionStatus = subscription_status;
     next();
   } catch (err) {
-    // Log with enough context for diagnosis
-    console.error('[tierMiddleware] Failed to resolve tier for user', req.user?.id, err.message);
+    console.error('[tierMiddleware] error', req.user?.id, err.message);
     return res.status(503).json({
-      error: 'Unable to verify your subscription tier. Please try again.',
+      error: 'Unable to verify your subscription. Please try again.',
     });
   }
 }

@@ -3,14 +3,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import Spinner from '../common/Spinner';
 
 function SuperAdminRoute({ children }) {
-  const { profile, loading } = useAuth();
+  const { isAuthenticated, loading, isSuperAdmin } = useAuth();
   
   if (loading) return <Spinner label="Loading..." />;
-  
-  // Super admin = authenticated + no pharmacy assigned
-  if (!profile || profile.pharmacy_id) {
-    return <Navigate to="/app" replace />;
-  }
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isSuperAdmin) return <Navigate to="/app" replace />;
   
   return children;
 }

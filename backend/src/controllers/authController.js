@@ -90,7 +90,8 @@ export async function getUser(req, res) {
       tier: pharmacy.tier || 'starter',
       subscription_status: pharmacy.subscription_status || 'trial',
       trial_ends_at: pharmacy.trial_ends_at,
-      current_period_end: pharmacy.current_period_end
+      current_period_end: pharmacy.current_period_end,
+      is_super_admin: out.is_super_admin || false
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch user' });

@@ -37,34 +37,42 @@ import TermsOfService from './components/legal/TermsOfService';
 import OnboardingWizard from './components/onboarding/OnboardingWizard';
 
 function ProtectedRoute({ children, adminOnly }) {
-  const { isAuthenticated, loading, isAdmin, profile } = useAuth();
+  const { isAuthenticated, loading, isAdmin, profile, isSuperAdmin } = useAuth();
   if (loading) return <Spinner label="Loading session…" />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (adminOnly && !isAdmin) return <Navigate to="/app" replace />;
-  // Redirect super-admins away from pharmacy routes (except if already on super-admin routes)
-  if (!profile?.pharmacy_id && window.location.pathname !== '/super-admin' && !window.location.pathname.startsWith('/super-admin/')) {
+
+  const path = window.location.pathname;
+
+  // Super admins go to super-admin panel
+  if (isSuperAdmin && !path.startsWith('/super-admin') && path !== '/onboarding') {
     return <Navigate to="/super-admin" replace />;
   }
+
+  // Regular users with no pharmacy go to onboarding
+  if (!isSuperAdmin && !profile?.pharmacy_id && path !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   return children;
 }
 
 // New protected route that redirects to onboarding if no pharmacy:
 function AppRoute({ children }) {
-  const { isAuthenticated, loading, profile } = useAuth();
+  const { isAuthenticated, loading, profile, isSuperAdmin } = useAuth();
   if (loading) return <Spinner label="Loading…" />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (isSuperAdmin) return <Navigate to="/super-admin" replace />;
   if (!profile?.pharmacy_id) return <Navigate to="/onboarding" replace />;
   return children;
 }
 
 function LandingOrRedirect() {
-  const { isAuthenticated, loading, profile } = useAuth();
+  const { isAuthenticated, loading, profile, isSuperAdmin } = useAuth();
   if (loading) return <Spinner label="Loading…" />;
   if (isAuthenticated) {
-    // Super admins (no pharmacy) go to admin panel, others go to app
-    if (!profile?.pharmacy_id) {
-      return <Navigate to="/super-admin" replace />;
-    }
+    if (isSuperAdmin) return <Navigate to="/super-admin" replace />;
+    if (!profile?.pharmacy_id) return <Navigate to="/onboarding" replace />;
     return <Navigate to="/app" replace />;
   }
   return <LandingPage />;
