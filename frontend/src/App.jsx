@@ -34,6 +34,7 @@ import PharmacyDetail from './components/superadmin/PharmacyDetail';
 import AllUsersList from './components/superadmin/AllUsersList';
 import PrivacyPolicy from './components/legal/PrivacyPolicy';
 import TermsOfService from './components/legal/TermsOfService';
+import OnboardingWizard from './components/onboarding/OnboardingWizard';
 
 function ProtectedRoute({ children, adminOnly }) {
   const { isAuthenticated, loading, isAdmin, profile } = useAuth();
@@ -44,6 +45,15 @@ function ProtectedRoute({ children, adminOnly }) {
   if (!profile?.pharmacy_id && window.location.pathname !== '/super-admin' && !window.location.pathname.startsWith('/super-admin/')) {
     return <Navigate to="/super-admin" replace />;
   }
+  return children;
+}
+
+// New protected route that redirects to onboarding if no pharmacy:
+function AppRoute({ children }) {
+  const { isAuthenticated, loading, profile } = useAuth();
+  if (loading) return <Spinner label="Loading…" />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!profile?.pharmacy_id) return <Navigate to="/onboarding" replace />;
   return children;
 }
 
@@ -65,65 +75,66 @@ export default function App() {
     <>
       <Routes>
         <Route path="/" element={<LandingOrRedirect />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/expired" element={<SubscriptionExpired />} />
-      <Route path="/payment-success" element={<PaymentSuccess />} />
-      <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/terms" element={<TermsOfService />} />
-      <Route
-        path="/app"
-        element={
+        <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/expired" element={<SubscriptionExpired />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/onboarding" element={
           <ProtectedRoute>
-            <Layout />
+            <OnboardingWizard />
           </ProtectedRoute>
-        }
-      >
-        <Route index element={<Dashboard />} />
-        <Route path="inventory" element={<InventoryPage />} />
-        <Route path="inventory/drugs" element={<DrugList />} />
-        <Route path="inventory/batches" element={<Navigate to="/app/inventory" replace />} />
-        <Route path="inventory/alerts" element={<StockAlerts />} />
-        <Route path="sales" element={<PointOfSale />} />
-        <Route path="sales/history" element={<SalesHistory />} />
-        <Route path="sales/receipt/:id" element={<ReceiptViewer />} />
-        <Route path="prescriptions" element={<PrescriptionForm />} />
+        } />
         <Route
-          path="prescriptions/approval"
-          element={
-            <ProtectedRoute adminOnly>
-              <ApprovalQueue />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="reports" element={<ReportsPage />} />
-        <Route
-          path="admin/audit-log"
-          element={
-            <ProtectedRoute adminOnly>
-              <AuditLogPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="settings"
-          element={
-            <ProtectedRoute adminOnly>
-              <SettingsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="accounting/expenses" element={<ExpensesPage />} />
-        <Route
-          path="accounting/daily-close"
-          element={
-            <ProtectedRoute adminOnly>
-              <DailyClosePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="accounting/pl" element={<PLPage />} />
-      </Route>
+          path="/app"
+          element={<AppRoute><Layout /></AppRoute>}
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="inventory" element={<InventoryPage />} />
+          <Route path="inventory/drugs" element={<DrugList />} />
+          <Route path="inventory/batches" element={<Navigate to="/app/inventory" replace />} />
+          <Route path="inventory/alerts" element={<StockAlerts />} />
+          <Route path="sales" element={<PointOfSale />} />
+          <Route path="sales/history" element={<SalesHistory />} />
+          <Route path="sales/receipt/:id" element={<ReceiptViewer />} />
+          <Route path="prescriptions" element={<PrescriptionForm />} />
+          <Route
+            path="prescriptions/approval"
+            element={
+              <ProtectedRoute adminOnly>
+                <ApprovalQueue />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="reports" element={<ReportsPage />} />
+          <Route
+            path="admin/audit-log"
+            element={
+              <ProtectedRoute adminOnly>
+                <AuditLogPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="settings"
+            element={
+              <ProtectedRoute adminOnly>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="accounting/expenses" element={<ExpensesPage />} />
+          <Route
+            path="accounting/daily-close"
+            element={
+              <ProtectedRoute adminOnly>
+                <DailyClosePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="accounting/pl" element={<PLPage />} />
+        </Route>
       
       <Route
         path="/super-admin"

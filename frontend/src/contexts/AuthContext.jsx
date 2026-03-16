@@ -87,6 +87,7 @@ export function AuthProvider({ children }) {
     loading,
     isAuthenticated: !!user,
     isAdmin: profile?.role === 'ADMIN',
+    needsOnboarding: !!user && !profile?.pharmacy_id,
     login,
     register,
     logout,

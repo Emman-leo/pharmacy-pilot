@@ -15,6 +15,7 @@ import * as accountingController from '../controllers/accountingController.js';
 import * as superAdminController from '../controllers/superAdminController.js';
 import { requireSuperAdmin } from '../middleware/superAdminMiddleware.js';
 import { initializePayment, verifyPayment } from '../controllers/paymentsController.js';
+import * as onboardingController from '../controllers/onboardingController.js';
 
 const router = Router();
 
@@ -118,5 +119,8 @@ router.get('/admin/users',                    authMiddleware, tierMiddleware, re
 // Authenticated payment routes
 router.post('/payments/initialize', authMiddleware, tierMiddleware, initializePayment);
 router.get('/payments/verify/:reference', verifyPayment);
+
+// Onboarding — authenticated but no tier/subscription check
+router.post('/onboarding/complete', authMiddleware, onboardingController.completeOnboarding);
 
 export default router;

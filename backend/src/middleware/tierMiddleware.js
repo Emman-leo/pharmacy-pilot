@@ -67,7 +67,8 @@ export async function tierMiddleware(req, res, next) {
       req.path === '/auth/user' || 
       req.originalUrl?.includes('/auth/user') ||
       req.path === '/payments/initialize' ||
-      req.originalUrl?.includes('/payments/initialize');
+      req.originalUrl?.includes('/payments/initialize') ||
+      req.originalUrl?.includes('/onboarding/complete'); // ← add this
 
     // If current_period_end has passed, update status to past_due and block access
     if (current_period_end && new Date(current_period_end) < new Date()) {

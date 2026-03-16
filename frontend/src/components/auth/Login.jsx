@@ -24,10 +24,11 @@ export default function Login() {
     try {
       if (mode === 'login') {
         await login(email, password);
+        navigate('/app');
       } else {
         await register(email, password, fullName);
+        navigate('/onboarding');
       }
-      navigate('/app');
     } catch (err) {
       setError(err.message || 'Something went wrong');
     } finally {
