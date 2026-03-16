@@ -152,7 +152,7 @@ export default function OnboardingWizard() {
                   className={`onboarding-tier ${tier === t.value ? 'selected' : ''} ${t.featured ? 'featured' : ''}`}
                   onClick={() => setTier(t.value)}
                 >
-                  {t.featured && <div className="tier-badge">Most popular</div>}
+                  {t.featured && <div className="onboarding-tier-badge">Most popular</div>}
                   <div className="tier-header">
                     <h3>{t.label}</h3>
                     <p className="tier-tagline">{t.tagline}</p>
