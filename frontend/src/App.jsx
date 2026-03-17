@@ -11,6 +11,7 @@ import Spinner from './components/common/Spinner';
 import PaymentSuccess from './components/payments/PaymentSuccess';
 import Dashboard from './components/Dashboard';
 import InventoryPage from './components/inventory/InventoryPage';
+import SuppliersPage from './components/inventory/SuppliersPage';
 import DrugList from './components/inventory/DrugList';
 import BatchForm from './components/inventory/BatchForm';
 import StockAlerts from './components/inventory/StockAlerts';
@@ -101,6 +102,7 @@ export default function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="inventory" element={<InventoryPage />} />
+          <Route path="inventory/suppliers" element={<SuppliersPage />} />
           <Route path="inventory/drugs" element={<DrugList />} />
           <Route path="inventory/batches" element={<Navigate to="/app/inventory" replace />} />
           <Route path="inventory/alerts" element={<StockAlerts />} />
