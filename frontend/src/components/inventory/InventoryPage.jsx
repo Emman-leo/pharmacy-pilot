@@ -24,10 +24,13 @@ export default function InventoryPage() {
   const [error, setError] = useState('');
   const [rows, setRows] = useState([]);
   const [nearExpiryDays, setNearExpiryDays] = useState(90);
+  const [tally, setTally] = useState([]);
+  const [tallyLoading, setTallyLoading] = useState(true);
+  const [tallyQuery, setTallyQuery] = useState('');
 
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
-  const [view, setView] = useState('all'); // all | low | expiry
+  const [view, setView] = useState('all'); // all | low | expiry | tally
   const [showAddStock, setShowAddStock] = useState(true);
 
   const load = async () => {
@@ -45,8 +48,21 @@ export default function InventoryPage() {
     }
   };
 
+  const loadTally = async () => {
+    setTallyLoading(true);
+    try {
+      const data = await api.get('/inventory/tally');
+      setTally(Array.isArray(data) ? data : []);
+    } catch {
+      setTally([]);
+    } finally {
+      setTallyLoading(false);
+    }
+  };
+
   useEffect(() => {
     load();
+    loadTally();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -69,6 +85,17 @@ export default function InventoryPage() {
     });
   }, [rows, query, category, view]);
 
+  const filteredTally = useMemo(() => {
+    const q = tallyQuery.trim().toLowerCase();
+    if (!q) return tally;
+    return tally.filter((r) =>
+      r.drug_name.toLowerCase().includes(q) ||
+      r.supplier_name.toLowerCase().includes(q) ||
+      r.supplier_invoice.toLowerCase().includes(q) ||
+      r.batch_number.toLowerCase().includes(q)
+    );
+  }, [tally, tallyQuery]);
+
   const counts = useMemo(() => {
     const low = (rows || []).filter((r) => r.lowStock).length;
     const exp = (rows || []).filter((r) => r.nearExpiry).length;
@@ -85,7 +112,7 @@ export default function InventoryPage() {
           </p>
         </div>
         <div className="inventory-header-actions">
-          <button type="button" className="btn btn-ghost" onClick={load} disabled={loading}>
+          <button type="button" className="btn btn-ghost" onClick={() => { load(); loadTally(); }} disabled={loading}>
             {loading ? 'Refreshing…' : 'Refresh'}
           </button>
           <button
@@ -104,23 +131,34 @@ export default function InventoryPage() {
             <h2>Add Stock</h2>
             <p>Add new batches and keep stock up to date (FEFO).</p>
           </div>
-          <BatchForm embedded onStockChanged={load} />
+          <BatchForm embedded onStockChanged={() => { load(); loadTally(); }} />
         </section>
       )}
 
       <section className="inventory-filters">
-        <input
-          className="inventory-search"
-          placeholder="Search drug name…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <select className="inventory-select" value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">All categories</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
+        {view !== 'tally' ? (
+          <>
+            <input
+              className="inventory-search"
+              placeholder="Search drug name…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <select className="inventory-select" value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="">All categories</option>
+              {categories.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </>
+        ) : (
+          <input
+            className="inventory-search inventory-search-wide"
+            placeholder="Search drug, supplier, invoice, batch…"
+            value={tallyQuery}
+            onChange={(e) => setTallyQuery(e.target.value)}
+          />
+        )}
         <div className="inventory-pills" role="tablist" aria-label="Inventory views">
           <button
             type="button"
@@ -134,80 +172,133 @@ export default function InventoryPage() {
             className={view === 'low' ? 'pill active' : 'pill'}
             onClick={() => setView('low')}
           >
-            Low stock ({counts.low})
+            Low Stock ({counts.low})
           </button>
           <button
             type="button"
             className={view === 'expiry' ? 'pill active' : 'pill'}
             onClick={() => setView('expiry')}
           >
-            Near expiry ({counts.exp})
+            Near Expiry ({counts.exp})
+          </button>
+          <button
+            type="button"
+            className={view === 'tally' ? 'pill active' : 'pill'}
+            onClick={() => setView('tally')}
+          >
+            Stock Tally ({tally.length})
           </button>
         </div>
       </section>
 
       {error && <p className="inventory-error">{error}</p>}
 
-      <section className="inventory-table-section">
-        {loading ? (
-          <Spinner label="Loading inventory…" />
-        ) : (
-          <div className="inventory-table-wrap">
-            <table className="inventory-table">
-              <thead>
-                <tr>
-                  <th>Drug</th>
-                  <th>Quantity</th>
-                  <th>Cost Price</th>
-                  <th>Selling Price</th>
-                  <th>Expiry</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.length === 0 && (
+      {view === 'tally' ? (
+        <section className="inventory-table-section">
+          {tallyLoading ? (
+            <Spinner label="Loading tally…" />
+          ) : (
+            <div className="inventory-table-wrap">
+              <table className="inventory-table">
+                <thead>
                   <tr>
-                    <td colSpan={5} className="inventory-empty">No matching items.</td>
+                    <th>Drug</th>
+                    <th>Supplier</th>
+                    <th>Invoice No.</th>
+                    <th>Batch No.</th>
+                    <th>Received</th>
+                    <th>Sold</th>
+                    <th>Current Stock</th>
+                    <th>Expiry</th>
                   </tr>
-                )}
-                {filtered.map((r) => {
-                  const d = daysUntil(r.expiry);
-                  const expiryClass =
-                    r.nearExpiry ? (d != null && d <= 30 ? 'expiry-soon' : 'expiry-warn') : '';
-                  return (
-                    <tr key={r.drug_id}>
-                      <td className="drug-cell">
-                        <span className="drug-name">{r.drug_name}</span>
-                        <span className="drug-badges">
-                          {r.lowStock && (
-                            <span className="badge badge-low" title={`Below min (${r.min_stock_quantity})`}>
-                              Low
-                            </span>
-                          )}
-                          {r.nearExpiry && (
-                            <span className="badge badge-exp" title={`Expiring within ${nearExpiryDays} days`}>
-                              Exp
-                            </span>
-                          )}
-                        </span>
-                        {r.category && <span className="drug-meta">{r.category}</span>}
-                      </td>
-                      <td className={r.lowStock ? 'qty-cell qty-low' : 'qty-cell'}>{r.quantity}</td>
-                      <td>{money(r.cost_price)}</td>
-                      <td>{money(r.selling_price)}</td>
-                      <td className={expiryClass}>
-                        {r.expiry || '—'}
-                        {d != null && d >= 0 && (
-                          <span className="expiry-days"> ({d}d)</span>
-                        )}
-                      </td>
+                </thead>
+                <tbody>
+                  {filteredTally.length === 0 && (
+                    <tr>
+                      <td colSpan={8} className="inventory-empty">No matching batches.</td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+                  )}
+                  {filteredTally.map((row) => (
+                    <tr key={row.batch_id}>
+                      <td className="drug-cell">
+                        <span className="drug-name">{row.drug_name}</span>
+                      </td>
+                      <td>{row.supplier_name}</td>
+                      <td>{row.supplier_invoice}</td>
+                      <td>{row.batch_number}</td>
+                      <td>{row.received}</td>
+                      <td>{row.sold}</td>
+                      <td className={row.current_stock === 0 ? 'tally-zero' : ''}>{row.current_stock}</td>
+                      <td>{row.expiry}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      ) : (
+        <section className="inventory-table-section">
+          {loading ? (
+            <Spinner label="Loading inventory…" />
+          ) : (
+            <div className="inventory-table-wrap">
+              <table className="inventory-table">
+                <thead>
+                  <tr>
+                    <th>Drug</th>
+                    <th>Quantity</th>
+                    <th>Cost Price</th>
+                    <th>Selling Price</th>
+                    <th>Expiry</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="inventory-empty">No matching items.</td>
+                    </tr>
+                  )}
+                  {filtered.map((r) => {
+                    const d = daysUntil(r.expiry);
+                    const expiryClass =
+                      r.nearExpiry ? (d != null && d <= 30 ? 'expiry-soon' : 'expiry-warn') : '';
+                    return (
+                      <tr key={r.drug_id}>
+                        <td className="drug-cell">
+                          <span className="drug-name">{r.drug_name}</span>
+                          <span className="drug-badges">
+                            {r.lowStock && (
+                              <span className="badge badge-low" title={`Below min (${r.min_stock_quantity})`}>
+                                Low
+                              </span>
+                            )}
+                            {r.nearExpiry && (
+                              <span className="badge badge-exp" title={`Expiring within ${nearExpiryDays} days`}>
+                                Exp
+                              </span>
+                            )}
+                          </span>
+                          {r.category && <span className="drug-meta">{r.category}</span>}
+                        </td>
+                        <td className={r.lowStock ? 'qty-cell qty-low' : 'qty-cell'}>{r.quantity}</td>
+                        <td>{money(r.cost_price)}</td>
+                        <td>{money(r.selling_price)}</td>
+                        <td className={expiryClass}>
+                          {r.expiry || '—'}
+                          {d != null && d >= 0 && (
+                            <span className="expiry-days"> ({d}d)</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }
