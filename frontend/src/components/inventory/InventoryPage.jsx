@@ -31,7 +31,7 @@ export default function InventoryPage() {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
   const [view, setView] = useState('all'); // all | low | expiry | tally
-  const [showAddStock, setShowAddStock] = useState(true);
+  const [showAddStock, setShowAddStock] = useState(false);
 
   const load = async () => {
     setLoading(true);
