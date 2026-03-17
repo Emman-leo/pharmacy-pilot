@@ -19,7 +19,7 @@ export async function getDrugs(req, res) {
 }
 
 export async function createDrug(req, res) {
-  const { name, generic_name, dosage, category, controlled_drug, requires_prescription, unit, min_stock_quantity, pharmacy_id: bodyPharmacyId } = req.body || {};
+  const { name, generic_name, dosage, category, controlled_drug, requires_prescription, unit, min_stock_quantity, pharmacy_id: bodyPharmacyId, drug_form } = req.body || {};
   if (!name) return res.status(400).json({ error: 'Drug name required' });
   try {
     const profile = await getProfile(req);
@@ -38,6 +38,7 @@ export async function createDrug(req, res) {
         unit: unit || 'pcs',
         min_stock_quantity: min_stock_quantity ?? 10,
         pharmacy_id,
+        drug_form: drug_form || null,
       })
       .select()
       .single();
@@ -69,7 +70,7 @@ export async function updateDrug(req, res) {
   const {
     name, generic_name, dosage, category,
     controlled_drug, requires_prescription,
-    unit, min_stock_quantity,
+    unit, min_stock_quantity, drug_form,
   } = req.body || {};
 
   // Build a clean object — only known safe fields
@@ -82,6 +83,7 @@ export async function updateDrug(req, res) {
   if (requires_prescription !== undefined)  allowedUpdates.requires_prescription = !!requires_prescription;
   if (unit !== undefined)                   allowedUpdates.unit = unit;
   if (min_stock_quantity !== undefined)     allowedUpdates.min_stock_quantity = min_stock_quantity;
+  if (drug_form !== undefined)               allowedUpdates.drug_form = drug_form;
 
   if (Object.keys(allowedUpdates).length === 0) {
     return res.status(400).json({ error: 'No valid fields to update' });

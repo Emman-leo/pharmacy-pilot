@@ -4,6 +4,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import Spinner from '../common/Spinner';
 import './DrugList.css';
 
+const DRUG_FORMS = [
+  'Tablet', 'Capsule', 'Syrup', 'Suspension', 'Injection',
+  'Cream', 'Ointment', 'Drops', 'Inhaler', 'Suppository',
+  'Patch', 'Gel', 'Lotion', 'Powder', 'Solution', 'Other',
+];
+
 export default function DrugList() {
   const [drugs, setDrugs] = useState([]);
   const [search, setSearch] = useState('');
@@ -85,11 +91,11 @@ export default function DrugList() {
             <tr>
               <th>Name</th>
               <th>Generic</th>
-              <th>Dosage</th>
+              <th>Strength</th>
+              <th>Form</th>
               <th>Category</th>
               <th>Unit</th>
               <th>Min Stock</th>
-              <th>Controlled</th>
               {isAdmin && <th></th>}
             </tr>
           </thead>
@@ -99,10 +105,10 @@ export default function DrugList() {
                 <td>{d.name}</td>
                 <td>{d.generic_name || '-'}</td>
                 <td>{d.dosage || '-'}</td>
+                <td>{d.drug_form || '-'}</td>
                 <td>{d.category || '-'}</td>
                 <td>{d.unit}</td>
                 <td>{d.min_stock_quantity}</td>
-                <td>{d.controlled_drug ? 'Yes' : '-'}</td>
                 {isAdmin && (
                   <td>
                     <button className="btn btn-ghost btn-sm" onClick={() => { setEditing(d); setFormOpen(true); }}>
@@ -131,23 +137,29 @@ function DrugForm({ drug, onClose, onSubmit }) {
   const [name, setName] = useState(drug?.name || '');
   const [generic_name, setGenericName] = useState(drug?.generic_name || '');
   const [dosage, setDosage] = useState(drug?.dosage || '');
+  const [drug_form, setDrugForm] = useState(drug?.drug_form || '');
   const [category, setCategory] = useState(drug?.category || '');
   const [unit, setUnit] = useState(drug?.unit || 'pcs');
   const [min_stock_quantity, setMinStock] = useState(drug?.min_stock_quantity ?? 10);
-  const [controlled_drug, setControlled] = useState(drug?.controlled_drug || false);
-  const [requires_prescription, setRequiresRx] = useState(drug?.requires_prescription || false);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h2>{drug ? 'Edit Drug' : 'Add Drug'}</h2>
-        <form onSubmit={(e) => onSubmit(e, { name, generic_name, dosage, category, unit, min_stock_quantity, controlled_drug, requires_prescription })}>
+        <form onSubmit={(e) => onSubmit(e, { name, generic_name, dosage, drug_form, category, unit, min_stock_quantity })}>
           <label>Name *</label>
           <input value={name} onChange={(e) => setName(e.target.value)} required />
           <label>Generic Name</label>
           <input value={generic_name} onChange={(e) => setGenericName(e.target.value)} />
-          <label>Dosage</label>
+          <label>Strength</label>
           <input value={dosage} onChange={(e) => setDosage(e.target.value)} placeholder="e.g. 500mg" />
+          <label>Form</label>
+          <select value={drug_form} onChange={(e) => setDrugForm(e.target.value)}>
+            <option value="">Select form</option>
+            {DRUG_FORMS.map((f) => (
+              <option key={f} value={f}>{f}</option>
+            ))}
+          </select>
           <label>Category</label>
           <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. Antibiotic" />
           <label>Unit</label>
@@ -159,14 +171,6 @@ function DrugForm({ drug, onClose, onSubmit }) {
           </select>
           <label>Min Stock Quantity</label>
           <input type="number" min="0" value={min_stock_quantity} onChange={(e) => setMinStock(+e.target.value)} />
-          <label>
-            <input type="checkbox" checked={controlled_drug} onChange={(e) => setControlled(e.target.checked)} />
-            Controlled Drug
-          </label>
-          <label>
-            <input type="checkbox" checked={requires_prescription} onChange={(e) => setRequiresRx(e.target.checked)} />
-            Requires Prescription
-          </label>
           <div className="modal-actions">
             <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn btn-primary">Save</button>

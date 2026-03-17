@@ -194,7 +194,9 @@ export default function PointOfSale() {
                     onMouseEnter={() => setHighlightedIndex(i)}
                   >
                     <span className="pos-ac-name">{d.name}</span>
-                    <span className="pos-ac-detail">{d.dosage || d.generic_name || ''}</span>
+                    <span className="pos-ac-detail">
+                      {[d.drug_form, d.dosage].filter(Boolean).join(' · ') || d.generic_name || ''}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -209,7 +211,9 @@ export default function PointOfSale() {
                 onClick={() => addToCart(d)}
               >
                 <span className="pos-product-name">{d.name}</span>
-                <span className="pos-product-detail">{d.dosage || d.category || '-'}</span>
+                <span className="pos-product-detail">
+                  {[d.drug_form, d.dosage].filter(Boolean).join(' · ') || d.category || '-'}
+                </span>
                 {typeof priceByDrugId[d.id] === 'number' && (
                   <span className="pos-product-price">₵{priceByDrugId[d.id]?.toFixed(2) || '—'}</span>
                 )}
