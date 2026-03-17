@@ -13,7 +13,8 @@ import './ReportsPage.css';
 
 export default function ReportsPage() {
   const api = useApi();
-  const { isAdmin, pharmacy } = useAuth();
+  const { isAdmin, profile } = useAuth();
+  const pharmacy = profile?.pharmacy;
   const { can } = useTier();
 
   const [overview, setOverview] = useState(null);
