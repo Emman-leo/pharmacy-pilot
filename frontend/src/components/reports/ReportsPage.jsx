@@ -334,14 +334,14 @@ export default function ReportsPage() {
     printWindow.close();
   }, [pharmacy, period, startDate, endDate, reportType]);
 
-  const handleExportDocument = useCallback(() => {
+  const handleExportDocument = useCallback(async () => {
     const el = document.getElementById('report-content');
     if (!el) return;
     const periodLabel =
       period === 'custom' && startDate && endDate
         ? `Custom: ${startDate} to ${endDate}` 
         : period;
-    exportReportDocument({
+    await exportReportDocument({
       title: REPORT_TYPE_LABELS[reportType] || 'Report',
       period: periodLabel,
       contentHtml: el.innerHTML,
