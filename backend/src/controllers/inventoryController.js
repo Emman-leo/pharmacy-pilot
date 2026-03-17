@@ -286,3 +286,29 @@ export async function getAlerts(req, res) {
   }
 }
 
+export async function getStockTally(req, res) {
+  try {
+    const { data, error } = await req.supabase
+      .from('inventory_batches')
+      .select('id, batch_number, quantity, received_quantity, cost_price, selling_price, expiry_date, supplier_invoice, supplier_id, drug_id, drugs(name), suppliers(name)')
+      .order('expiry_date');
+    if (error) throw error;
+
+    const rows = (data || []).map((b) => ({
+      batch_id: b.id,
+      drug_name: b.drugs?.name || 'Unknown',
+      supplier_name: b.suppliers?.name || '-',
+      supplier_invoice: b.supplier_invoice || '-',
+      batch_number: b.batch_number || '-',
+      received: b.received_quantity ?? b.quantity,
+      current_stock: b.quantity,
+      sold: (b.received_quantity ?? b.quantity) - b.quantity,
+      expiry: b.expiry_date || '-',
+    }));
+
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to fetch stock tally' });
+  }
+}
+

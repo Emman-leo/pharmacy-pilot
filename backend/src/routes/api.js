@@ -59,6 +59,7 @@ router.get('/inventory/batches', authMiddleware, inventoryController.getBatches)
 router.post('/inventory/batches', authMiddleware, tierMiddleware, requireRole('ADMIN'), inventoryController.addBatch);
 router.put('/inventory/batches/:id', authMiddleware, tierMiddleware, requireRole('ADMIN'), inventoryController.updateBatch);
 router.get('/inventory/alerts', authMiddleware, inventoryController.getAlerts);
+router.get('/inventory/tally', authMiddleware, inventoryController.getStockTally);
 
 // Sales
 router.post('/sales/estimate', authMiddleware, salesController.estimate);
