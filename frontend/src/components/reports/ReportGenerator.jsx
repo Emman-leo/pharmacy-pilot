@@ -75,31 +75,34 @@ export default function ReportGenerator({
             </div>
           </div>
         )}
-        <div className="generator-actions">
-          <button type="button" className="btn btn-primary" onClick={onGenerate} disabled={generating}>
-            {generating ? 'Generating…' : 'Generate Report'}
-          </button>
-          {canExport ? (
-            <button type="button" className="btn btn-ghost" onClick={onExportCSV} disabled={!generatedReport?.csvConfig}>
-              <IconFileText /> Export CSV
+        <div className="form-row">
+          <label>&nbsp;</label>
+          <div className="generator-actions">
+            <button type="button" className="btn btn-primary" onClick={onGenerate} disabled={generating}>
+              {generating ? 'Generating…' : 'Generate Report'}
             </button>
-          ) : (
-            <button type="button" className="btn btn-ghost" disabled title="Upgrade to Growth to export">
-              Export CSV 🔒
+            {canExport ? (
+              <button type="button" className="btn btn-ghost" onClick={onExportCSV} disabled={!generatedReport?.csvConfig}>
+                <IconFileText /> Export CSV
+              </button>
+            ) : (
+              <button type="button" className="btn btn-ghost" disabled title="Upgrade to Growth to export">
+                Export CSV 🔒
+              </button>
+            )}
+            {canExport ? (
+              <button type="button" className="btn btn-ghost" onClick={onExportDocument} disabled={!generatedReport}>
+                <IconFileText /> Download PDF
+              </button>
+            ) : (
+              <button type="button" className="btn btn-ghost" disabled title="Upgrade to Growth to export">
+                Download PDF 🔒
+              </button>
+            )}
+            <button type="button" className="btn btn-ghost" onClick={onPrint} disabled={!generatedReport}>
+              Print
             </button>
-          )}
-          {canExport ? (
-            <button type="button" className="btn btn-ghost" onClick={onExportDocument} disabled={!generatedReport}>
-              <IconFileText /> Download document
-            </button>
-          ) : (
-            <button type="button" className="btn btn-ghost" disabled title="Upgrade to Growth to export">
-              Download document 🔒
-            </button>
-          )}
-          <button type="button" className="btn btn-ghost" onClick={onPrint} disabled={!generatedReport}>
-            Print Report
-          </button>
+          </div>
         </div>
       </div>
       {generatedReport && (
