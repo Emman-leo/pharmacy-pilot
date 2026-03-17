@@ -197,7 +197,7 @@ export async function getActiveStock(req, res) {
 }
 
 export async function addBatch(req, res) {
-  const { drug_id, quantity, cost_price, selling_price, batch_number, expiry_date, pharmacy_id } = req.body || {};
+  const { drug_id, quantity, cost_price, selling_price, batch_number, expiry_date, pharmacy_id, supplier_id, supplier_invoice } = req.body || {};
   if (!drug_id || quantity == null || !cost_price || !selling_price || !expiry_date) {
     return res.status(400).json({ error: 'drug_id, quantity, cost_price, selling_price, expiry_date required' });
   }
@@ -214,6 +214,9 @@ export async function addBatch(req, res) {
         batch_number: batch_number || null,
         expiry_date,
         pharmacy_id: pid || null,
+        supplier_id: supplier_id || null,
+        supplier_invoice: supplier_invoice?.trim() || null,
+        received_quantity: parseInt(quantity, 10),
       })
       .select('*, drugs(*)')
       .single();
