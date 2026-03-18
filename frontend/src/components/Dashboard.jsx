@@ -85,7 +85,7 @@ export default function Dashboard() {
       <section className="dashboard-tally-section">
         <div className="dashboard-tally-header">
           <h2>Stock Tally</h2>
-          <Link to="/app/inventory" className="dashboard-tally-link">View full tally →</Link>
+          <Link to="/app/inventory?tab=tally" className="dashboard-tally-link">View full tally →</Link>
         </div>
         {tally.length === 0 ? (
           <p className="dashboard-tally-empty">No stock batches found.</p>

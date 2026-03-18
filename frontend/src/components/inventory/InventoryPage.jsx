@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
 import Spinner from '../common/Spinner';
 import BatchForm from './BatchForm';
@@ -30,7 +31,9 @@ export default function InventoryPage() {
 
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
-  const [view, setView] = useState('all'); // all | low | expiry | tally
+  const location = useLocation();
+const initialTab = new URLSearchParams(location.search).get('tab') || 'all';
+const [view, setView] = useState(initialTab); // all | low | expiry | tally
   const [showAddStock, setShowAddStock] = useState(false);
 
   const load = async () => {
