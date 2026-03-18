@@ -153,7 +153,14 @@ export default function ReceiptViewer() {
           <tbody>
             {(receipt.sale_items || []).map((si) => (
               <tr key={si.id}>
-                <td>{si.drugs?.name || 'Unknown'}</td>
+                <td>
+                  {si.drugs?.name || 'Unknown'}
+                  {(si.drugs?.drug_form || si.drugs?.dosage) && (
+                    <span style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>
+                      {[si.drugs?.drug_form, si.drugs?.dosage].filter(Boolean).join(' · ')}
+                    </span>
+                  )}
+                </td>
                 <td>{si.quantity}</td>
                 <td>₵{parseFloat(si.unit_price).toFixed(2)}</td>
                 <td>₵{parseFloat(si.total_price).toFixed(2)}</td>
