@@ -71,44 +71,8 @@ export default function LandingPage() {
           </div>
           <div className="landing-hero-right">
             <div className="landing-hero-screenshot">
-              <div className="screenshot-frame">
-                <div className="screenshot-header">
-                  <div className="screenshot-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                  <span className="screenshot-title">Pharmacy Pilot Dashboard</span>
-                </div>
-                <div className="screenshot-content">
-                  <div className="screenshot-sidebar">
-                    <div className="sidebar-item active">Dashboard</div>
-                    <div className="sidebar-item">Inventory</div>
-                    <div className="sidebar-item">Point of Sale</div>
-                    <div className="sidebar-item">Reports</div>
-                    <div className="sidebar-item">Settings</div>
-                  </div>
-                  <div className="screenshot-main">
-                    <div className="screenshot-metric-cards">
-                      <div className="metric-card">
-                        <div className="metric-value">GHS 2,450</div>
-                        <div className="metric-label">Today's Sales</div>
-                      </div>
-                      <div className="metric-card">
-                        <div className="metric-value">24</div>
-                        <div className="metric-label">Transactions</div>
-                      </div>
-                      <div className="metric-card">
-                        <div className="metric-value">8</div>
-                        <div className="metric-label">Low Stock Alerts</div>
-                      </div>
-                      <div className="metric-card">
-                        <div className="metric-value">3</div>
-                        <div className="metric-label">Expiring Soon</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="feature-screenshot-real">
+                <img src="/dashboard.png" alt="Pharmacy Pilot Dashboard" />
               </div>
             </div>
           </div>
@@ -134,34 +98,8 @@ export default function LandingPage() {
               <p>Set minimum stock levels for every drug. Get instant alerts when stock runs low or batches are about to expire — before it becomes a problem.</p>
             </div>
             <div className="feature-row-screenshot">
-              <div className="feature-screenshot-frame">
-                <div className="feature-screenshot-header">
-                  <div className="feature-screenshot-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                  <span className="feature-screenshot-title">Stock Alerts</span>
-                </div>
-                <div className="feature-screenshot-content">
-                  <div className="alert-list">
-                    <div className="alert-item critical">
-                      <span className="alert-drug">Amoxicillin 500mg</span>
-                      <span className="alert-quantity">12 units left</span>
-                      <span className="alert-status">Critical</span>
-                    </div>
-                    <div className="alert-item warning">
-                      <span className="alert-drug">Paracetamol 1000mg</span>
-                      <span className="alert-quantity">28 units left</span>
-                      <span className="alert-status">Low Stock</span>
-                    </div>
-                    <div className="alert-item expiring">
-                      <span className="alert-drug">Ciprofloxacin 500mg</span>
-                      <span className="alert-quantity">45 units</span>
-                      <span className="alert-status">Expires in 15 days</span>
-                    </div>
-                  </div>
-                </div>
+              <div className="feature-screenshot-real">
+                <img src="/inventory.png" alt="Inventory management" />
               </div>
             </div>
           </div>
@@ -177,35 +115,8 @@ export default function LandingPage() {
               <p>Search drugs, add to cart, apply discounts, and print receipts in seconds. Every sale is recorded automatically — no manual entry needed.</p>
             </div>
             <div className="feature-row-screenshot">
-              <div className="feature-screenshot-frame">
-                <div className="feature-screenshot-header">
-                  <div className="feature-screenshot-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                  <span className="feature-screenshot-title">Point of Sale</span>
-                </div>
-                <div className="feature-screenshot-content">
-                  <div className="pos-interface">
-                    <div className="pos-cart">
-                      <div className="cart-item">
-                        <span className="cart-drug">Augmentin 625mg</span>
-                        <span className="cart-qty">2x</span>
-                        <span className="cart-price">GHS 45.00</span>
-                      </div>
-                      <div className="cart-item">
-                        <span className="cart-drug">Ibuprofen 400mg</span>
-                        <span className="cart-qty">1x</span>
-                        <span className="cart-price">GHS 8.50</span>
-                      </div>
-                      <div className="cart-total">
-                        <span>Total</span>
-                        <span>GHS 53.50</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="feature-screenshot-real">
+                <img src="/pos.png" alt="Point of Sale" />
               </div>
             </div>
           </div>
@@ -221,34 +132,12 @@ export default function LandingPage() {
               <p>Daily revenue, top selling drugs, profit margins, slow moving stock — all generated automatically. Export to CSV for your accountant.</p>
             </div>
             <div className="feature-row-screenshot">
-              <div className="feature-screenshot-frame">
-                <div className="feature-screenshot-header">
-                  <div className="feature-screenshot-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                  <span className="feature-screenshot-title">Sales Reports</span>
-                </div>
-                <div className="feature-screenshot-content">
-                  <div className="reports-dashboard">
-                    <div className="report-summary">
-                      <div className="summary-item">
-                        <span className="summary-label">Today's Revenue</span>
-                        <span className="summary-value">GHS 1,245</span>
-                      </div>
-                      <div className="summary-item">
-                        <span className="summary-label">Top Drug</span>
-                        <span className="summary-value">Amoxicillin</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="feature-screenshot-real">
+                <img src="/reports.png" alt="Reports and analytics" />
               </div>
             </div>
           </div>
         </div>
-
       </section>
 
       <section className="landing-pricing">
