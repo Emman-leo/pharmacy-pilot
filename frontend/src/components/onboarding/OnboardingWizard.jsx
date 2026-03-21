@@ -68,7 +68,7 @@ export default function OnboardingWizard() {
 
   return (
     <div className="onboarding-page">
-      <div className="onboarding-header">
+      <div className="onboarding-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span className="onboarding-logo">Pharmacy Pilot</span>
         <button
           type="button"
