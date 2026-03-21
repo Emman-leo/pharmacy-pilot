@@ -73,15 +73,9 @@ export default function OnboardingWizard() {
         <button
           type="button"
           onClick={() => { logout(); window.location.href = '/login'; }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#64748b',
-            fontSize: '0.875rem',
-            cursor: 'pointer',
-          }}
+          className="btn btn-ghost"
         >
-          Log out
+          Logout
         </button>
       </div>
 
