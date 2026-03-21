@@ -31,7 +31,7 @@ const TIERS = [
 
 export default function OnboardingWizard() {
   const api      = useApi();
-  const { login, profile } = useAuth();
+  const { login, logout, profile } = useAuth();
   const navigate = useNavigate();
 
   const [step,          setStep]          = useState(1);
@@ -70,6 +70,19 @@ export default function OnboardingWizard() {
     <div className="onboarding-page">
       <div className="onboarding-header">
         <span className="onboarding-logo">Pharmacy Pilot</span>
+        <button
+          type="button"
+          onClick={() => { logout(); window.location.href = '/login'; }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#64748b',
+            fontSize: '0.875rem',
+            cursor: 'pointer',
+          }}
+        >
+          Log out
+        </button>
       </div>
 
       <div className="onboarding-container">
