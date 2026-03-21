@@ -68,7 +68,8 @@ export function AuthProvider({ children }) {
       setIsSuperAdmin(isa || false);
       return user;
     }
-    return u;
+    // No session = email confirmation required
+    return null;
   };
 
   const logout = () => {
