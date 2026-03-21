@@ -12,6 +12,7 @@ export default function Login({ defaultMode = 'login' }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
+  const [confirmationSent, setConfirmationSent] = useState(false);
   const { login, register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const api = useApi();
@@ -35,7 +36,12 @@ export default function Login({ defaultMode = 'login' }) {
           setLoading(false);
           return setError('Password must contain at least one uppercase letter and one number');
         }
-        await register(email, password, fullName);
+        const user = await register(email, password, fullName);
+        if (!user) {
+          // No session returned — email confirmation required
+          setConfirmationSent(true);
+          return;
+        }
         navigate('/onboarding');
       }
     } catch (err) {
@@ -62,11 +68,38 @@ export default function Login({ defaultMode = 'login' }) {
 
   if (isAuthenticated) return <Navigate to="/app" replace />;
 
+  // Show confirmation message after signup
+  if (confirmationSent) {
+    return (
+      <div className="login-page">
+        <div className="login-card">
+          <h1>Check your email</h1>
+          <p className="login-subtitle">
+            We sent a confirmation link to <strong>{email}</strong>. 
+            Click the link to activate your account, then come back to log in.
+          </p>
+          <button
+            type="button"
+            className="login-toggle"
+            onClick={() => {
+              setConfirmationSent(false);
+              setMode('login');
+            }}
+          >
+            Back to login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="login-page">
       <div className="login-card">
         <h1>Pharmacy Pilot</h1>
-        <p className="login-subtitle">Sign in to your account</p>
+        <p className="login-subtitle">
+          {mode === 'login' ? 'Sign in to your account' : 'Create your account'}
+        </p>
         <form onSubmit={handleSubmit}>
           {mode === 'register' && (
             <input
@@ -93,14 +126,16 @@ export default function Login({ defaultMode = 'login' }) {
             required
             className="login-input"
           />
-          <button
-            type="button"
-            className="login-forgot"
-            onClick={handleForgotPassword}
-            disabled={loading}
-          >
-            Forgot password?
-          </button>
+          {mode === 'login' && (
+            <button
+              type="button"
+              className="login-forgot"
+              onClick={handleForgotPassword}
+              disabled={loading}
+            >
+              Forgot password?
+            </button>
+          )}
           {error && <p className="login-error">{error}</p>}
           {resetMessage && <p className="login-reset">{resetMessage}</p>}
           <button type="submit" disabled={loading} className="btn btn-primary btn-block">

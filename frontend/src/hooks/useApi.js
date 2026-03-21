@@ -31,7 +31,8 @@ export function useApi() {
       }
       
       if (!res.ok) {
-        if (res.status === 401) {
+        // Only intercept 401 on protected routes, not on login itself
+        if (res.status === 401 && !path.includes('/auth/login') && !path.includes('/auth/register')) {
           localStorage.removeItem('pharmacy_token');
           window.location.href = '/login';
           throw new Error('Session expired. Please log in again.');
