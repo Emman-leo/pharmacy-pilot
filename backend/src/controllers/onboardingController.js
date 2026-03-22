@@ -60,7 +60,7 @@ export async function completeOnboarding(req, res) {
 
     // Send welcome email to client
     await resend.emails.send({
-      from:    'Pharmacy Pilot <pharmacypilot@webdevv.io>',
+      from:    'Pharmacy Pilot <noreply@pharmacypilot.webdevv.io>',
       to:      profile.email,
       subject: 'Welcome to Pharmacy Pilot 🎉',
       html: `
@@ -72,7 +72,7 @@ export async function completeOnboarding(req, res) {
           <ol>
             <li>Add your drugs under <strong>Drugs</strong></li>
             <li>Add stock under <strong>Inventory</strong> with cost and selling prices</li>
-            <li>Start processing sales at the <strong>Point of Sale</strong></li>
+            <li>Start processing sales at <strong>Point of Sale</strong></li>
           </ol>
           <p>Need help? WhatsApp us anytime.</p>
           <p>— The Pharmacy Pilot Team</p>
@@ -82,7 +82,7 @@ export async function completeOnboarding(req, res) {
 
     // Notify you of new signup
     await resend.emails.send({
-      from:    'Pharmacy Pilot <pharmacypilot@webdevv.io>',
+      from:    'Pharmacy Pilot <noreply@pharmacypilot.webdevv.io>',
       to:      ADMIN_EMAIL,
       subject: `New signup: ${pharmacy_name}`,
       html: `
