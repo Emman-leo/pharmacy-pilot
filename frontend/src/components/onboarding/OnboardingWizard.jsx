@@ -38,7 +38,7 @@ export default function OnboardingWizard() {
   const [pharmacyName,  setPharmacyName]  = useState('');
   const [phone,         setPhone]         = useState('');
   const [address,       setAddress]       = useState('');
-  const [tier,          setTier]          = useState('starter');
+  const [tier,          setTier]          = useState('');
   const [submitting,    setSubmitting]    = useState(false);
   const [error,         setError]         = useState('');
 
@@ -189,7 +189,7 @@ export default function OnboardingWizard() {
                 type="button"
                 className="btn btn-primary"
                 onClick={handleSubmit}
-                disabled={submitting}
+                disabled={submitting || !tier}
               >
                 {submitting ? 'Setting up your pharmacy…' : 'Start free trial →'}
               </button>
