@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
+import { body, param } from 'express-validator';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { requireRole } from '../middleware/rbacMiddleware.js';
 import { tierMiddleware, requireFeature } from '../middleware/tierMiddleware.js';
+import { validate } from '../middleware/validate.js';
 import * as authController from '../controllers/authController.js';
 import * as inventoryController from '../controllers/inventoryController.js';
 import * as salesController from '../controllers/salesController.js';
@@ -35,15 +37,36 @@ const contactLimiter = rateLimit({
 });
 
 // Auth (uses Supabase client directly; proxy endpoints for convenience)
-router.post('/auth/login', authLimiter, authController.login);
-router.post('/auth/register', authLimiter, authController.register);
+router.post(
+  '/auth/login',
+  authLimiter,
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').isString().isLength({ min: 1, max: 200 }).withMessage('Password is required'),
+  validate,
+  authController.login,
+);
+router.post(
+  '/auth/register',
+  authLimiter,
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').isString().isLength({ min: 8, max: 200 }).withMessage('Password must be at least 8 characters'),
+  body('full_name').optional().isString().isLength({ max: 120 }).withMessage('full_name must be a string'),
+  validate,
+  authController.register,
+);
 router.get('/auth/user', authMiddleware, tierMiddleware, authController.getUser);
 router.get('/auth/users', authMiddleware, tierMiddleware, requireRole('ADMIN'), authController.listUsers);
 router.post('/auth/users', authMiddleware, tierMiddleware, requireRole('ADMIN'), authController.addStaff);
 router.put('/auth/users/:id/role', authMiddleware, tierMiddleware, requireRole('ADMIN'), authController.updateUserRole);
 router.put('/auth/users/:id/status', authMiddleware, tierMiddleware, requireRole('ADMIN'), authController.updateUserStatus);
 router.post('/auth/logout', authController.logout);
-router.post('/auth/forgot-password', authLimiter, authController.forgotPassword);
+router.post(
+  '/auth/forgot-password',
+  authLimiter,
+  body('email').isEmail().withMessage('Valid email is required'),
+  validate,
+  authController.forgotPassword,
+);
 
 // Pharmacies (list and current pharmacy settings)
 router.get('/pharmacies', authMiddleware, pharmacyController.listPharmacies);
@@ -63,7 +86,18 @@ router.get('/inventory/tally', authMiddleware, inventoryController.getStockTally
 
 // Sales
 router.post('/sales/estimate', authMiddleware, salesController.estimate);
-router.post('/sales/checkout', authMiddleware, salesController.checkout);
+router.post(
+  '/sales/checkout',
+  authMiddleware,
+  body('items').isArray({ min: 1 }).withMessage('items must be a non-empty array'),
+  body('items.*.drug_id').isUUID().withMessage('items[].drug_id must be a UUID'),
+  body('items.*.quantity').isInt({ min: 1, max: 9999 }).withMessage('items[].quantity must be an integer between 1 and 9999'),
+  body('discount_amount').optional().isFloat({ min: 0 }).withMessage('discount_amount must be a non-negative number'),
+  body('payment_method').isIn(['cash', 'momo', 'card']).withMessage('payment_method must be one of: cash, momo, card'),
+  body('customer_name').optional().isString().isLength({ max: 120 }).withMessage('customer_name must be a string'),
+  validate,
+  salesController.checkout,
+);
 router.get('/sales/history', authMiddleware, salesController.getHistory);
 router.get('/sales/receipt/:id', authMiddleware, salesController.getReceipt);
 router.post('/sales/:id/void', authMiddleware, tierMiddleware, requireRole('ADMIN'), salesController.voidSale);
@@ -119,11 +153,36 @@ router.post('/admin/pharmacies/:id/users',    authMiddleware, tierMiddleware, re
 router.get('/admin/users',                    authMiddleware, tierMiddleware, requireSuperAdmin, superAdminController.listAllUsers);
 
 // Authenticated payment routes
-router.post('/payments/initialize', authMiddleware, tierMiddleware, initializePayment);
-router.get('/payments/verify/:reference', verifyPayment);
+router.post(
+  '/payments/initialize',
+  authMiddleware,
+  tierMiddleware,
+  body('months')
+    .optional()
+    .custom((v) => [1, 3, 6, 12].includes(Number(v)))
+    .withMessage('months must be one of: 1, 3, 6, 12'),
+  validate,
+  initializePayment,
+);
+router.get(
+  '/payments/verify/:reference',
+  param('reference').isString().isLength({ min: 6, max: 120 }).withMessage('reference is required'),
+  validate,
+  verifyPayment,
+);
 
 // Onboarding — authenticated but no tier/subscription check
-router.post('/onboarding/complete', authLimiter, authMiddleware, onboardingController.completeOnboarding);
+router.post(
+  '/onboarding/complete',
+  authLimiter,
+  authMiddleware,
+  body('pharmacy_name').isString().isLength({ min: 2, max: 160 }).withMessage('pharmacy_name is required'),
+  body('tier').optional().isIn(['starter', 'growth', 'pro']).withMessage('tier must be starter, growth, or pro'),
+  body('phone').optional().isString().isLength({ max: 60 }).withMessage('phone must be a string'),
+  body('address').optional().isString().isLength({ max: 240 }).withMessage('address must be a string'),
+  validate,
+  onboardingController.completeOnboarding,
+);
 
 // Suppliers
 router.use('/suppliers', supplierRoutes);

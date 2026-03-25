@@ -72,6 +72,9 @@ export async function initializePayment(req, res) {
 export async function verifyPayment(req, res) {
   const { reference } = req.params;
   try {
+    if (!PAYSTACK_SECRET_KEY) {
+      return res.status(500).json({ error: 'Payment provider not configured' });
+    }
     const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
       headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` },
     });
@@ -81,24 +84,46 @@ export async function verifyPayment(req, res) {
       return res.status(400).json({ error: 'Payment not successful' });
     }
 
-    // Update pharmacy subscription when payment is confirmed successful
-    if (data.data.status === 'success') {
-      const { pharmacy_id, months = 1 } = data.data.metadata || {};
-      if (pharmacy_id) {
-        const validMonths = [1, 3, 6, 12].includes(Number(months)) ? Number(months) : 1;
-        const newExpiry = new Date();
-        newExpiry.setDate(newExpiry.getDate() + (validMonths * 30));
-        await supabaseAdmin
-          .from('pharmacies')
-          .update({
-            subscription_status: 'active',
-            current_period_end: newExpiry.toISOString().slice(0, 10),
-          })
-          .eq('id', pharmacy_id);
-      }
+    const paystackRef = data?.data?.reference || reference;
+    const { pharmacy_id, months = 1 } = data.data.metadata || {};
+    const validMonths = [1, 3, 6, 12].includes(Number(months)) ? Number(months) : 1;
+
+    // Idempotency: only process a reference once
+    const { error: insertErr } = await supabaseAdmin
+      .from('payment_events')
+      .insert({
+        reference: paystackRef,
+        event_source: 'verify',
+        event_type: data?.data?.gateway_response || 'verify.success',
+        pharmacy_id: pharmacy_id || null,
+        months: validMonths,
+        payload: data,
+      });
+
+    // Duplicate reference: already applied
+    if (insertErr && String(insertErr.message || '').toLowerCase().includes('duplicate')) {
+      return res.json({ status: 'success', amount: data.data.amount / 100, reference: paystackRef, already_processed: true });
     }
 
-    return res.json({ status: 'success', amount: data.data.amount / 100, reference });
+    if (insertErr) {
+      console.error('[payments] verifyPayment idempotency insert error', insertErr);
+      return res.status(503).json({ error: 'Unable to confirm payment at this time' });
+    }
+
+    // Apply subscription update once
+    if (pharmacy_id) {
+      const newExpiry = new Date();
+      newExpiry.setDate(newExpiry.getDate() + (validMonths * 30));
+      await supabaseAdmin
+        .from('pharmacies')
+        .update({
+          subscription_status: 'active',
+          current_period_end: newExpiry.toISOString().slice(0, 10),
+        })
+        .eq('id', pharmacy_id);
+    }
+
+    return res.json({ status: 'success', amount: data.data.amount / 100, reference: paystackRef });
   } catch (err) {
     console.error('[payments] verifyPayment error', err);
     return res.status(500).json({ error: 'Failed to verify payment' });
@@ -108,26 +133,61 @@ export async function verifyPayment(req, res) {
 export async function paystackWebhook(req, res) {
   const crypto = await import('crypto');
   const secret = PAYSTACK_SECRET_KEY;
-  const hash = crypto
-    .createHmac('sha512', secret)
-    .update(JSON.stringify(req.body))
-    .digest('hex');
+  if (!secret) return res.status(500).send('Payment provider not configured');
 
-  if (hash !== req.headers['x-paystack-signature']) {
+  const signature = req.headers['x-paystack-signature'];
+  const rawBody = req.body; // Buffer (set by express.raw in server.js)
+  if (!rawBody || !Buffer.isBuffer(rawBody)) {
+    return res.status(400).send('Invalid payload');
+  }
+
+  const hash = crypto.createHmac('sha512', secret).update(rawBody).digest('hex');
+
+  if (!signature || hash !== signature) {
     return res.status(401).send('Invalid signature');
   }
 
-  const event = req.body;
+  let event;
+  try {
+    event = JSON.parse(rawBody.toString('utf8'));
+  } catch {
+    return res.status(400).send('Invalid JSON');
+  }
 
   if (event.event === 'charge.success') {
+    const reference = event?.data?.reference || event?.data?.id || null;
     const { pharmacy_id } = event.data.metadata || {};
     const months = event.data.metadata?.months || 1;
     if (!pharmacy_id) return res.sendStatus(200);
 
     try {
+      const validMonths = [1, 3, 6, 12].includes(Number(months)) ? Number(months) : 1;
+
+      // Idempotency: only process a reference once
+      if (reference) {
+        const { error: insertErr } = await supabaseAdmin
+          .from('payment_events')
+          .insert({
+            reference: String(reference),
+            event_source: 'webhook',
+            event_type: event.event,
+            pharmacy_id,
+            months: validMonths,
+            payload: event,
+          });
+
+        if (insertErr && String(insertErr.message || '').toLowerCase().includes('duplicate')) {
+          return res.sendStatus(200);
+        }
+        if (insertErr) {
+          console.error('[payments] webhook idempotency insert error', insertErr);
+          return res.sendStatus(200);
+        }
+      }
+
       // Extend subscription by the specified number of months
       const newPeriodEnd = new Date();
-      newPeriodEnd.setDate(newPeriodEnd.getDate() + (months * 30));
+      newPeriodEnd.setDate(newPeriodEnd.getDate() + (validMonths * 30));
 
       await supabaseAdmin
         .from('pharmacies')
@@ -137,7 +197,7 @@ export async function paystackWebhook(req, res) {
         })
         .eq('id', pharmacy_id);
 
-      console.log(`[payments] Subscription activated for pharmacy ${pharmacy_id} for ${months} month(s)`);
+      console.log(`[payments] Subscription activated for pharmacy ${pharmacy_id} for ${validMonths} month(s)`);
     } catch (err) {
       console.error('[payments] Failed to update subscription', err);
     }
