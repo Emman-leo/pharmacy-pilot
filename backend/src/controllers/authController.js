@@ -28,7 +28,7 @@ export async function login(req, res) {
     );
 
     res.json({ user: data.user, session: data.session });
-  } catch (err) {
+  } catch (_err) {
     res.status(500).json({ error: 'Login failed' });
   }
 }
@@ -65,7 +65,7 @@ export async function register(req, res) {
     );
 
     res.status(201).json({ user: data.user, session: data.session });
-  } catch (err) {
+  } catch (_err) {
     res.status(500).json({ error: 'Registration failed' });
   }
 }
@@ -101,7 +101,7 @@ export async function getUser(req, res) {
       current_period_end: pharmacy.current_period_end,
       is_super_admin: out.is_super_admin || false
     });
-  } catch (err) {
+  } catch (_err) {
     res.status(500).json({ error: 'Failed to fetch user' });
   }
 }
@@ -128,7 +128,7 @@ export async function forgotPassword(req, res) {
       return res.status(400).json({ error: error.message });
     }
     return res.json({ message: 'Password reset email sent if the account exists.' });
-  } catch (err) {
+  } catch (_err) {
     return res.status(500).json({ error: 'Failed to send reset email' });
   }
 }

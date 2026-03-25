@@ -1,4 +1,3 @@
-import { supabaseAdmin } from '../utils/db.js';
 import { recordAuditEvent } from '../utils/auditLogger.js';
 import { getProfile } from '../utils/profileUtils.js';
 
@@ -101,9 +100,6 @@ export async function deleteExpense(req, res) {
 export async function getDailyClosePreview(req, res) {
   const date = req.query.date || new Date().toISOString().slice(0, 10);
   try {
-    const profile     = await getProfile(req);
-    const pharmacy_id = profile?.pharmacy_id || null;
-
     // Check if already closed
     const { data: existing } = await req.supabase
       .from('daily_closes')

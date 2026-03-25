@@ -1,4 +1,3 @@
-import { supabaseAdmin } from '../utils/db.js';
 import { fefoService } from '../services/fefoService.js';
 import { recordAuditEvent } from '../utils/auditLogger.js';
 import { getProfile } from '../utils/profileUtils.js';

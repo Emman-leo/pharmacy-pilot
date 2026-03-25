@@ -1,5 +1,12 @@
 # Deployment Guide (Vercel + Render)
 
+## Supabase (before first deploy)
+
+1. Apply base schema and migrations in order (SQL Editor or Supabase CLI), including:
+   - `supabase/schema.sql`
+   - Files under `supabase/migrations/` (especially `payments_events_idempotency.sql` for Paystack idempotency).
+2. Never put `SUPABASE_SERVICE_ROLE_KEY` in the frontend or in Vercel env vars—backend (Render) only.
+
 ## Backend (Render)
 
 1. Go to [render.com](https://render.com) → **New** → **Web Service**
@@ -13,7 +20,9 @@
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
+   - `PAYSTACK_SECRET_KEY` (Paystack secret; used for init, verify, and webhook HMAC)
    - `FRONTEND_URL` = `https://your-app.vercel.app` (set after frontend deploy)
+   - Optional: `RESEND_API_KEY` (onboarding welcome emails; app runs without it)
 5. Deploy → copy the service URL (e.g. `https://pharmacy-pilot-api.onrender.com`)
 
 ## Frontend (Vercel)

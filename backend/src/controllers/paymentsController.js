@@ -1,4 +1,6 @@
 import { supabaseAdmin } from '../utils/db.js';
+import { verifyPaystackSignature } from '../utils/paystackSignature.js';
+import { isDuplicateKeyError } from '../utils/supabaseErrors.js';
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 
@@ -101,7 +103,7 @@ export async function verifyPayment(req, res) {
       });
 
     // Duplicate reference: already applied
-    if (insertErr && String(insertErr.message || '').toLowerCase().includes('duplicate')) {
+    if (insertErr && isDuplicateKeyError(insertErr)) {
       return res.json({ status: 'success', amount: data.data.amount / 100, reference: paystackRef, already_processed: true });
     }
 
@@ -131,7 +133,6 @@ export async function verifyPayment(req, res) {
 }
 
 export async function paystackWebhook(req, res) {
-  const crypto = await import('crypto');
   const secret = PAYSTACK_SECRET_KEY;
   if (!secret) return res.status(500).send('Payment provider not configured');
 
@@ -141,9 +142,7 @@ export async function paystackWebhook(req, res) {
     return res.status(400).send('Invalid payload');
   }
 
-  const hash = crypto.createHmac('sha512', secret).update(rawBody).digest('hex');
-
-  if (!signature || hash !== signature) {
+  if (!verifyPaystackSignature(rawBody, secret, signature)) {
     return res.status(401).send('Invalid signature');
   }
 
@@ -176,7 +175,7 @@ export async function paystackWebhook(req, res) {
             payload: event,
           });
 
-        if (insertErr && String(insertErr.message || '').toLowerCase().includes('duplicate')) {
+        if (insertErr && isDuplicateKeyError(insertErr)) {
           return res.sendStatus(200);
         }
         if (insertErr) {

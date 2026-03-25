@@ -27,7 +27,7 @@ Smart pharmacy management system for inventory, sales, prescriptions, and automa
 ### 1. Supabase
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Go to **SQL Editor** and run `supabase/schema.sql`
+2. Go to **SQL Editor** and run `supabase/schema.sql`, then run migration files in `supabase/migrations/` (including `payments_events_idempotency.sql` if you use Paystack).
 3. Copy **Project URL** and **anon key** from Settings → API
 4. Copy **service_role key** from Settings → API (keep secret)
 
@@ -105,6 +105,10 @@ pharmacy-pilot/
 │   └── package.json
 └── README.md
 ```
+
+## CI
+
+On push/PR, GitHub Actions runs backend lint + tests and frontend lint (utils) + tests + production build (see `.github/workflows/ci.yml`).
 
 ## License
 

@@ -1,4 +1,3 @@
-import { supabaseAdmin } from '../utils/db.js';
 import { getProfile } from '../utils/profileUtils.js';
 
 export async function getSuppliers(req, res) {

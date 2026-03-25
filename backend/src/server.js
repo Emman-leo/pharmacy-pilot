@@ -40,7 +40,7 @@ app.get('/', (_, res) => res.json({ message: 'Pharmacy Pilot API', docs: '/api',
 app.use('/api', apiRoutes);
 app.get('/health', (_, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal server error' });
 });

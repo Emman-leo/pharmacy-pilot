@@ -16,7 +16,7 @@ export async function authMiddleware(req, res, next) {
     req.user = user;
     req.supabase = createSupabaseClient(token);
     next();
-  } catch (err) {
+  } catch (_err) {
     return res.status(401).json({ error: 'Authentication failed' });
   }
 }
