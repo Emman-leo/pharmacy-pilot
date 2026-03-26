@@ -155,11 +155,27 @@ export async function getHistory(req, res) {
   const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0); // no negative offsets
   
   try {
-    const { data, error } = await req.supabase
+    const search = (req.query.search || '').toString().trim();
+    const start_date = (req.query.start_date || '').toString().trim();
+    const end_date = (req.query.end_date || '').toString().trim();
+
+    let q = req.supabase
       .from('sales')
       .select('*, sale_items(*, drugs(*))')
-      .order('sale_date', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .order('sale_date', { ascending: false });
+
+    if (search) {
+      q = q.or(`receipt_number.ilike.%${search}%,customer_name.ilike.%${search}%`);
+    }
+
+    if (start_date) {
+      q = q.gte('sale_date', `${start_date}T00:00:00.000`);
+    }
+    if (end_date) {
+      q = q.lte('sale_date', `${end_date}T23:59:59.999`);
+    }
+
+    const { data, error } = await q.range(offset, offset + limit - 1);
     if (error) throw error;
     res.json(data);
   } catch (err) {

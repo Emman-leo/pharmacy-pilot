@@ -6,7 +6,7 @@ import './SettingsPage.css';
 
 export default function SettingsPage() {
   const api = useApi();
-  const { user, profile, tier, subscriptionStatus, currentPeriodEnd, loading: authLoading } = useAuth();
+  const { user, profile, tier, subscriptionStatus, currentPeriodEnd, loading: authLoading, isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState('pharmacy');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -68,8 +68,10 @@ export default function SettingsPage() {
       
       if (activeTab === 'pharmacy') {
         loadPharmacyData();
-      } else {
+      } else if (activeTab === 'staff') {
         loadStaffData();
+      } else if (activeTab === 'payments') {
+        loadPaymentHistory();
       }
       
       setLoading(false);
@@ -138,6 +140,53 @@ export default function SettingsPage() {
   const tierPrices = { starter: 250, growth: 550, pro: 900 };
   const currentPrice = tierPrices[tier] || 250;
 
+  // Payment history (#17)
+  const [paymentHistory, setPaymentHistory] = useState([]);
+  const [paymentHistoryLoading, setPaymentHistoryLoading] = useState(false);
+  const [paymentHistoryError, setPaymentHistoryError] = useState('');
+
+  const loadPaymentHistory = async () => {
+    setPaymentHistoryLoading(true);
+    setPaymentHistoryError('');
+    try {
+      const data = await api.get('/payments/history');
+      setPaymentHistory(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setPaymentHistoryError(e.message || 'Failed to load payment history');
+      setPaymentHistory([]);
+    } finally {
+      setPaymentHistoryLoading(false);
+    }
+  };
+
+  // Editable pharmacy info (#18)
+  const [editPharmacy, setEditPharmacy] = useState(false);
+  const [pharmacyForm, setPharmacyForm] = useState({ name: '', address: '', phone: '' });
+
+  const startEditPharmacy = () => {
+    setPharmacyForm({
+      name: pharmacyData?.name || '',
+      address: pharmacyData?.address || '',
+      phone: pharmacyData?.phone || '',
+    });
+    setEditPharmacy(true);
+  };
+
+  const savePharmacyChanges = async () => {
+    setError('');
+    try {
+      await api.put('/pharmacies/my-settings', {
+        name: pharmacyForm.name,
+        address: pharmacyForm.address || null,
+        phone: pharmacyForm.phone || null,
+      });
+      setEditPharmacy(false);
+      await loadPharmacyData();
+    } catch (e) {
+      setError(e.message || 'Failed to update pharmacy');
+    }
+  };
+
   if (authLoading || loading) {
     return <Spinner />;
   }
@@ -165,6 +214,12 @@ export default function SettingsPage() {
           >
             Billing
           </button>
+          <button
+            className={`tab-button ${activeTab === 'payments' ? 'active' : ''}`}
+            onClick={() => setActiveTab('payments')}
+          >
+            Payments
+          </button>
         </div>
       </div>
 
@@ -180,15 +235,42 @@ export default function SettingsPage() {
           <div className="pharmacy-info">
             <div className="info-row">
               <label>Pharmacy Name:</label>
-              <span>{pharmacyData.name}</span>
+              {editPharmacy && isAdmin ? (
+                <input
+                  className="settings-input"
+                  type="text"
+                  value={pharmacyForm.name}
+                  onChange={(e) => setPharmacyForm((f) => ({ ...f, name: e.target.value }))}
+                />
+              ) : (
+                <span>{pharmacyData.name}</span>
+              )}
             </div>
             <div className="info-row">
               <label>Address:</label>
-              <span>{pharmacyData.address}</span>
+              {editPharmacy && isAdmin ? (
+                <input
+                  className="settings-input"
+                  type="text"
+                  value={pharmacyForm.address}
+                  onChange={(e) => setPharmacyForm((f) => ({ ...f, address: e.target.value }))}
+                />
+              ) : (
+                <span>{pharmacyData.address}</span>
+              )}
             </div>
             <div className="info-row">
               <label>Phone:</label>
-              <span>{pharmacyData.phone}</span>
+              {editPharmacy && isAdmin ? (
+                <input
+                  className="settings-input"
+                  type="text"
+                  value={pharmacyForm.phone}
+                  onChange={(e) => setPharmacyForm((f) => ({ ...f, phone: e.target.value }))}
+                />
+              ) : (
+                <span>{pharmacyData.phone}</span>
+              )}
             </div>
             <div className="info-row">
               <label>Tier:</label>
@@ -202,6 +284,71 @@ export default function SettingsPage() {
                 {pharmacyData.subscription_status === 'active' ? 'Active' : 'Inactive'}
               </span>
             </div>
+
+            {isAdmin && !editPharmacy && (
+              <div style={{ marginTop: '14px' }}>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={startEditPharmacy}
+                >
+                  Edit pharmacy info
+                </button>
+              </div>
+            )}
+
+            {isAdmin && editPharmacy && (
+              <div style={{ marginTop: '14px', display: 'flex', gap: '12px' }}>
+                <button type="button" className="btn btn-primary" onClick={savePharmacyChanges}>
+                  Save Changes
+                </button>
+                <button type="button" className="btn btn-ghost" onClick={() => setEditPharmacy(false)}>
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'payments' && (
+        <div className="settings-section">
+          <div className="billing-info">
+            <h2 style={{ marginTop: 0 }}>Payment History</h2>
+            {paymentHistoryLoading ? (
+              <Spinner />
+            ) : paymentHistoryError ? (
+              <div className="error-banner">{paymentHistoryError}</div>
+            ) : paymentHistory.length === 0 ? (
+              <div>No payments found.</div>
+            ) : (
+              <table className="staff-table">
+                <thead>
+                  <tr>
+                    <th>Reference</th>
+                    <th>Amount (GHS)</th>
+                    <th>Plan</th>
+                    <th>Period</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paymentHistory.map((p) => (
+                    <tr key={p.reference}>
+                      <td>{p.reference}</td>
+                      <td>{p.amount_ghs != null ? `₵${Number(p.amount_ghs).toFixed(2)}` : '—'}</td>
+                      <td>{p.plan ? String(p.plan).toUpperCase() : '—'}</td>
+                      <td>
+                        {p.period_start && p.period_end
+                          ? `${p.period_start} → ${p.period_end}`
+                          : '—'}
+                      </td>
+                      <td>{p.processed_at ? new Date(p.processed_at).toLocaleDateString() : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       )}

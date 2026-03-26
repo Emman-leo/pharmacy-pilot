@@ -1,12 +1,46 @@
+import { useState } from 'react';
 import './Cart.css';
 
 export default function Cart({ cart, estimate = {}, onUpdateQty, onRemove, customerName, onCustomerChange, discount, onDiscountChange, onCheckout, checkingOut, paymentMethod, onPaymentMethodChange }) {
   const subtotal = estimate.total ?? 0;
   const discountAmount = parseFloat(discount) || 0;
   const total = Math.max(0, subtotal - discountAmount);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const itemCount = (cart || []).reduce((sum, c) => sum + (parseInt(c.quantity, 10) || 0), 0);
 
   return (
     <div className="cart">
+      {showConfirm && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal">
+            <h2>Confirm Sale</h2>
+            <p className="modal-subtitle">
+              Confirm sale of {itemCount} item{itemCount === 1 ? '' : 's'} for GHS {total.toFixed(2)}?
+            </p>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setShowConfirm(false)}
+                disabled={checkingOut}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowConfirm(false);
+                  onCheckout();
+                }}
+                disabled={checkingOut}
+              >
+                {checkingOut ? 'Processing...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <h2 className="cart-title">Cart</h2>
 
       <input
@@ -87,7 +121,7 @@ export default function Cart({ cart, estimate = {}, onUpdateQty, onRemove, custo
       <button
         type="button"
         className="btn btn-primary btn-block cart-checkout"
-        onClick={onCheckout}
+        onClick={() => setShowConfirm(true)}
         disabled={cart.length === 0 || checkingOut || !paymentMethod}
       >
         {checkingOut ? 'Processing...' : 'Checkout'}

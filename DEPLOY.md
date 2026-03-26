@@ -4,7 +4,7 @@
 
 1. Apply base schema and migrations in order (SQL Editor or Supabase CLI), including:
    - `supabase/schema.sql`
-   - Files under `supabase/migrations/` (especially `payments_events_idempotency.sql` for Paystack idempotency).
+   - Files under `supabase/migrations/` (especially `payments_events_idempotency.sql` + `payments_events_details.sql` for Paystack invoice/history).
 2. Never put `SUPABASE_SERVICE_ROLE_KEY` in the frontend or in Vercel env vars—backend (Render) only.
 
 ## Backend (Render)

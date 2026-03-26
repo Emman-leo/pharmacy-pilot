@@ -246,15 +246,41 @@ export async function addBatch(req, res) {
 
 export async function updateBatch(req, res) {
   const { id } = req.params;
-  const { quantity, cost_price, selling_price } = req.body || {};
-  if (quantity == null && cost_price == null && selling_price == null) {
-    return res.status(400).json({ error: 'At least one field (quantity, cost_price, selling_price) is required' });
+  const {
+    quantity,
+    cost_price,
+    selling_price,
+    expiry_date,
+    batch_number,
+  } = req.body || {};
+
+  if (
+    quantity == null &&
+    cost_price == null &&
+    selling_price == null &&
+    expiry_date == null &&
+    batch_number == null
+  ) {
+    return res.status(400).json({
+      error: 'At least one field (quantity, cost_price, selling_price, expiry_date, batch_number) is required',
+    });
+  }
+
+  const expiryDateRe = /^\d{4}-\d{2}-\d{2}$/;
+  if (expiry_date != null && !expiryDateRe.test(String(expiry_date))) {
+    return res.status(400).json({ error: 'expiry_date must be in YYYY-MM-DD format' });
+  }
+
+  if (batch_number != null && String(batch_number).length > 120) {
+    return res.status(400).json({ error: 'batch_number is too long' });
   }
   try {
     const updates = {};
     if (quantity != null) updates.quantity = parseInt(quantity, 10);
     if (cost_price != null) updates.cost_price = parseFloat(cost_price);
     if (selling_price != null) updates.selling_price = parseFloat(selling_price);
+    if (expiry_date != null) updates.expiry_date = expiry_date;
+    if (batch_number != null) updates.batch_number = batch_number || null;
     
     const { data, error } = await req.supabase
       .from('inventory_batches')
@@ -275,6 +301,32 @@ export async function updateBatch(req, res) {
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message || 'Failed to update batch' });
+  }
+}
+
+export async function deleteBatch(req, res) {
+  const { id } = req.params;
+  try {
+    const { data, error } = await req.supabase
+      .from('inventory_batches')
+      .delete()
+      .eq('id', id)
+      .select()
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Batch not found' });
+
+    await recordAuditEvent(req, {
+      action: 'DELETE',
+      resource: 'inventory_batch',
+      resourceId: data.id,
+      details: {},
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to delete batch' });
   }
 }
 

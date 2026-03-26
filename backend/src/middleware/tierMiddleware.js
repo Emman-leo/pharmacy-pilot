@@ -85,6 +85,8 @@ export async function tierMiddleware(req, res, next) {
     const isExemptRoute =
       req.originalUrl?.includes('/auth/user') ||
       req.originalUrl?.includes('/payments/initialize') ||
+      req.originalUrl?.includes('/payments/history') ||
+      req.originalUrl?.includes('/pharmacies/my-settings') ||
       req.originalUrl?.includes('/onboarding/complete');
 
     // Expired subscription — mark as past_due

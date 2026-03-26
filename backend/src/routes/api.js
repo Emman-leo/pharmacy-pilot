@@ -24,7 +24,7 @@ import * as contactController from '../controllers/contactController.js';
 import * as accountingController from '../controllers/accountingController.js';
 import * as superAdminController from '../controllers/superAdminController.js';
 import { requireSuperAdmin } from '../middleware/superAdminMiddleware.js';
-import { initializePayment, verifyPayment } from '../controllers/paymentsController.js';
+import { getPaymentHistory, initializePayment, verifyPayment } from '../controllers/paymentsController.js';
 import * as onboardingController from '../controllers/onboardingController.js';
 import supplierRoutes from './supplierRoutes.js';
 
@@ -76,6 +76,7 @@ router.post(
 // Pharmacies (list and current pharmacy settings)
 router.get('/pharmacies', authMiddleware, pharmacyController.listPharmacies);
 router.get('/pharmacies/my-settings', authMiddleware, pharmacyController.getMyPharmacySettings);
+router.put('/pharmacies/my-settings', authMiddleware, tierMiddleware, requireRole('ADMIN'), pharmacyController.updateMyPharmacySettings);
 router.get('/pharmacies/staff-count', authMiddleware, tierMiddleware, pharmacyController.getStaffCount);
 
 // Inventory (auth required; ADMIN for create/update drugs)
@@ -86,6 +87,7 @@ router.get('/inventory/active-stock', authMiddleware, inventoryController.getAct
 router.get('/inventory/batches', authMiddleware, inventoryController.getBatches);
 router.post('/inventory/batches', authMiddleware, tierMiddleware, requireRole('ADMIN'), inventoryController.addBatch);
 router.put('/inventory/batches/:id', authMiddleware, tierMiddleware, requireRole('ADMIN'), inventoryController.updateBatch);
+router.delete('/inventory/batches/:id', authMiddleware, tierMiddleware, requireRole('ADMIN'), inventoryController.deleteBatch);
 router.get('/inventory/alerts', authMiddleware, inventoryController.getAlerts);
 router.get('/inventory/tally', authMiddleware, inventoryController.getStockTally);
 
@@ -160,6 +162,12 @@ router.post(
   ...paymentsInitializeValidators,
   validate,
   initializePayment,
+);
+router.get(
+  '/payments/history',
+  authMiddleware,
+  tierMiddleware,
+  getPaymentHistory,
 );
 router.get(
   '/payments/verify/:reference',

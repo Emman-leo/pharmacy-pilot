@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../hooks/useApi';
+import { useAuth } from '../../contexts/AuthContext';
 import Spinner from '../common/Spinner';
 import './BatchForm.css';
 
@@ -17,6 +18,7 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
   const [sellingPrice, setSellingPrice] = useState('');
 
   const api = useApi();
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     Promise.all([
@@ -81,13 +83,13 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
     }
   };
 
-  const handleUpdateQty = async (batchId, newQty) => {
+  const handleUpdateBatch = async (batchId, patch) => {
     try {
-      await api.put(`/inventory/batches/${batchId}`, { quantity: newQty });
+      await api.put(`/inventory/batches/${batchId}`, patch);
       if (drugId) api.get(`/inventory/batches?drug_id=${drugId}`).then(setBatches);
       onStockChanged?.();
     } catch (err) {
-      setError(err.message || 'Failed to update quantity');
+      setError(err.message || 'Failed to update batch');
     }
   };
 
@@ -182,27 +184,107 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
                   <th>Quantity</th>
                   <th>Cost Price</th>
                   <th>Selling Price</th>
+                  {isAdmin && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
                 {batches.map((b) => (
                   <tr key={b.id}>
-                    <td>{b.batch_number || '-'}</td>
-                    <td>{b.expiry_date}</td>
+                    <td>
+                      {isAdmin ? (
+                        <input
+                          type="text"
+                          defaultValue={b.batch_number || ''}
+                          className="qty-input"
+                          onBlur={(e) => handleUpdateBatch(b.id, { batch_number: e.target.value || null })}
+                        />
+                      ) : (
+                        b.batch_number || '-'
+                      )}
+                    </td>
+                    <td>
+                      {isAdmin ? (
+                        <input
+                          type="date"
+                          defaultValue={b.expiry_date || ''}
+                          className="qty-input"
+                          onBlur={(e) => handleUpdateBatch(b.id, { expiry_date: e.target.value || null })}
+                        />
+                      ) : (
+                        b.expiry_date || '-'
+                      )}
+                    </td>
                     <td>
                       <input
                         type="number"
                         min="0"
                         defaultValue={b.quantity}
+                        disabled={!isAdmin}
                         onBlur={(e) => {
                           const v = +e.target.value;
-                          if (v !== b.quantity) handleUpdateQty(b.id, v);
+                          if (Number.isFinite(v) && v !== b.quantity) {
+                            handleUpdateBatch(b.id, { quantity: v });
+                          }
                         }}
                         className="qty-input"
                       />
                     </td>
-                    <td>₵{parseFloat(b.cost_price).toFixed(2)}</td>
-                    <td>₵{parseFloat(b.selling_price).toFixed(2)}</td>
+                    <td>
+                      {isAdmin ? (
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          defaultValue={b.cost_price ?? 0}
+                          className="qty-input"
+                          onBlur={(e) => {
+                            const v = e.target.value;
+                            handleUpdateBatch(b.id, { cost_price: v === '' ? null : v });
+                          }}
+                        />
+                      ) : (
+                        `₵${parseFloat(b.cost_price).toFixed(2)}`
+                      )}
+                    </td>
+                    <td>
+                      {isAdmin ? (
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          defaultValue={b.selling_price ?? 0}
+                          className="qty-input"
+                          onBlur={(e) => {
+                            const v = e.target.value;
+                            handleUpdateBatch(b.id, { selling_price: v === '' ? null : v });
+                          }}
+                        />
+                      ) : (
+                        `₵${parseFloat(b.selling_price).toFixed(2)}`
+                      )}
+                    </td>
+                    {isAdmin && (
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-danger btn-sm"
+                          onClick={() => {
+                            // eslint-disable-next-line no-alert
+                            if (window.confirm('Delete this batch? This cannot be undone.')) {
+                              api
+                                .delete(`/inventory/batches/${b.id}`)
+                                .then(() => {
+                                  if (drugId) api.get(`/inventory/batches?drug_id=${drugId}`).then(setBatches);
+                                  onStockChanged?.();
+                                })
+                                .catch((err) => setError(err.message || 'Failed to delete batch'));
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

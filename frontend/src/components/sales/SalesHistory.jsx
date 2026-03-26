@@ -9,15 +9,36 @@ export default function SalesHistory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const api = useApi();
+  const [search, setSearch] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const loadSales = async ({ search: searchOverride, startDate: startOverride, endDate: endOverride } = {}) => {
+    const effectiveSearch = searchOverride ?? search;
+    const effectiveStart = startOverride ?? startDate;
+    const effectiveEnd = endOverride ?? endDate;
+    setLoading(true);
+    setError('');
+    try {
+      const params = new URLSearchParams();
+      if (effectiveSearch.trim()) params.set('search', effectiveSearch.trim());
+      if (effectiveStart) params.set('start_date', effectiveStart);
+      if (effectiveEnd) params.set('end_date', effectiveEnd);
+
+      const qs = params.toString();
+      const data = await api.get(`/sales/history${qs ? `?${qs}` : ''}`);
+      setSales(data || []);
+    } catch (err) {
+      setError(err.message || 'Failed to load sales history');
+      setSales([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    api.get('/sales/history')
-      .then(setSales)
-      .catch((err) => {
-        setError(err.message || 'Failed to load sales history');
-        setSales([]);
-      })
-      .finally(() => setLoading(false));
+    loadSales();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) return <Spinner label="Loading sales history…" />;
@@ -28,6 +49,43 @@ export default function SalesHistory() {
       <div className="sales-history-header">
         <h1>Sales History</h1>
         <Link to="/app/sales" className="btn btn-primary">New Sale</Link>
+      </div>
+
+      <div className="sales-history-filters">
+        <input
+          type="text"
+          className="sales-history-search"
+          placeholder="Search receipt number or customer..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <input
+          type="date"
+          className="sales-history-date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
+        <input
+          type="date"
+          className="sales-history-date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
+        <button type="button" className="btn btn-primary" onClick={loadSales}>
+          Search
+        </button>
+        <button
+          type="button"
+          className="btn btn-ghost"
+          onClick={() => {
+            setSearch('');
+            setStartDate('');
+            setEndDate('');
+            loadSales({ search: '', startDate: '', endDate: '' });
+          }}
+        >
+          Clear
+        </button>
       </div>
 
       <div className="sales-history-table-container">
