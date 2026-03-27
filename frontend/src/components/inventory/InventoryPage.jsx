@@ -123,16 +123,20 @@ const [view, setView] = useState(initialTab); // all | low | expiry | tally
             className="btn btn-primary"
             onClick={() => setShowAddStock((s) => !s)}
           >
-            {showAddStock ? 'Hide Add Stock' : 'Add Stock'}
+            {showAddStock ? 'Hide Batch Manager' : 'Add / Manage Batches'}
           </button>
         </div>
       </header>
 
+      <p className="inventory-manage-hint">
+        Batch edit/delete is under <strong>Add / Manage Batches</strong>. Select a drug to view and edit its batches.
+      </p>
+
       {showAddStock && (
         <section className="inventory-add-stock">
           <div className="inventory-section-title">
-            <h2>Add Stock</h2>
-            <p>Add new batches and keep stock up to date (FEFO).</p>
+            <h2>Batch Manager</h2>
+            <p>Add new batches, then edit quantity/expiry/prices or delete incorrect batches.</p>
           </div>
           <BatchForm embedded onStockChanged={() => { load(); loadTally(); }} />
         </section>

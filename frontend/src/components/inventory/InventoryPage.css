@@ -24,6 +24,12 @@
   color: #64748b;
 }
 
+.inventory-manage-hint {
+  margin: 0 0 14px;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
 .inventory-header-actions {
   display: flex;
   gap: 10px;

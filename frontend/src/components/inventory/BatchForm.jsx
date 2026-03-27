@@ -170,6 +170,12 @@ export default function BatchForm({ embedded = false, onStockChanged } = {}) {
         <button type="submit" className="btn btn-primary">Add Batch</button>
       </form>
 
+      {!drugId && (
+        <p className="batch-manage-hint">
+          Select a drug above to view and manage its existing batches.
+        </p>
+      )}
+
       {drugId && (
         <div className="batch-list">
           <h2>Current Batches (FEFO order)</h2>

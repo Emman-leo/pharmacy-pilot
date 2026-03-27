@@ -29,6 +29,12 @@
   margin-top: 16px;
 }
 
+.batch-manage-hint {
+  margin: 0 0 16px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
 .batch-list h2 {
   margin: 24px 0 16px;
   font-size: 1.1rem;
