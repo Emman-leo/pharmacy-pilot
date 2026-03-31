@@ -34,13 +34,16 @@ export default function Header({ onMenuClick, sidebarOpen }) {
       </button>
       <h1 className="header-title">Pharmacy Pilot</h1>
       <div className="header-user">
-        {profile?.pharmacy?.name && (
-          <span className="header-pharmacy" title={profile.pharmacy.address || profile.pharmacy.name}>
-            {profile.pharmacy.name}
-          </span>
-        )}
-        <span>{profile?.full_name || user?.email}</span>
-        <span className="header-role">{profile?.role || 'STAFF'}</span>
+        <div className="header-identity">
+          <div className="header-identity-main">
+            {profile?.pharmacy?.name || 'Pharmacy'}
+          </div>
+          <div className="header-identity-sub">
+            {(profile?.full_name || user?.email || '').trim() || 'User'}
+            {' · '}
+            {(profile?.role || 'STAFF').toUpperCase()}
+          </div>
+        </div>
         <button onClick={handleLogout} className="btn btn-ghost">Logout</button>
       </div>
     </header>
