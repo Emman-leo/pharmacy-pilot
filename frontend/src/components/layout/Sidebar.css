@@ -63,9 +63,12 @@
 }
 
 .sidebar-icon {
-  font-size: 1.1rem;
-  width: 1.4rem;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  flex-shrink: 0;
+  color: inherit;
 }
 
 @media (max-width: 768px) {

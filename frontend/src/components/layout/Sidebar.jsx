@@ -1,24 +1,31 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTier } from '../../hooks/useTier';
+import {
+  LayoutDashboard, Package, Pill, AlertTriangle, Truck,
+  ShoppingCart, ClipboardList, BarChart2, DollarSign,
+  Lock, TrendingUp, Search, Settings, ChevronRight
+} from 'lucide-react';
 import './Sidebar.css';
 
-// Pharmacy navigation (existing behavior)
+const ICON_SIZE = 17;
+const ICON_STROKE = 1.75;
+
 function PharmacyNav({ onClose, isAdmin, can }) {
   const navItems = [
-    { to: '/app',                  label: 'Dashboard',          icon: '🏠', end: true },
-    { to: '/app/inventory',        label: 'Inventory',           icon: '📦', end: true },
-    { to: '/app/inventory/drugs',  label: 'Drugs',               icon: '💊', nested: true, end: true },
-    { to: '/app/inventory/alerts', label: 'Alerts',              icon: '⚠️', nested: true, end: true },
-    { to: '/app/inventory/suppliers', label: 'Suppliers', icon: '🏭', nested: true, end: true },
-    { to: '/app/sales',            label: 'Point of Sale',       icon: '🧾', end: true },
-    { to: '/app/sales/history',    label: 'Sales History',       icon: '📋', end: true },
-    { to: '/app/reports',          label: 'Reports & Analytics', icon: '📊', end: true },
-    { to: '/app/accounting/expenses',    label: 'Expenses',     icon: '💸', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting' },
-    { to: '/app/accounting/daily-close', label: 'Daily Close',  icon: '🔒', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting', adminOnly: true },
-    { to: '/app/accounting/pl',          label: 'P&L',          icon: '📈', nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting' },
-    { to: '/app/admin/audit-log',  label: 'Audit Log',           icon: '🔍', adminOnly: true, feature: 'auditLog', end: true },
-    { to: '/app/settings',        label: 'Settings',            icon: '⚙️', adminOnly: true, end: true },
+    { to: '/app',                        label: 'Dashboard',          icon: <LayoutDashboard size={ICON_SIZE} strokeWidth={ICON_STROKE} />, end: true },
+    { to: '/app/inventory',              label: 'Inventory',           icon: <Package         size={ICON_SIZE} strokeWidth={ICON_STROKE} />, end: true },
+    { to: '/app/inventory/drugs',        label: 'Drugs',               icon: <Pill            size={ICON_SIZE} strokeWidth={ICON_STROKE} />, nested: true, end: true },
+    { to: '/app/inventory/alerts',       label: 'Alerts',              icon: <AlertTriangle   size={ICON_SIZE} strokeWidth={ICON_STROKE} />, nested: true, end: true },
+    { to: '/app/inventory/suppliers',    label: 'Suppliers',           icon: <Truck           size={ICON_SIZE} strokeWidth={ICON_STROKE} />, nested: true, end: true },
+    { to: '/app/sales',                  label: 'Point of Sale',       icon: <ShoppingCart    size={ICON_SIZE} strokeWidth={ICON_STROKE} />, end: true },
+    { to: '/app/sales/history',          label: 'Sales History',       icon: <ClipboardList   size={ICON_SIZE} strokeWidth={ICON_STROKE} />, end: true },
+    { to: '/app/reports',                label: 'Reports & Analytics', icon: <BarChart2       size={ICON_SIZE} strokeWidth={ICON_STROKE} />, end: true },
+    { to: '/app/accounting/expenses',    label: 'Expenses',            icon: <DollarSign      size={ICON_SIZE} strokeWidth={ICON_STROKE} />, nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting' },
+    { to: '/app/accounting/daily-close', label: 'Daily Close',        icon: <Lock            size={ICON_SIZE} strokeWidth={ICON_STROKE} />, nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting', adminOnly: true },
+    { to: '/app/accounting/pl',          label: 'P&L',                 icon: <TrendingUp      size={ICON_SIZE} strokeWidth={ICON_STROKE} />, nested: true, end: true, group: 'ACCOUNTING', feature: 'accounting' },
+    { to: '/app/admin/audit-log',        label: 'Audit Log',           icon: <Search          size={ICON_SIZE} strokeWidth={ICON_STROKE} />, adminOnly: true, feature: 'auditLog', end: true },
+    { to: '/app/settings',              label: 'Settings',             icon: <Settings        size={ICON_SIZE} strokeWidth={ICON_STROKE} />, adminOnly: true, end: true },
   ];
 
   const items = navItems.filter((i) => {
@@ -26,13 +33,10 @@ function PharmacyNav({ onClose, isAdmin, can }) {
     if (i.feature && !can(i.feature)) return false;
     return true;
   });
-  
-  const renderNavItems = () => {
-    const elements = [];
-    let lastGroup = null;
-    
-    items.forEach(({ to, label, icon, end, nested }) => {
-      elements.push(
+
+  return (
+    <>
+      {items.map(({ to, label, icon, end, nested }) => (
         <NavLink
           key={to}
           to={to}
@@ -43,24 +47,19 @@ function PharmacyNav({ onClose, isAdmin, can }) {
           }}
           onClick={onClose}
         >
-          <span className="sidebar-icon" aria-hidden>{icon}</span>
+          <span className="sidebar-icon" aria-hidden="true">{icon}</span>
           <span>{label}</span>
         </NavLink>
-      );
-    });
-    
-    return elements;
-  };
-
-  return <>{renderNavItems()}</>;
+      ))}
+    </>
+  );
 }
 
-// Super admin navigation
 function SuperAdminNav({ onClose }) {
   const navItems = [
-    { to: '/super-admin',         label: 'Overview',    icon: '📊', end: true },
-    { to: '/super-admin/pharmacies', label: 'Pharmacies',  icon: '🏥', end: true },
-    { to: '/super-admin/users',      label: 'All Users',   icon: '👥', end: true },
+    { to: '/super-admin',              label: 'Overview',    icon: <BarChart2       size={ICON_SIZE} strokeWidth={ICON_STROKE} />, end: true },
+    { to: '/super-admin/pharmacies',   label: 'Pharmacies',  icon: <Package         size={ICON_SIZE} strokeWidth={ICON_STROKE} />, end: true },
+    { to: '/super-admin/users',        label: 'All Users',   icon: <ClipboardList   size={ICON_SIZE} strokeWidth={ICON_STROKE} />, end: true },
   ];
 
   return (
@@ -73,7 +72,7 @@ function SuperAdminNav({ onClose }) {
           className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
           onClick={onClose}
         >
-          <span className="sidebar-icon" aria-hidden>{icon}</span>
+          <span className="sidebar-icon" aria-hidden="true">{icon}</span>
           <span>{label}</span>
         </NavLink>
       ))}
@@ -84,7 +83,7 @@ function SuperAdminNav({ onClose }) {
 export default function Sidebar({ isOpen, onClose }) {
   const { profile, isAdmin } = useAuth();
   const { can } = useTier();
-  
+
   const isSuperAdmin = !profile?.pharmacy_id;
 
   return (
