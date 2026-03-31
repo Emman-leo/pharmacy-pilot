@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Wallet, Smartphone } from 'lucide-react';
 import './Cart.css';
 
 export default function Cart({ cart, estimate = {}, onUpdateQty, onRemove, customerName, onCustomerChange, discount, onDiscountChange, onCheckout, checkingOut, paymentMethod, onPaymentMethodChange }) {
@@ -106,14 +107,16 @@ export default function Cart({ cart, estimate = {}, onUpdateQty, onRemove, custo
             className={`cart-payment-btn ${paymentMethod === 'cash' ? 'active' : ''}`}
             onClick={() => onPaymentMethodChange('cash')}
           >
-            💵 Cash
+            <Wallet className="cart-payment-icon" size={16} />
+            <span>Cash</span>
           </button>
           <button
             type="button"
             className={`cart-payment-btn ${paymentMethod === 'momo' ? 'active' : ''}`}
             onClick={() => onPaymentMethodChange('momo')}
           >
-            📱 MoMo
+            <Smartphone className="cart-payment-icon" size={16} />
+            <span>MoMo</span>
           </button>
         </div>
       </div>
